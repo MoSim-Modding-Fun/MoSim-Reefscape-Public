@@ -36,7 +36,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
         [SerializeField] private ReefscapeGamePieceIntake coralIntake;
         
         [Header("Game Piece States")]        
-        [SerializeField] private GamePieceState coralTransferState1, coralStowState;
+        [SerializeField] private GamePieceState funnelCoralState, coralTransferState1, coralStowState;
         
         [Header("Animation Wheels")]
         [SerializeField] private GenericAnimationJoint[] endEffectorWheels;
@@ -150,6 +150,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                     break;
                 
                 case ReefscapeSetpoints.Intake:
+                    if (!hasCoral) _coralController.SetTargetState(funnelCoralState);
                     SetSetpoint(intake);
                     break;
                 
@@ -357,7 +358,11 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
         private void AnimateCoralHandoff()
         {
             if (!AtSetpoint(stow)) return;
-            
+
+            if (CoralAtState(funnelCoralState))
+            {
+                _coralController.SetTargetState(coralTransferState1);
+            }
             if (CoralAtState(coralTransferState1))
             {
                 _coralController.SetTargetState(coralStowState);
