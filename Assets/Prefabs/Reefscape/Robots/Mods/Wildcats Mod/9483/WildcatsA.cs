@@ -20,14 +20,10 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
         
         [Header("Components")]        
         [SerializeField] private GenericElevator elevator;
-        [SerializeField] private GenericJoint intakePivot, climber, climberJointLeft, climberJointRight, algaeDescore;
+        [SerializeField] private GenericJoint climber, climberJointLeft, climberJointRight, algaeDescore;
         
         [Header("PIDS")]        
-        [SerializeField] private PidConstants intakePivotPID, climberPID, climberJointLeftPID, climberJointRightPID, algaeDescorePID;
-        
-        [Header("Intake Things")]        
-        [SerializeField] private GenericRoller topRoller, leftRoller, rightRoller;
-        [SerializeField] private Transform leftSensor, rightSensor;
+        [SerializeField] private PidConstants climberPID, climberJointLeftPID, climberJointRightPID, algaeDescorePID;
 
         [Header("Setpoints")]        
         [SerializeField] private WildcatsSetpoint stow, intake, l1, l2, l3, l4;
@@ -40,11 +36,11 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
         [SerializeField] private ReefscapeGamePieceIntake coralIntake;
         
         [Header("Game Piece States")]        
-        [SerializeField] private GamePieceState coralIntakeState, coralTransferState1, coralTransferState2, coralTransferState3, coralTransferState4, coralStowState;
+        [SerializeField] private GamePieceState coralTransferState1, coralStowState;
         
         [Header("Animation Wheels")]
-        [SerializeField] private GenericAnimationJoint[] intakeWheels, endEffectorWheels;
-        [SerializeField] private float intakeWheelSpeeds, endEffectorWheelsSpeeds;
+        [SerializeField] private GenericAnimationJoint[] endEffectorWheels;
+        [SerializeField] private float endEffectorWheelsSpeeds;
         
         [Header("Robot Audio")]        
         [SerializeField] private AudioSource rollerSource;
@@ -58,7 +54,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
         
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _coralController;
 
-        private float _elevatorTargetHeight, _intakeTargetAngle, _climberTargetAngle, _climberLeftPincerTarget, _climberRightPincerTarget, _algaeDescoreTargetAngle;
+        private float _elevatorTargetHeight, _climberTargetAngle, _climberLeftPincerTarget, _climberRightPincerTarget, _algaeDescoreTargetAngle;
 
         private LayerMask coralMask;
         private bool canClack;
@@ -71,14 +67,12 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
         {
             base.Start();
             
-            intakePivot.SetPid(intakePivotPID);
             climber.SetPid(climberPID);
             climberJointLeft.SetPid(climberJointLeftPID);
             climberJointRight.SetPid(climberJointRightPID);
             algaeDescore.SetPid(algaeDescorePID);
 
             _elevatorTargetHeight = stow.elevatorHeight;
-            _intakeTargetAngle = stow.intakeAngle;
             _climberTargetAngle = climbStow.elevatorAngle;
             _climberLeftPincerTarget = climbStow.leftPincerAngle;
             _climberRightPincerTarget = climbStow.rightPincerAngle;
@@ -89,12 +83,8 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
 
             _coralController.gamePieceStates = new[]
             {
-                coralStowState,
                 coralTransferState1,
-                coralTransferState2,
-                coralTransferState3,
-                coralTransferState4,
-                coralIntakeState
+                coralStowState
             };
             _coralController.intakes.Add(coralIntake);
             
@@ -114,7 +104,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
 
         private void LateUpdate()
         {
-            intakePivot.UpdatePid(intakePivotPID);
             climber.UpdatePid(climberPID);
             climberJointLeft.UpdatePid(climberJointLeftPID);
             climberJointRight.UpdatePid(climberJointRightPID);
@@ -125,13 +114,11 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
         {
             AutoAlignLogic();
             
-            bool hasCoral = _coralController.HasPiece();
-            bool eeHasCoral = _coralController.currentStateNum == coralStowState.stateNum && _coralController.atTarget;
-            bool intakeHasCoral = _coralController.currentStateNum == coralIntakeState.stateNum && _coralController.atTarget;
+            bool hasCoral = _coralController.atTarget;
             
-            _coralController.RequestIntake(coralIntake, SuperstructureAtSetpoint(intake) && IntakeAction.IsPressed() && !hasCoral);
+            _coralController.RequestIntake(coralIntake, AtSetpoint(intake) && IntakeAction.IsPressed() && !hasCoral);
             
-            if (eeHasCoral)
+            if (hasCoral)
             {
                 switch (CurrentSetpoint)
                 {
@@ -163,10 +150,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                     break;
                 
                 case ReefscapeSetpoints.Intake:
-                    if (!hasCoral) _coralController.SetTargetState(coralIntakeState);
-                    if (hasCoral && (!eeHasCoral && !intakeHasCoral)) break;
                     SetSetpoint(intake);
-                    SetIntakeWheels(_coralController.atTarget ? 0 : intakeWheelSpeeds * 2);
                     break;
                 
                 case ReefscapeSetpoints.LowAlgae: 
@@ -183,7 +167,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                 
                 case ReefscapeSetpoints.Climb: 
                     SetSetpoint(intake); 
-                    SetClimberAngle(SuperstructureAtSetpoint(intake) ? prep : climbStow); 
+                    SetClimberAngle(AtSetpoint(intake) ? prep : climbStow); 
                     break;
                 
                 case ReefscapeSetpoints.Climbed: 
@@ -220,28 +204,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                 SetClimberAngle(climbStow);
             }
             
-            _coralController.MoveIntake(coralIntake, coralIntakeState.stateTarget);
-            if (!leftRoller.gameObject.activeSelf)
-            {
-                leftRoller.gameObject.SetActive(true);
-                rightRoller.gameObject.SetActive(true);
-            }
-
-            var rayDirection = coralIntakeState.stateTarget.forward;
-            var distance = 0.0254f * 5f;
-            var coralMask = LayerMask.GetMask("Coral");
-            var coralRight = Physics.Raycast(rightSensor.position, rayDirection, distance, coralMask);
-            var coralLeft = Physics.Raycast(leftSensor.position, rayDirection, distance, coralMask);
-
-            if (IntakeAction.IsPressed() && CurrentSetpoint != ReefscapeSetpoints.LowAlgae && CurrentSetpoint != ReefscapeSetpoints.HighAlgae)
-            {
-                if (coralRight && coralLeft)
-                {
-                    leftRoller.ChangeAngularVelocity(8000);
-                    rightRoller.ChangeAngularVelocity(8000);
-                }
-            }
-            
             UpdateSetpoints();
             UpdateAudio();
         }
@@ -251,7 +213,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
         private void SetSetpoint(WildcatsSetpoint setpoint)
         {
             _elevatorTargetHeight = setpoint.elevatorHeight;
-            _intakeTargetAngle = setpoint.intakeAngle;
         }
 
         private void SetClimberAngle(WildcatsClimbSetpoint setpoint)
@@ -265,14 +226,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
         {
             _algaeDescoreTargetAngle = algaeDescoreAngle;
         }
-
-        private void SetIntakeWheels(float speed)
-        {
-            foreach (var roller in intakeWheels)
-            {
-                roller.VelocityRoller(speed);
-            }
-        }
         
         private void SetEndEffectorWheels(float speed)
         {
@@ -285,7 +238,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
         private void UpdateSetpoints()
         {
             elevator.SetTarget(_elevatorTargetHeight);
-            intakePivot.SetTargetAngle(_intakeTargetAngle).withAxis(JointAxis.X);
             climber.SetTargetAngle(_climberTargetAngle).withAxis(JointAxis.X).noWrap(-90);
             climberJointLeft.SetTargetAngle(_climberLeftPincerTarget).withAxis(JointAxis.Y).noWrap(90);
             climberJointRight.SetTargetAngle(_climberRightPincerTarget).withAxis(JointAxis.Y).noWrap(-90);
@@ -303,42 +255,18 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
             return _coralController.atTarget && _coralController.currentStateNum == state.stateNum;
         }
 
-        private bool ElevatorAtSetpoint(WildcatsSetpoint targetSetpoint)
+        private bool AtSetpoint(WildcatsSetpoint targetSetpoint)
         {
             bool elevatorAtSetpoint = Utils.InRange(elevator.GetElevatorHeight(), targetSetpoint.elevatorHeight, 2f);
 
             return elevatorAtSetpoint;
         }
-        
-        private bool IntakeAtSetpoint(WildcatsSetpoint targetSetpoint)
-        {
-            bool intakeAtSetpoint = Utils.InAngularRange(intakePivot.GetSingleAxisAngle(JointAxis.X), targetSetpoint.intakeAngle, 2f);
 
-            return intakeAtSetpoint;
-        }
-
-        private bool SuperstructureAtSetpoint(WildcatsSetpoint targetSetpoint)
-        {
-            return IntakeAtSetpoint(targetSetpoint) && ElevatorAtSetpoint(targetSetpoint);
-        }
-
-        private bool ElevatorAtSetpoint()
+        private bool AtSetpoint()
         {
             bool elevatorAtSetpoint = Utils.InRange(elevator.GetElevatorHeight(), _elevatorTargetHeight, 2f);
 
             return elevatorAtSetpoint;
-        }
-        
-        private bool IntakeAtSetpoint()
-        {
-            bool intakeAtSetpoint = Utils.InAngularRange(intakePivot.GetSingleAxisAngle(JointAxis.X), _intakeTargetAngle, 2f);
-
-            return intakeAtSetpoint;
-        }
-
-        private bool SuperstructureAtSetpoint()
-        {
-            return IntakeAtSetpoint() && ElevatorAtSetpoint();
         }
         
         private void UpdateAudio()
@@ -410,7 +338,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
 
         private void PlacePiece()
         {
-            if (!IsCoralSetpoint() || !SuperstructureAtSetpoint(GetCurrentCoralSetpointSetpoint()) || !CoralAtState(coralStowState)) return;
+            if (!IsCoralSetpoint() || !AtSetpoint(GetCurrentCoralSetpointSetpoint()) || !CoralAtState(coralStowState)) return;
 
             if (LastSetpoint == ReefscapeSetpoints.L4)
             {
@@ -428,37 +356,15 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
 
         private void AnimateCoralHandoff()
         {
-            if (!SuperstructureAtSetpoint(stow)) return;
+            if (!AtSetpoint(stow)) return;
             
-            if (CoralAtState(coralIntakeState))
-            {
-                _coralController.SetTargetState(coralTransferState1);
-            } 
-            else if (CoralAtState(coralTransferState1))
-            {
-                _coralController.SetTargetState(coralTransferState2);
-            } 
-            else if (CoralAtState(coralTransferState2))
-            {
-                _coralController.SetTargetState(coralTransferState3);
-            } 
-            else if (CoralAtState(coralTransferState3))
-            {
-                _coralController.SetTargetState(coralTransferState4);
-            } 
-            else if (CoralAtState(coralTransferState4))
+            if (CoralAtState(coralTransferState1))
             {
                 _coralController.SetTargetState(coralStowState);
             }
 
-            if (CoralAtState(coralStowState))
+            if (AtSetpoint(stow) && _coralController.HasPiece() && !CoralAtState(coralStowState))
             {
-                SetIntakeWheels(0);
-            }
-            else if (SuperstructureAtSetpoint(stow) && _coralController.HasPiece())
-            {
-                if (_coralController.HasPiece()) SetIntakeWheels(-1 * intakeWheelSpeeds);
-
                 if (_coralController.currentStateNum != coralStowState.stateNum)
                 {
                     SetEndEffectorWheels(endEffectorWheelsSpeeds);
