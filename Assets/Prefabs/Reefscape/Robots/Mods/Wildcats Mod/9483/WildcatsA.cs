@@ -357,18 +357,24 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
 
         private void AnimateCoralHandoff()
         {
-            if (!AtSetpoint(stow)) return;
+            if (!AtSetpoint(intake)) return;
 
             if (CoralAtState(funnelCoralState))
             {
                 _coralController.SetTargetState(coralTransferState1);
             }
-            if (CoralAtState(coralTransferState1))
+            else if (CoralAtState(coralTransferState1))
             {
                 _coralController.SetTargetState(coralStowState);
             }
+            else
+            {
+                _coralController.SetTargetState(funnelCoralState);
+            }
+            
+            
 
-            if (AtSetpoint(stow) && _coralController.HasPiece() && !CoralAtState(coralStowState))
+            if (AtSetpoint(intake) && !CoralAtState(coralStowState))
             {
                 if (_coralController.currentStateNum != coralStowState.stateNum)
                 {
