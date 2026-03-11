@@ -7468,7 +7468,7 @@ MonoBehaviour:
   pieceName: 
   intakeSpeed: 80
   intakeForce: 20
-  usePlanarTolerancing: 0
+  usePlanarTolerancing: 1
   boxExtents: {x: 6, y: 6, z: 10}
   maxDistance: 2
   accuracy: 1

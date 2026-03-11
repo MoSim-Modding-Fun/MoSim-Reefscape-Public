@@ -116,7 +116,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
             
             bool hasCoral = _coralController.atTarget;
             
-            _coralController.RequestIntake(coralIntake, AtSetpoint(intake) && IntakeAction.IsPressed() && !hasCoral);
+            _coralController.RequestIntake(coralIntake, AtSetpoint(intake) && !hasCoral);
             
             if (hasCoral)
             {
@@ -140,8 +140,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                 }
             }
             
-            AnimateCoralHandoff();
-            
             switch (CurrentSetpoint)
             {
                 case ReefscapeSetpoints.Stow: 
@@ -150,7 +148,10 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                     break;
                 
                 case ReefscapeSetpoints.Intake:
-                    if (!hasCoral) _coralController.SetTargetState(funnelCoralState);
+                    if (!hasCoral)
+                    {
+                        _coralController.SetTargetState(funnelCoralState);
+                    }
                     SetSetpoint(intake);
                     break;
                 
@@ -206,6 +207,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
             }
             
             UpdateSetpoints();
+            AnimateCoralHandoff();
             UpdateAudio();
         }
 
@@ -344,6 +346,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
             if (LastSetpoint == ReefscapeSetpoints.L4)
             {
                 _coralController.ReleaseGamePieceWithContinuedForce(new Vector3(0, 0, 4), 0.35f, 0.6f);
+                _coralController.SetTargetState(funnelCoralState);
                 return;
             }
             else if (LastSetpoint == ReefscapeSetpoints.L1)
@@ -353,12 +356,25 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                 return;
             }
             _coralController.ReleaseGamePieceWithForce(new Vector3(0, 0, 3));
+            _coralController.SetTargetState(funnelCoralState);
         }
 
         private void AnimateCoralHandoff()
         {
+            if (AtSetpoint(intake) && !CoralAtState(coralStowState))
+            {
+                if (_coralController.currentStateNum != coralStowState.stateNum)
+                {
+                    SetEndEffectorWheels(endEffectorWheelsSpeeds);
+                }
+                else
+                {
+                    SetEndEffectorWheels(-endEffectorWheelsSpeeds);
+                }
+            }
+            
             if (!AtSetpoint(intake)) return;
-
+            
             if (CoralAtState(funnelCoralState))
             {
                 _coralController.SetTargetState(coralTransferState1);
@@ -372,19 +388,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                 _coralController.SetTargetState(funnelCoralState);
             }
             
-            
-
-            if (AtSetpoint(intake) && !CoralAtState(coralStowState))
-            {
-                if (_coralController.currentStateNum != coralStowState.stateNum)
-                {
-                    SetEndEffectorWheels(endEffectorWheelsSpeeds);
-                }
-                else
-                {
-                    SetEndEffectorWheels(-endEffectorWheelsSpeeds);
-                }
-            }
         }
 
         private void AutoAlignLogic()
