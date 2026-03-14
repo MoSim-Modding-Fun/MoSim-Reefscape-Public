@@ -18543,7 +18543,7 @@ MonoBehaviour:
     smoothHandoff: 0
     angularSpeed: 30
   coralTransferState1:
-    name: Coral Transfer State 1
+    name: Coral Transfer State
     stateNum: 2
     stateMoveSpeed: 100
     stateTarget: {fileID: 4146036060608801597}
@@ -39679,7 +39679,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4146036060608801597}
   m_Layer: 6
-  m_Name: Coral Transfer State 1
+  m_Name: Coral Transfer State
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

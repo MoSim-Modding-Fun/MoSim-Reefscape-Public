@@ -6,6 +6,7 @@ using MoSimCore.Enums;
 using MoSimLib;
 using Prefabs.Reefscape.Robots.Mods.Wildcats._9483;
 using RobotFramework.Components;
+using RobotFramework.Controllers.Drivetrain;
 using RobotFramework.Controllers.GamePieceSystem;
 using RobotFramework.Controllers.PidSystems;
 using RobotFramework.Enums;
@@ -183,7 +184,15 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                 
                 case ReefscapeSetpoints.RobotSpecial: 
                     SetAlgaeDescoreAngle(0); 
-                    SetState(ReefscapeSetpoints.Stow); 
+                    if (_coralController.currentStateNum == funnelCoralState.stateNum)
+                    {
+                        _coralController.SetTargetState(coralStowState);
+                    }
+                    else
+                    {
+                        _coralController.SetTargetState(funnelCoralState);
+                    }
+                    SetState(ReefscapeSetpoints.Stow);
                     break;
                 case ReefscapeSetpoints.Processor: 
                     SetAlgaeDescoreAngle(0); 
@@ -203,6 +212,11 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                 LastSetpoint != ReefscapeSetpoints.Climb && LastSetpoint != ReefscapeSetpoints.Climbed)
             {
                 SetClimberAngle(climbStow);
+                DriveController.SetDriveMp(1);
+            }
+            else
+            {
+                DriveController.SetDriveMp(0.5f);;
             }
             
             UpdateSetpoints();
@@ -339,9 +353,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
 
         private void PlacePiece()
         {
-            if (!IsCoralSetpoint() || !AtSetpoint(GetCurrentCoralSetpointSetpoint()) || !CoralAtState(coralStowState)) return;
-
-            _coralController.SetTargetState(funnelCoralState);
+            // if (!IsCoralSetpoint() || !AtSetpoint(GetCurrentCoralSetpointSetpoint()) || !CoralAtState(coralStowState)) return;
 
             if (LastSetpoint == ReefscapeSetpoints.L4)
             {
@@ -359,6 +371,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
 
         private void AnimateCoralHandoff()
         {
+            return;
             if (AtSetpoint(intake) && !CoralAtState(coralStowState))
             {
                 if (_coralController.currentStateNum != coralStowState.stateNum)
@@ -370,7 +383,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                     SetEndEffectorWheels(-endEffectorWheelsSpeeds);
                 }
             }
-            
+            /*
             if (CoralAtState(funnelCoralState))
             {
                 _coralController.SetTargetState(coralTransferState1);
@@ -380,9 +393,9 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                 _coralController.SetTargetState(coralStowState);
             }
             else
-            {
+            {*/
                 _coralController.SetTargetState(funnelCoralState);
-            }
+            //}
             
         }
 

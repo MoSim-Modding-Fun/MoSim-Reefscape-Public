@@ -218,6 +218,11 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                 LastSetpoint != ReefscapeSetpoints.Climb && LastSetpoint != ReefscapeSetpoints.Climbed)
             {
                 SetClimberAngle(climbStow);
+                DriveController.SetDriveMp(1);
+            }
+            else
+            {
+                DriveController.SetDriveMp(0.5f);
             }
             
             _coralController.MoveIntake(coralIntake, coralIntakeState.stateTarget);
