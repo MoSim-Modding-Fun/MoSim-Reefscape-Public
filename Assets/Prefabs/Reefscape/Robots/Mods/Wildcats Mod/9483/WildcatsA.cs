@@ -186,9 +186,9 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                     if (OuttakeAction.IsPressed()) SetEndEffectorWheels(endEffectorWheelsSpeeds); else SetEndEffectorWheels(0);
                     break;
                 
-                case ReefscapeSetpoints.RobotSpecial: 
-                    SetAlgaeDescoreAngle(0); 
-                    SetState(ReefscapeSetpoints.Stow); 
+                case ReefscapeSetpoints.RobotSpecial:
+                    CurrentCoralStationMode.RequireIntaking = !CurrentCoralStationMode.RequireIntaking;
+                    SetState(ReefscapeSetpoints.Stow);
                     break;
                 case ReefscapeSetpoints.Processor: 
                     SetAlgaeDescoreAngle(0); 
