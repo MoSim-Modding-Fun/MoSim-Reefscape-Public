@@ -27,9 +27,12 @@ MonoBehaviour:
     type: 3}
   robotImage: {fileID: 21300000, guid: ab558c97c6b0fde478e0c18addd8d8e0, type: 3}
   tutorialCards:
-  - {fileID: 6829736770845459078, guid: 82c9aeba2163f3a40875a3c3f9d16ee5, type: 3}
-  - {fileID: 6829736770845459078, guid: 6d88ef0a051098f4c9f966c7bf817596, type: 3}
-  - {fileID: 6829736770845459078, guid: 9d404ab9e4d805b40bc1177cab1a1dab, type: 3}
-  alternateTutorialCards: []
+  - {fileID: 6829736770845459078, guid: 6de19e85585ec494aaaed4d3ecef125a, type: 3}
+  - {fileID: 6829736770845459078, guid: ca5ad27d2d0deec4ba32f3c349633dc4, type: 3}
+  - {fileID: 6829736770845459078, guid: a8ecaa0dec9707148bb9d92d60dbcd03, type: 3}
+  alternateTutorialCards:
+  - {fileID: 6829736770845459078, guid: cadc4376e7b7f05428ca9c45c6c53a7a, type: 3}
+  - {fileID: 6829736770845459078, guid: a57ebc9dfcf618a498cca8118f511cb0, type: 3}
+  - {fileID: 6829736770845459078, guid: e2f0905ef7a7de347aff5e768641d16b, type: 3}
   autoClimbs: 0
   alternateAutoClimbs: 0
