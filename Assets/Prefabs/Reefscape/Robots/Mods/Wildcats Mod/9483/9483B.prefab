@@ -20212,16 +20212,16 @@ MonoBehaviour:
     Max: 2
     Isaturation: 0
   climberJointLeftPID:
-    kP: 2
+    kP: 3
     kI: 0
     kD: 0
-    Max: 5
+    Max: 14
     Isaturation: 0
   climberJointRightPID:
-    kP: 2
+    kP: 3
     kI: 0
     kD: 0
-    Max: 6
+    Max: 15
     Isaturation: 0
   algaeDescorePID:
     kP: 0.25

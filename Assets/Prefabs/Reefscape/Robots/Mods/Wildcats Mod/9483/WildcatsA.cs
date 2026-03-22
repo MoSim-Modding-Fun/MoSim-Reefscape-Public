@@ -292,17 +292,23 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                 return;
             }
 
-            if (((IntakeAction.IsPressed() && !_coralController.HasPiece() && !_coralController.HasPiece()) ||
-                 OuttakeAction.IsPressed()) &&
+            if (CurrentSetpoint == ReefscapeSetpoints.Climbed || CurrentSetpoint == ReefscapeSetpoints.Climb)
+            {
+                rollerSource.Stop();
+                return;
+            }
+
+            if ((((AtSetpoint(intake) && !_coralController.HasPiece()) ||
+                 (OuttakeAction.IsPressed() && !AtSetpoint(stow))) || (_coralController.HasPiece() && !CoralAtState(coralStowState))) &&
                 !rollerSource.isPlaying)
             {
                 rollerSource.Play();
             }
-            else if (!IntakeAction.IsPressed() && !OuttakeAction.IsPressed() && rollerSource.isPlaying)
+            else if ((!AtSetpoint(intake) && (!_coralController.HasPiece() || CoralAtState(coralStowState))) && !OuttakeAction.IsPressed() && rollerSource.isPlaying )
             {
                 rollerSource.Stop();
             }
-            else if (IntakeAction.IsPressed() && (_coralController.HasPiece()))
+            else if (AtSetpoint(intake) && (CoralAtState(coralStowState)))
             {
                 rollerSource.Stop();
             }
