@@ -184,15 +184,13 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                     break;
             }
 
-            if (CurrentSetpoint != ReefscapeSetpoints.Climb && CurrentSetpoint != ReefscapeSetpoints.Climbed &&
-                LastSetpoint != ReefscapeSetpoints.Climb && LastSetpoint != ReefscapeSetpoints.Climbed)
+            if (CurrentSetpoint == ReefscapeSetpoints.Climb || CurrentSetpoint == ReefscapeSetpoints.Climbed)
             {
-                SetClimberAngle(climbStow);
-                DriveController.SetDriveMp(1);
+                DriveController.SetDriveMp(0.5f);;
             }
             else
             {
-                DriveController.SetDriveMp(0.5f);
+                DriveController.SetDriveMp(1);
             }
 
             _coralController.MoveIntake(coralIntake, coralIntakeState.stateTarget);
