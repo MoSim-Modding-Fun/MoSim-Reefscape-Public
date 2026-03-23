@@ -18662,7 +18662,7 @@ MonoBehaviour:
   - {fileID: 7305385813661109810}
   endEffectorWheelsSpeeds: 450
   rollerSource: {fileID: 3662313432753184644}
-  intakeClip: {fileID: 8300000, guid: 4eb18a7861cc9644fa42e1e3a54db8be, type: 3}
+  intakeClip: {fileID: 8300000, guid: 9378423fe1c50f0419b9380e03b4ef96, type: 3}
   funnelCloseSource: {fileID: 5206031538912189971}
   funnelCloseAudio: {fileID: 8300000, guid: dee82b1bfecf40247ab259a0f4ddeb06, type: 3}
   coralTrigger: {fileID: 1573750632558811288}

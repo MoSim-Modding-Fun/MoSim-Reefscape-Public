@@ -310,25 +310,44 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
             // General Intake Audio
             if (IntakeAction.IsPressed() && !_coralController.HasPiece() && !rollerSource.isPlaying)
             {
-                rollerSource.Play();
+                if (!rollerSource.isPlaying) rollerSource.Play();
+            }
+            else if (_coralController.HasPiece())
+            {
+                if (CoralAtState(coralStowState) || CoralAtState(coralIntakeState))
+                {
+                    if (rollerSource.isPlaying) rollerSource.Stop();
+                }
+                else if (SuperstructureAtSetpoint(stow) && !rollerSource.isPlaying)
+                {
+                    if (!rollerSource.isPlaying) rollerSource.Play();
+                }
+                else if (!SuperstructureAtSetpoint())
+                {
+                    if (rollerSource.isPlaying) rollerSource.Stop();
+                }
             }
             else if (!IntakeAction.IsPressed() && rollerSource.isPlaying)
             {
-                rollerSource.Stop();
-            }
-            else if (IntakeAction.IsPressed() && _coralController.HasPiece())
-            {
-                rollerSource.Stop();
+                if (rollerSource.isPlaying) rollerSource.Stop();
             }
 
             // Scoring Audio Logic
-            if (CurrentSetpoint == ReefscapeSetpoints.Place && OuttakeAction.IsPressed() && !scoreSource.isPlaying)
+            if (CoralAtState(coralStowState) && !OuttakeAction.IsPressed())
             {
-                scoreSource.Play();
+                if (scoreSource.isPlaying) scoreSource.Stop();
             }
-            else if ((CurrentSetpoint != ReefscapeSetpoints.Place || !OuttakeAction.IsPressed()) && scoreSource.isPlaying)
+            else if (CurrentSetpoint == ReefscapeSetpoints.Place && OuttakeAction.IsPressed())
             {
-                scoreSource.Stop();
+                if (!scoreSource.isPlaying) scoreSource.Play();
+            } 
+            else if (SuperstructureAtSetpoint(stow) && _coralController.HasPiece())
+            {
+                if (!scoreSource.isPlaying) scoreSource.Play();
+            }
+            else if (CurrentSetpoint != ReefscapeSetpoints.Place || !OuttakeAction.IsPressed())
+            {
+                if (scoreSource.isPlaying) scoreSource.Stop();
             }
         }
 
