@@ -183,7 +183,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                 
                 case ReefscapeSetpoints.Place: 
                     PlacePiece();
-                    if (OuttakeAction.IsPressed()) SetEndEffectorWheels(endEffectorWheelsSpeeds); else SetEndEffectorWheels(0);
+                    if (OuttakeAction.IsPressed() && IsCoralSetpoint()) SetEndEffectorWheels(endEffectorWheelsSpeeds); else SetEndEffectorWheels(0);
                     break;
                 
                 case ReefscapeSetpoints.RobotSpecial:
@@ -340,7 +340,11 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                    LastSetpoint == ReefscapeSetpoints.L4 ||
                    LastSetpoint == ReefscapeSetpoints.L3 ||
                    LastSetpoint == ReefscapeSetpoints.L2 ||
-                   LastSetpoint == ReefscapeSetpoints.L1;
+                   LastSetpoint == ReefscapeSetpoints.L1 ||
+                   AtSetpoint(l4) ||
+                   AtSetpoint(l3) ||
+                   AtSetpoint(l2) ||
+                   AtSetpoint(l1);
         }
 
         private WildcatsSetpoint GetCurrentCoralSetpointSetpoint()

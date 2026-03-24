@@ -19965,8 +19965,8 @@ Rigidbody:
   serializedVersion: 4
   m_Mass: 98
   m_Drag: 3
-  m_AngularDrag: 6.5
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_AngularDrag: 7
+  m_CenterOfMass: {x: 0, y: -0.067, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
   m_IncludeLayers:
@@ -20002,9 +20002,9 @@ MonoBehaviour:
   accelerationForce:
     _obfuscationKey: 1302046529
     _encryptedValue: 211527489
-  falloffPercent: 0.08
+  falloffPercent: 0.075
   falloffExponent: 10
-  steerMultiplier: 7
+  steerMultiplier: 1
   speedDebug: 0
   swerveAudioMixerGroup: {fileID: 4093094553572483033, guid: ed4b10d8b69fb1240aaf15a3cba9d0bd,
     type: 2}
@@ -46593,7 +46593,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6671005618864988892}
   serializedVersion: 4
-  m_Mass: 20
+  m_Mass: 10
   m_Drag: 0
   m_AngularDrag: 0
   m_CenterOfMass: {x: 0, y: 0, z: 0}
