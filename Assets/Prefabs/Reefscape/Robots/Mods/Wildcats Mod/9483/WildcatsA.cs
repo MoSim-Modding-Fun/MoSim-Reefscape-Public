@@ -179,6 +179,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                 case ReefscapeSetpoints.Climbed: 
                     SetSetpoint(intake); 
                     SetClimberAngle(climb); 
+                    SetPivotAngle(climb);
                     break;
                 
                 case ReefscapeSetpoints.Place: 
