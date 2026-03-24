@@ -19963,7 +19963,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2534371394911199621}
   serializedVersion: 4
-  m_Mass: 98
+  m_Mass: 118
   m_Drag: 3
   m_AngularDrag: 7
   m_CenterOfMass: {x: 0, y: -0.067, z: 0}
@@ -20000,9 +20000,9 @@ MonoBehaviour:
     _obfuscationKey: 1649020745
     _encryptedValue: 602541897
   accelerationForce:
-    _obfuscationKey: 1302046529
-    _encryptedValue: 211527489
-  falloffPercent: 0.075
+    _obfuscationKey: 594990782
+    _encryptedValue: 1650906814
+  falloffPercent: 0.08
   falloffExponent: 10
   steerMultiplier: 1
   speedDebug: 0
@@ -46593,7 +46593,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6671005618864988892}
   serializedVersion: 4
-  m_Mass: 10
+  m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0
   m_CenterOfMass: {x: 0, y: 0, z: 0}

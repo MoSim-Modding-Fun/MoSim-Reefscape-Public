@@ -18252,7 +18252,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2534371394911199621}
   serializedVersion: 4
-  m_Mass: 98
+  m_Mass: 108
   m_Drag: 3
   m_AngularDrag: 7
   m_CenterOfMass: {x: 0, y: -0.067, z: 0}
@@ -18289,11 +18289,11 @@ MonoBehaviour:
     _obfuscationKey: 1649020745
     _encryptedValue: 602541897
   accelerationForce:
-    _obfuscationKey: 1302046529
-    _encryptedValue: 211527489
+    _obfuscationKey: 171259499
+    _encryptedValue: 1262302827
   falloffPercent: 0.075
   falloffExponent: 10
-  steerMultiplier: 1
+  steerMultiplier: 0.95
   speedDebug: 0
   swerveAudioMixerGroup: {fileID: 4093094553572483033, guid: ed4b10d8b69fb1240aaf15a3cba9d0bd,
     type: 2}
