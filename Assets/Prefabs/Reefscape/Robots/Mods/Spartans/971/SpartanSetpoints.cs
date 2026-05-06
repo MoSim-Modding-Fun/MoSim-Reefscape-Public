@@ -6,9 +6,9 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
     public class SpartansSetpoint : ScriptableObject
     {
         [Tooltip("Inches")] public float elevatorHeight;
-        [Tooltip("Degrees")] public float armAngle;
-        [Tooltip("Degrees")] public float wristAngle;
-        [Tooltip("Degrees")] public float intakeAngle;
-        [Tooltip("Degrees")] public float climberAngle;
+        [Tooltip("Radians")] public float armAngle;
+        [Tooltip("Radians")] public float wristAngle;
+        [Tooltip("Radians")] public float intakeAngle;
+        [Tooltip("Radians")] public float climberAngle;
     }
 }

@@ -28,7 +28,9 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
 
         [Header("Setpoints")]
         [SerializeField] private SpartansSetpoint stow;
-            [SerializeField] private SpartansSetpoint groundIntake, hpIntake, l1Front, l1Back, l2Front, l2Back, l3Front, l3Back, l4Front, l4Back;
+            [SerializeField] private SpartansSetpoint groundIntake1, groundIntake2, groundIntake3;
+            [SerializeField] private SpartansSetpoint hpIntakeFront, hpIntakeBack;
+            [SerializeField] private SpartansSetpoint l1Front, l1Back, l2Front, l2Back, l3Front, l3Back, l4Front, l4Back;
             [SerializeField] private SpartansSetpoint groundAlgae, lowAlgaeFront, lowAlgaeBack, highAlgaeFront, highAlgaeBack, proc, bargeFront, bargeBack;
             [SerializeField] private SpartansSetpoint climbPrep, climbClimb;
         
@@ -56,6 +58,18 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
 
         private LayerMask coralMask;
         private bool canClack;
+        
+        private bool _isRetractingFromGround;
+        private SpartansSetpoint _pendingSetpoint;
+        private SpartansSetpoint _retractFromWaypoint;
+        
+        private Vector3 _blueReef;
+        private Vector3 _redReef;
+        
+        private Vector3 _blueProcHp, _blueNonProcHp;
+        private Vector3 _redProcHp, _redNonProcHp;
+
+        private Vector3 _closestHp;
         
         #endregion
         
@@ -104,6 +118,14 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
 
             coralMask = LayerMask.GetMask("Coral");
             canClack = true;
+            
+            _blueReef = GameObject.Find("BlueReef").transform.position;
+            _redReef = GameObject.Find("RedReef").transform.position;
+            
+            _blueProcHp = GameObject.Find("Coral Station").transform.position;
+            _blueNonProcHp = GameObject.Find("Coral Station (1)").transform.position;
+            _redProcHp = GameObject.Find("Coral Station (3)").transform.position;
+            _redNonProcHp = GameObject.Find("Coral Station (2)").transform.position;
         }
 
         private void LateUpdate()
@@ -118,11 +140,31 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
         {
             bool hasCoral = _coralController.HasPiece();
             
+            if (_isRetractingFromGround)
+            {
+                GoFromGround();
+                if (SuperstructureAtSetpoint(stow))
+                {
+                    _isRetractingFromGround = false;
+                    SetSetpoint(_pendingSetpoint);
+                }
+                UpdateSetpoints();
+                UpdateAudio();
+                return;
+            }
+            
             switch (CurrentSetpoint)
             {
-                case ReefscapeSetpoints.Stow: SetSetpoint(stow); break;
-                case ReefscapeSetpoints.Intake: 
-                    SetSetpoint(CurrentCoralStationMode.DropType == DropType.Ground ? groundIntake : hpIntake); 
+                case ReefscapeSetpoints.Stow: RequestSetpoint(stow); break;
+                case ReefscapeSetpoints.Intake:
+                    if (CurrentCoralStationMode.DropType == DropType.Ground)
+                    {
+                        GoToGround();
+                    }
+                    else
+                    {
+                        RequestSetpoint(IsFacingHp() ? hpIntakeBack : hpIntakeFront);
+                    }
                     
                     _coralController.SetTargetState(endEffectorState);
                     _coralController.RequestIntake(hpCoralIntake);
@@ -132,16 +174,31 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
                 case ReefscapeSetpoints.Stack: SetState(ReefscapeSetpoints.Stow); break;
                 case ReefscapeSetpoints.Barge: SetState(ReefscapeSetpoints.Stow); break;
                 
-                case ReefscapeSetpoints.LowAlgae: SetSetpoint(stow); break;
-                case ReefscapeSetpoints.HighAlgae: SetSetpoint(stow); break;
+                case ReefscapeSetpoints.LowAlgae: RequestSetpoint(stow); break;
+                case ReefscapeSetpoints.HighAlgae: RequestSetpoint(stow); break;
                 
-                case ReefscapeSetpoints.L1: if (_coralController.atTarget) SetSetpoint(l1Front); break;
-                case ReefscapeSetpoints.L2: if (_coralController.atTarget) SetSetpoint(l2Front); break;
-                case ReefscapeSetpoints.L3: if (_coralController.atTarget) SetSetpoint(l3Front); break;
-                case ReefscapeSetpoints.L4: if (_coralController.atTarget) SetSetpoint(l4Front); break;
+                case ReefscapeSetpoints.L1: if (_coralController.atTarget) RequestSetpoint(l1Front); break;
+                case ReefscapeSetpoints.L2:
+                    if (_coralController.atTarget)
+                    {
+                        RequestSetpoint(IsFacing(GetClosestReef()) ? l2Front : l2Back);
+                    } 
+                    break;
+                case ReefscapeSetpoints.L3:
+                    if (_coralController.atTarget)
+                    {
+                        RequestSetpoint(IsFacing(GetClosestReef()) ? l3Front : l3Back);
+                    } 
+                    break;
+                case ReefscapeSetpoints.L4:
+                    if (_coralController.atTarget)
+                    {
+                        RequestSetpoint(IsFacing(GetClosestReef()) ? l4Front : l4Back);
+                    } 
+                    break;
                 
-                case ReefscapeSetpoints.Climb: SetSetpoint(climbPrep); break;
-                case ReefscapeSetpoints.Climbed: SetSetpoint(climbClimb); break;
+                case ReefscapeSetpoints.Climb: RequestSetpoint(climbPrep); break;
+                case ReefscapeSetpoints.Climbed: RequestSetpoint(climbClimb); break;
                 
                 case ReefscapeSetpoints.Place: PlacePiece(); break;
                 
@@ -167,23 +224,150 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             _climberTargetAngle = setpoint.climberAngle;
         }
 
+        private float MetersToInches(float met)
+        {
+            return (float)(met * 39.3700787402);
+        }
+
         private void UpdateSetpoints()
         {
-            elevator.SetTarget(_elevatorTargetHeight);
+            elevator.SetTarget(MetersToInches(_elevatorTargetHeight));
             climber.SetTargetAngle(_climberTargetAngle).withAxis(JointAxis.Y)
                 .useCustomStartingOffset(70);
             arm.SetTargetAngle(_armTargetAngle).withAxis(JointAxis.X)
                 .noWrap(100)
-                .useCustomStartingOffset(80);
-            wrist.SetTargetAngle(_wristTargetAngle).withAxis(JointAxis.X);
+                .useCustomStartingOffset(0);
+            wrist.SetTargetAngle(_wristTargetAngle - 90).withAxis(JointAxis.X)
+                .noWrap(180)
+                .useCustomStartingOffset(0);
             intake.SetTargetAngle(_intakeTargetAngle).withAxis(JointAxis.Y)
-                .useCustomStartingOffset(70);
+                .useCustomStartingOffset(0);
+        }
+
+        private void GoToGround()
+        {
+            if (SuperstructureAtSetpoint(groundIntake3)) return;
+            
+            if (SuperstructureAtSetpoint(groundIntake2))
+            {
+                SetSetpoint(groundIntake3);
+            }
+            else if (SuperstructureAtSetpoint(groundIntake1))
+            {
+                SetSetpoint(groundIntake2);
+            }
+            else if (!CurrentSetpointIs(groundIntake2) && !CurrentSetpointIs(groundIntake3))
+            {
+                SetSetpoint(groundIntake1);
+            }
+        }
+        
+        private void GoFromGround()
+        {
+            if (CurrentSetpointIs(stow) && SuperstructureAtSetpoint(stow)) return;
+
+            if (SuperstructureAtSetpoint(groundIntake3) && CurrentSetpointIs(groundIntake3))
+            {
+                SetSetpoint(groundIntake2);
+            }
+            else if (SuperstructureAtSetpoint(groundIntake2) && CurrentSetpointIs(groundIntake2))
+            {
+                SetSetpoint(groundIntake1);
+            }
+            else if (SuperstructureAtSetpoint(groundIntake1) && CurrentSetpointIs(groundIntake1))
+            {
+                SetSetpoint(stow);
+            }
+        }
+
+        private bool SuperstructureAtSetpoint(SpartansSetpoint setpoint)
+        {
+            bool elevatorAtSetpoint = Utils.InRange(elevator.GetElevatorHeight(), MetersToInches(setpoint.elevatorHeight), 2f);
+            
+            bool armAtSetpoint = Utils.InAngularRange(arm.GetSingleAxisAngle(JointAxis.X) - 283, setpoint.armAngle, 2f);
+            bool wristAtSetpoint = Utils.InAngularRange(wrist.GetSingleAxisAngle(JointAxis.X) - 355, setpoint.wristAngle - 90, 2f);
+            bool intakeAtSetpoint = Utils.InAngularRange(intake.GetSingleAxisAngle(JointAxis.Y) + (float)71.4, setpoint.intakeAngle, 2f);
+            
+            return elevatorAtSetpoint && intakeAtSetpoint && wristAtSetpoint && armAtSetpoint;
+        }
+
+        private bool CurrentSetpointIs(SpartansSetpoint setpoint)
+        {
+            return
+                _elevatorTargetHeight == setpoint.elevatorHeight &&
+                _armTargetAngle == setpoint.armAngle &&
+                _wristTargetAngle == setpoint.wristAngle &&
+                _intakeTargetAngle == setpoint.intakeAngle;
+        }
+        
+        private bool IsInGroundSequence()
+        {
+            return CurrentSetpointIs(groundIntake1) || 
+                   CurrentSetpointIs(groundIntake2) || 
+                   CurrentSetpointIs(groundIntake3);
+        }
+
+        private void RequestSetpoint(SpartansSetpoint setpoint)
+        {
+            if (IsInGroundSequence() && CurrentSetpoint != ReefscapeSetpoints.Intake)
+            {
+                _isRetractingFromGround = true;
+                _pendingSetpoint = setpoint;
+
+                if (SuperstructureAtSetpoint(groundIntake3))
+                    SetSetpoint(groundIntake3);
+                else if (SuperstructureAtSetpoint(groundIntake2))
+                    SetSetpoint(groundIntake2);
+                else
+                    SetSetpoint(groundIntake1);
+            }
+            else
+            {
+                SetSetpoint(setpoint);
+            }
         }
         
         #endregion
         
 
         #region Logic Helpers
+        
+        private float DistanceToReef(Vector3 reefPos)
+        {
+            return Mathf.Sqrt(Mathf.Pow(transform.position.x - reefPos.x, 2) + Mathf.Pow(transform.position.z - reefPos.z, 2));
+        }
+    
+        private Vector3 GetClosestReef()
+        {
+            return DistanceToReef(_blueReef) < DistanceToReef(_redReef) ? _blueReef : _redReef;
+        }
+
+        private bool IsFacing(Vector3 reefPos)
+        {
+            var toReefVector = (reefPos - transform.position).normalized;
+            var robotForwardVector = transform.forward.normalized;
+            var angle = Vector3.Dot(robotForwardVector, toReefVector);
+            return angle > 0.0f;
+        }
+
+        private Vector3 GetClosestHp(Vector3 procHp, Vector3 nonProcHp)
+        {
+            return DistanceToReef(procHp) < DistanceToReef(nonProcHp) ? procHp : nonProcHp;
+        }
+        
+        private bool IsFacingHp()
+        {
+            if (GetClosestReef() == _blueReef)
+            {
+                _closestHp = GetClosestHp(_blueProcHp, _blueNonProcHp);
+            }
+            else
+            {
+                _closestHp = GetClosestHp(_redProcHp, _redNonProcHp);
+            }
+
+            return IsFacing(_closestHp);
+        }
         
         private void UpdateAudio()
         {

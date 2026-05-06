@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95b5e0c833b1c09429bd8a414271edac, type: 3}
   m_Name: Climb Prep
   m_EditorClassIdentifier: 
-  elevatorHeight: 5
-  armAngle: 55
-  wristAngle: -63
+  elevatorHeight: 0.03
+  armAngle: 75
+  wristAngle: 0
   intakeAngle: 0
-  climberAngle: 65.5
+  climberAngle: 75

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95b5e0c833b1c09429bd8a414271edac, type: 3}
   m_Name: Stow
   m_EditorClassIdentifier: 
-  elevatorHeight: 5
+  elevatorHeight: 0.05
   armAngle: 0
-  wristAngle: 0
+  wristAngle: 90
   intakeAngle: 0
   climberAngle: 0

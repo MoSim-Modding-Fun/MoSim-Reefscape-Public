@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95b5e0c833b1c09429bd8a414271edac, type: 3}
   m_Name: L4 Front
   m_EditorClassIdentifier: 
-  elevatorHeight: 50
-  armAngle: 19.6
-  wristAngle: 105.1
+  elevatorHeight: 1.37
+  armAngle: 17.226
+  wristAngle: 196.7656
   intakeAngle: 0
   climberAngle: 0
