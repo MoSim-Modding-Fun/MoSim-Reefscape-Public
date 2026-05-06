@@ -81,6 +81,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             arm.SetPid(armPID);
             wrist.SetPid(wristPID);
             intake.SetPid(intakePID);
+            intakeFlap.SetPid(intakeFlapPID);
             climber.SetPid(climberPID);
 
             _elevatorTargetHeight = stow.elevatorHeight;
@@ -90,7 +91,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             _intakeTargetAngle = stow.intakeAngle;
             _intakeFlapTargetAngle = 0;
             
-            RobotGamePieceController.SetPreload(endEffectorState);
             _coralController = RobotGamePieceController.GetPieceByName(nameof(ReefscapeGamePieceType.Coral));
             _algaeController = RobotGamePieceController.GetPieceByName(nameof(ReefscapeGamePieceType.Algae));
 
@@ -101,6 +101,8 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             };
             _coralController.intakes.Add(groundCoralIntake);
             _coralController.intakes.Add(hpCoralIntake);
+            
+            RobotGamePieceController.SetPreload(endEffectorState);
 
             _algaeController.gamePieceStates = new[]
             {
@@ -155,7 +157,30 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             }
             
             _coralController.RequestIntake(hpCoralIntake, IntakeAction.IsPressed() && (SuperstructureAtSetpoint(hpIntakeFront) || SuperstructureAtSetpoint(hpIntakeBack)));
+            _coralController.RequestIntake(groundCoralIntake, IntakeAction.IsPressed() && SuperstructureAtSetpoint(groundIntake3));
             _algaeController.RequestIntake(algaeIntake, IntakeAction.IsPressed() && IsAlgaeSetpoint());
+
+            if (SuperstructureAtSetpoint(groundIntake3))
+            {
+                if (!hasCoral)
+                {
+                    _coralController.SetTargetState(groundIntakeState);
+                }
+                else
+                {
+                    if (SuperstructureAtSetpoint(groundIntake3) && _coralController.atTarget &&
+                        _coralController.currentStateNum == groundIntakeState.stateNum)
+                    {
+                        _coralController.SetTargetState(endEffectorState);
+                    }
+                }
+            }
+            else
+            {
+                _coralController.SetTargetState(endEffectorState);
+            }
+
+            _algaeController.SetTargetState(algaeStowState);
             
             switch (CurrentSetpoint)
             {
@@ -176,7 +201,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
                         else
                         {
                             RequestSetpoint(IsFacingHp() ? hpIntakeBack : hpIntakeFront);
-                            _coralController.SetTargetState(endEffectorState);
                         }
                     }
 
