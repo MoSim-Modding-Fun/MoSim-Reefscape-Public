@@ -20,18 +20,18 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
         
         [Header("Components")]
         [SerializeField] private GenericElevator elevator;
-            [SerializeField] private GenericJoint arm, wrist, intake, climber;
+            [SerializeField] private GenericJoint arm, wrist, intake, intakeFlap, climber;
         
         [Header("PIDS")]
         [SerializeField] private PidConstants armPID;
-            [SerializeField] private PidConstants wristPID, climberPID, intakePID;
+            [SerializeField] private PidConstants wristPID, climberPID, intakePID, intakeFlapPID;
 
         [Header("Setpoints")]
         [SerializeField] private SpartansSetpoint stow;
             [SerializeField] private SpartansSetpoint groundIntake1, groundIntake2, groundIntake3;
             [SerializeField] private SpartansSetpoint hpIntakeFront, hpIntakeBack;
             [SerializeField] private SpartansSetpoint l1Front, l1Back, l2Front, l2Back, l3Front, l3Back, l4Front, l4Back;
-            [SerializeField] private SpartansSetpoint groundAlgae, lowAlgaeFront, lowAlgaeBack, highAlgaeFront, highAlgaeBack, proc, bargeFront, bargeBack;
+            [SerializeField] private SpartansSetpoint groundAlgae, lollipop, lowAlgaeFront, lowAlgaeBack, highAlgaeFront, highAlgaeBack, proc, bargeFront, bargeBack;
             [SerializeField] private SpartansSetpoint climbPrep, climbClimb;
         
         [Header("Intake Components")]
@@ -55,6 +55,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _coralController, _algaeController;
 
         private float _elevatorTargetHeight, _armTargetAngle, _wristTargetAngle, _intakeTargetAngle, _climberTargetAngle;
+        private float _intakeFlapTargetAngle = 0;
 
         private LayerMask coralMask;
         private bool canClack;
@@ -63,8 +64,8 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
         private SpartansSetpoint _pendingSetpoint;
         private SpartansSetpoint _retractFromWaypoint;
         
-        private Vector3 _blueReef;
-        private Vector3 _redReef;
+        private Vector3 _blueReef = new Vector3(-4.298872f, 0, 0);
+        private Vector3 _redReef = new Vector3(4.298872f, 0, 0);
         
         private Vector3 _blueProcHp, _blueNonProcHp;
         private Vector3 _redProcHp, _redNonProcHp;
@@ -87,6 +88,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             _wristTargetAngle = stow.wristAngle;
             _climberTargetAngle = stow.climberAngle;
             _intakeTargetAngle = stow.intakeAngle;
+            _intakeFlapTargetAngle = 0;
             
             RobotGamePieceController.SetPreload(endEffectorState);
             _coralController = RobotGamePieceController.GetPieceByName(nameof(ReefscapeGamePieceType.Coral));
@@ -119,9 +121,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             coralMask = LayerMask.GetMask("Coral");
             canClack = true;
             
-            _blueReef = GameObject.Find("BlueReef").transform.position;
-            _redReef = GameObject.Find("RedReef").transform.position;
-            
             _blueProcHp = GameObject.Find("Coral Station").transform.position;
             _blueNonProcHp = GameObject.Find("Coral Station (1)").transform.position;
             _redProcHp = GameObject.Find("Coral Station (3)").transform.position;
@@ -133,12 +132,14 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             arm.UpdatePid(armPID);
             wrist.UpdatePid(wristPID);
             intake.UpdatePid(intakePID);
+            intakeFlap.UpdatePid(intakeFlapPID);
             climber.UpdatePid(climberPID);
         }
 
         private void FixedUpdate()
         {
             bool hasCoral = _coralController.HasPiece();
+            bool hasAlgae = _algaeController.HasPiece();
             
             if (_isRetractingFromGround)
             {
@@ -153,29 +154,40 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
                 return;
             }
             
+            _coralController.RequestIntake(hpCoralIntake, IntakeAction.IsPressed() && (SuperstructureAtSetpoint(hpIntakeFront) || SuperstructureAtSetpoint(hpIntakeBack)));
+            _algaeController.RequestIntake(algaeIntake, IntakeAction.IsPressed() && IsAlgaeSetpoint());
+            
             switch (CurrentSetpoint)
             {
                 case ReefscapeSetpoints.Stow: RequestSetpoint(stow); break;
                 case ReefscapeSetpoints.Intake:
-                    if (CurrentCoralStationMode.DropType == DropType.Ground)
+                    if (hasCoral || hasAlgae) break;
+                    
+                    if (CurrentRobotMode == ReefscapeRobotMode.Algae)
                     {
-                        GoToGround();
+                        if (!IsAlgaeSetpoint()) RequestSetpoint(groundAlgae);
                     }
                     else
                     {
-                        RequestSetpoint(IsFacingHp() ? hpIntakeBack : hpIntakeFront);
+                        if (CurrentCoralStationMode.DropType == DropType.Ground)
+                        {
+                            GoToGround();
+                        }
+                        else
+                        {
+                            RequestSetpoint(IsFacingHp() ? hpIntakeBack : hpIntakeFront);
+                            _coralController.SetTargetState(endEffectorState);
+                        }
                     }
-                    
-                    _coralController.SetTargetState(endEffectorState);
-                    _coralController.RequestIntake(hpCoralIntake);
+
                     break;
                 
                 case ReefscapeSetpoints.Processor: SetState(ReefscapeSetpoints.Stow); break;
-                case ReefscapeSetpoints.Stack: SetState(ReefscapeSetpoints.Stow); break;
+                case ReefscapeSetpoints.Stack: RequestSetpoint(lollipop); break;
                 case ReefscapeSetpoints.Barge: SetState(ReefscapeSetpoints.Stow); break;
                 
-                case ReefscapeSetpoints.LowAlgae: RequestSetpoint(stow); break;
-                case ReefscapeSetpoints.HighAlgae: RequestSetpoint(stow); break;
+                case ReefscapeSetpoints.LowAlgae: RequestSetpoint(IsFacing(GetClosestReef()) ? lowAlgaeFront : lowAlgaeBack); break;
+                case ReefscapeSetpoints.HighAlgae: RequestSetpoint(IsFacing(GetClosestReef()) ? highAlgaeFront : highAlgaeBack); break;
                 
                 case ReefscapeSetpoints.L1: if (_coralController.atTarget) RequestSetpoint(l1Front); break;
                 case ReefscapeSetpoints.L2:
@@ -242,6 +254,10 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
                 .useCustomStartingOffset(0);
             intake.SetTargetAngle(_intakeTargetAngle).withAxis(JointAxis.Y)
                 .useCustomStartingOffset(0);
+            intakeFlap.SetTargetAngle(_intakeFlapTargetAngle).withAxis(JointAxis.X)
+                .useCustomStartingOffset(0);
+            
+            print("Flap target at " + _intakeFlapTargetAngle + " Current Angle " + intakeFlap.GetSingleAxisAngle(JointAxis.X));
         }
 
         private void GoToGround()
@@ -299,6 +315,16 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
                 _wristTargetAngle == setpoint.wristAngle &&
                 _intakeTargetAngle == setpoint.intakeAngle;
         }
+
+        private bool IsAlgaeSetpoint()
+        {
+            return CurrentSetpointIs(groundAlgae) ||
+                   CurrentSetpointIs(lollipop) ||
+                   CurrentSetpointIs(lowAlgaeFront) ||
+                   CurrentSetpointIs(highAlgaeFront) ||
+                   CurrentSetpointIs(lowAlgaeBack) ||
+                   CurrentSetpointIs(highAlgaeBack);
+        }
         
         private bool IsInGroundSequence()
         {
@@ -332,19 +358,20 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
 
         #region Logic Helpers
         
-        private float DistanceToReef(Vector3 reefPos)
+        private float DistanceTo(Vector3 itemPos)
         {
-            return Mathf.Sqrt(Mathf.Pow(transform.position.x - reefPos.x, 2) + Mathf.Pow(transform.position.z - reefPos.z, 2));
+            return Mathf.Sqrt(Mathf.Pow(transform.position.x - itemPos.x, 2) + Mathf.Pow(transform.position.z - itemPos.z, 2));
         }
     
         private Vector3 GetClosestReef()
         {
-            return DistanceToReef(_blueReef) < DistanceToReef(_redReef) ? _blueReef : _redReef;
+            print("Facing " + (DistanceTo(_blueReef) < DistanceTo(_redReef) ? _blueReef : _redReef) + " with distance of " + DistanceTo(DistanceTo(_blueReef) < DistanceTo(_redReef) ? _blueReef : _redReef));
+            return DistanceTo(_blueReef) < DistanceTo(_redReef) ? _blueReef : _redReef;
         }
 
-        private bool IsFacing(Vector3 reefPos)
+        private bool IsFacing(Vector3 itemPos)
         {
-            var toReefVector = (reefPos - transform.position).normalized;
+            var toReefVector = (itemPos - transform.position).normalized;
             var robotForwardVector = transform.forward.normalized;
             var angle = Vector3.Dot(robotForwardVector, toReefVector);
             return angle > 0.0f;
@@ -352,7 +379,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
 
         private Vector3 GetClosestHp(Vector3 procHp, Vector3 nonProcHp)
         {
-            return DistanceToReef(procHp) < DistanceToReef(nonProcHp) ? procHp : nonProcHp;
+            return DistanceTo(procHp) < DistanceTo(nonProcHp) ? procHp : nonProcHp;
         }
         
         private bool IsFacingHp()
