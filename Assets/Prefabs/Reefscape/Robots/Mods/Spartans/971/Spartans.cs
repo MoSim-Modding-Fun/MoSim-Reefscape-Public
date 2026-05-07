@@ -191,6 +191,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
                     if (CurrentRobotMode == ReefscapeRobotMode.Algae)
                     {
                         if (!IsAlgaeSetpoint()) RequestSetpoint(groundAlgae);
+                        else _algaeController.RequestIntake(algaeIntake);
                     }
                     else
                     {
