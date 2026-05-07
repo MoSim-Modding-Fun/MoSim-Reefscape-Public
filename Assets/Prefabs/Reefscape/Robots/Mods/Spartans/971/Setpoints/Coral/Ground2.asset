@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95b5e0c833b1c09429bd8a414271edac, type: 3}
   m_Name: Ground2
   m_EditorClassIdentifier: 
-  elevatorHeight: 0.44
+  elevatorHeight: 0.5
   armAngle: -144
   wristAngle: 110
   intakeAngle: 90

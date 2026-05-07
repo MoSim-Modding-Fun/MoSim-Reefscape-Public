@@ -159,7 +159,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             _coralController.RequestIntake(hpCoralIntake, IntakeAction.IsPressed() && (SuperstructureAtSetpoint(hpIntakeFront) || SuperstructureAtSetpoint(hpIntakeBack)));
             _coralController.RequestIntake(groundCoralIntake, IntakeAction.IsPressed() && SuperstructureAtSetpoint(groundIntake3));
             _algaeController.RequestIntake(algaeIntake, IntakeAction.IsPressed() && IsAlgaeSetpoint());
-
+/*
             if (SuperstructureAtSetpoint(groundIntake3))
             {
                 if (!hasCoral)
@@ -179,8 +179,9 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             {
                 _coralController.SetTargetState(endEffectorState);
             }
-
+*/
             _algaeController.SetTargetState(algaeStowState);
+            _coralController.SetTargetState(endEffectorState);
             
             switch (CurrentSetpoint)
             {
