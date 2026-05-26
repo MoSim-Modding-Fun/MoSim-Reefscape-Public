@@ -2,11 +2,9 @@ using System;
 using Games.Reefscape.Enums;
 using Games.Reefscape.GamePieceSystem;
 using Games.Reefscape.Robots;
-using MoSimCore.BaseClasses.GameManagement;
-using MoSimCore.Enums;
+using Games.Reefscape.Scoring.Scorers;
 using MoSimLib;
 using RobotFramework.Components;
-using RobotFramework.Controllers.Drivetrain;
 using RobotFramework.Controllers.GamePieceSystem;
 using RobotFramework.Controllers.PidSystems;
 using RobotFramework.Enums;
@@ -22,6 +20,9 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
         [Header("Components")]        
         [SerializeField] private GenericElevator elevator;
             [SerializeField] private GenericJoint arm, funnelMainLinkage, climber;
+            [SerializeField] private GenericRoller[] climbRollers;
+            [SerializeField] private BoxCollider climbCollider;
+            [SerializeField] private ClimbScorer scorer;
         
         [Header("PIDS")]        
         [SerializeField] private PidConstants armPid;
@@ -52,6 +53,14 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             [SerializeField] private AudioClip funnelCloseAudio;
             [SerializeField] private BoxCollider coralTrigger;
         private OverlapBoxBounds soundDetector;
+        
+        [Header("Climb Roller Audio")]
+        [SerializeField] private AudioSource climbRollerSource;
+            [SerializeField] private AudioClip climbRollerClip;
+    
+        [Header("Climb Click Audio")]
+        [SerializeField] private AudioSource climbClickSource;
+            [SerializeField] private AudioClip climbClickClip;
         
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _coralController;
 
@@ -122,7 +131,9 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             
             bool hasCoral = _coralController.atTarget;
             
-            //_coralController.RequestIntake(coralIntake, AtSetpoint(intake) && !hasCoral);
+            _coralController.RequestIntake(coralIntake, AtSetpoint(intake) && !hasCoral);
+
+            climbCollider.enabled = scorer.AutoClimbTriggered;
             
             if (hasCoral)
             {
@@ -156,7 +167,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
                 case ReefscapeSetpoints.Intake:
                     if (_coralController.HasPiece()) { SetState(ReefscapeSetpoints.Stow); return; }
                     
-                    if (AtSetpoint(intake)) _coralController.RequestIntake(coralIntake);
                     SetSetpoint(intake);
                     break;
                 
@@ -172,6 +182,11 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
                 
                 case ReefscapeSetpoints.Climb: 
                     SetSetpoint(climbPrep);
+                    if (scorer.AutoClimbTriggered)
+                    {
+                        SetState(ReefscapeSetpoints.Climbed);
+                        climbClickSource.Play();
+                    }
                     break;
                 
                 case ReefscapeSetpoints.Climbed: 
@@ -198,6 +213,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             }
             
             UpdateSetpoints();
+            UpdateRollers();
             //UpdateAudio();
         }
 
@@ -257,6 +273,17 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
                 .noWrap(270);
             funnelMainLinkage.SetTargetAngle(_funnelMainLinkageTargetAngle)
                 .withAxis(JointAxis.X);
+        }
+
+        private void UpdateRollers()
+        {
+            if (CurrentSetpoint == ReefscapeSetpoints.Climb)
+            {
+                foreach (var roller in climbRollers)
+                {
+                    roller.ChangeAngularVelocity(1500f);
+                }
+            }
         }
         
         #endregion
