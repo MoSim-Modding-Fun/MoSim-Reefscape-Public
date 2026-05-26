@@ -21,6 +21,8 @@ TagManager:
   - Cage
   - ReefFace
   - RecordingCamera
+  - FunnelLinkage
+  - MainLinktage
   layers:
   - Default
   - TransparentFX
@@ -34,7 +36,7 @@ TagManager:
   - LEDs
   - Scoring
   - Camera
-  - 
+  - Linkages
   - 
   - 
   - 

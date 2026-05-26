@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf579136bd08f6e4e8b4e760dde402db, type: 3}
   m_Name: Stow
   m_EditorClassIdentifier: 
-  elevatorHeight: 28
-  armAngle: 185
-  funnelAngle: -15
+  elevatorHeight: 21
+  armAngle: 0
+  funnelAngle: -35
   climbAngle: 0

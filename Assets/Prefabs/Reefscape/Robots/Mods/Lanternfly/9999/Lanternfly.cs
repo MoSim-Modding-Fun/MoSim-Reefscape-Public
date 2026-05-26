@@ -154,7 +154,9 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
                     break;
                 
                 case ReefscapeSetpoints.Intake:
-                    if (_coralController.HasPiece()) SetState(ReefscapeSetpoints.Stow);
+                    if (_coralController.HasPiece()) { SetState(ReefscapeSetpoints.Stow); return; }
+                    
+                    if (AtSetpoint(intake)) _coralController.RequestIntake(coralIntake);
                     SetSetpoint(intake);
                     break;
                 
@@ -206,16 +208,23 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             _funnelMainLinkageTargetAngle = setpoint.funnelAngle;
             _climberTargetAngle = setpoint.climbAngle;
 
-            if (LastSetpoint == ReefscapeSetpoints.Intake || LastSetpoint == ReefscapeSetpoints.Stow)
+            bool goingToStowOrIntake = CurrentSetpoint == ReefscapeSetpoints.Stow || 
+                                       CurrentSetpoint == ReefscapeSetpoints.Intake;
+            bool comingFromStowOrIntake = LastSetpoint == ReefscapeSetpoints.Intake || 
+                                          LastSetpoint == ReefscapeSetpoints.Stow;
+
+            if (goingToStowOrIntake)
             {
+                // Coming down: elevator first, arm comes in only once elevator is near setpoint
                 _elevatorTargetHeight = setpoint.elevatorHeight;
                 if (ElevatorAtSetpoint(setpoint))
                 {
                     _armTargetAngle = setpoint.armAngle;
                 }
-            } 
-            else if (CurrentSetpoint == ReefscapeSetpoints.Stow || CurrentSetpoint == ReefscapeSetpoints.Intake)
+            }
+            else if (comingFromStowOrIntake)
             {
+                // Going up: arm out first, elevator goes up once arm is out
                 _armTargetAngle = setpoint.armAngle;
                 if (ArmAtSetpoint(setpoint))
                 {
@@ -224,6 +233,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             }
             else
             {
+                // Mid-scoring transition: move both freely
                 _armTargetAngle = setpoint.armAngle;
                 _elevatorTargetHeight = setpoint.elevatorHeight;
             }
@@ -244,7 +254,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
                 .withAxis(JointAxis.Z);
             arm.SetTargetAngle(_armTargetAngle)
                 .withAxis(JointAxis.X)
-                .noWrap(200);
+                .noWrap(270);
             funnelMainLinkage.SetTargetAngle(_funnelMainLinkageTargetAngle)
                 .withAxis(JointAxis.X);
         }
@@ -253,16 +263,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
         
 
         #region Logic Helpers
-        
-        private Vector3 GetClosestReef()
-        {
-            return DistanceToReef(_blueReef) < DistanceToReef(_redReef) ? _blueReef : _redReef;
-        }
-        
-        private float DistanceToReef(Vector3 reefPos)
-        {
-            return Mathf.Sqrt(Mathf.Pow(transform.position.x - reefPos.x, 2) + Mathf.Pow(transform.position.z - reefPos.z, 2));
-        }
 
         private bool ArmAtSetpoint(LanternflySetpoint setpoint = null)
         {
