@@ -5142,6 +5142,7 @@ GameObject:
   - component: {fileID: 1904046682005915608}
   - component: {fileID: 2033702400357074022}
   - component: {fileID: 8612805997097214696}
+  - component: {fileID: 5466403192256342158}
   m_Layer: 6
   m_Name: FunnelLinkage
   m_TagString: Untagged
@@ -5226,6 +5227,45 @@ HingeJoint:
     max: 18
     bounciness: 0
     bounceMinVelocity: 3.402823e+38
+    contactDistance: 0
+  m_BreakForce: Infinity
+  m_BreakTorque: Infinity
+  m_EnableCollision: 0
+  m_EnablePreprocessing: 1
+  m_MassScale: 1
+  m_ConnectedMassScale: 1
+--- !u!59 &5466403192256342158
+HingeJoint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 349531507438616320}
+  serializedVersion: 3
+  m_ConnectedBody: {fileID: 6707048320174074374}
+  m_ConnectedArticulationBody: {fileID: 0}
+  m_Anchor: {x: 0, y: 0.265, z: -0.266}
+  m_Axis: {x: 1, y: 0, z: 0}
+  m_AutoConfigureConnectedAnchor: 1
+  m_ConnectedAnchor: {x: 0, y: 0, z: 0}
+  m_UseSpring: 0
+  m_Spring:
+    spring: 0
+    damper: 0
+    targetPosition: 0
+  m_UseMotor: 0
+  m_Motor:
+    targetVelocity: 0
+    force: 0
+    freeSpin: 0
+  m_UseLimits: 0
+  m_ExtendedLimits: 0
+  m_UseAcceleration: 0
+  m_Limits:
+    min: 0
+    max: 0
+    bounciness: 0
+    bounceMinVelocity: 0.2
     contactDistance: 0
   m_BreakForce: Infinity
   m_BreakTorque: Infinity
@@ -27653,7 +27693,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4563947785020883183
 Transform:
   m_ObjectHideFlags: 0
@@ -30197,7 +30237,7 @@ MonoBehaviour:
     kP: 5
     kI: 0
     kD: 1
-    Max: 5
+    Max: 8.5
     Isaturation: 0
   funnelPid:
     kP: 1
@@ -34211,8 +34251,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.006489937, y: 0.006249266, z: 0.00001599334}
-  m_Center: {x: -0.0000025439076, y: -0.007277498, z: -0.00031799648}
+  m_Size: {x: 0.006489937, y: 0.004496231, z: 0.00001599334}
+  m_Center: {x: -0.0000025439263, y: -0.008154001, z: -0.00031799648}
 --- !u!1 &2839704799535904328
 GameObject:
   m_ObjectHideFlags: 0
@@ -95572,7 +95612,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6037030353455989621
 Transform:
   m_ObjectHideFlags: 0
