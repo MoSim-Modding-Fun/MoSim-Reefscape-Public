@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamNumber: 9483
   teamName: "\u0130stanbul Wildcats"
-  robotPrefab: {fileID: 2534371394911199621, guid: d30a9b9d67970cb4caa1557808b4b5fa,
+  robotPrefab: {fileID: 2534371394911199621, guid: dd6ae5e3fef34e3469502c845a7aaa96,
     type: 3}
   robotPreloadGamePiece: {fileID: 2185987706872048638, guid: 970bdf84a203d9a4b8dc602974341a07,
     type: 3}
