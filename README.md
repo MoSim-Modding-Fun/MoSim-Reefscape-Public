@@ -1,6 +1,9 @@
 # This MoSimulator repo includes the source for the following Robots:
 
 - 9483: Pre-Champs and Champs Variations
+- 5026: Iron Panthers
+- 971: Spartan Robotics
+- 9999: Custom Robot by Dom lol
 
 ### To find out more about MoSim, [click here](https://mosimulator.com)
 
