@@ -165,7 +165,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
                     break;
                 
                 case ReefscapeSetpoints.Intake:
-                    if (_coralController.HasPiece()) { SetState(ReefscapeSetpoints.Stow); return; }
+                    if (_coralController.HasPiece()) { SetSetpoint(stow); break; }
                     
                     SetSetpoint(intake);
                     break;
