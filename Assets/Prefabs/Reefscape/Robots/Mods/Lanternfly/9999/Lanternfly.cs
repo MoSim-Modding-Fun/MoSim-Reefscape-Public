@@ -348,13 +348,13 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
         {
             if (LastSetpoint == ReefscapeSetpoints.L4)
             {
-                _coralController.ReleaseGamePieceWithContinuedForce(new Vector3(0, 0, 4), 0.35f, 0.6f);
+                _coralController.ReleaseGamePieceWithContinuedForce(new Vector3(0, 0, 4), 0.4f, 0.6f);
                 return;
             }
             else if (LastSetpoint == ReefscapeSetpoints.L1)
             {
-                
-                _coralController.ReleaseGamePieceWithContinuedForce(new Vector3(0, 1, 1), 0.2f, .75f);
+                _coralController.ReleaseGamePieceWithForce(new Vector3(0, 0, 2f));
+                //_coralController.ReleaseGamePieceWithContinuedForce(new Vector3(0, 0, 2), .3f, .75f);
                 return;
             }
             _coralController.ReleaseGamePieceWithForce(new Vector3(0, 0, 3));
