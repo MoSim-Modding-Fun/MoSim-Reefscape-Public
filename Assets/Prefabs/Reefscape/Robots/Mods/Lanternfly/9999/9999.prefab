@@ -29970,7 +29970,7 @@ MonoBehaviour:
     Isaturation: 0
   stow: {fileID: 11400000, guid: 203a3e25a6cd41d46b2632b3ac87d14b, type: 2}
   intake: {fileID: 11400000, guid: dbd062f3a323d29489ab9af32e97c403, type: 2}
-  l1: {fileID: 0}
+  l1: {fileID: 11400000, guid: ece9c5ba6b5205a4b9388a83473436da, type: 2}
   l2: {fileID: 11400000, guid: 2870adda3b1cf1a4b8a20cf6da455ecc, type: 2}
   l3: {fileID: 11400000, guid: a8005263fc4bc6448960f70aaa35f282, type: 2}
   l4: {fileID: 11400000, guid: 909fc3f389b21dd48a64c365ca9370a8, type: 2}
@@ -34224,8 +34224,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   climberArm: {fileID: 2752333727573579718}
-  intakeWheelL: {fileID: 6205218061336356485}
-  intakeWheelR: {fileID: 7417573526902234600}
+  intakeWheelL: {fileID: 7417573526902234600}
+  intakeWheelR: {fileID: 6205218061336356485}
   armPid:
     kP: 1
     kI: 0
@@ -34241,7 +34241,7 @@ MonoBehaviour:
   armAxis: 2
   wheelAxis: 1
   stowAngle: 0
-  deployAngle: -85
+  deployAngle: -90
   retractAngle: 0
   targetIntakeWheelSpeed: 125
   climbingAngularVelocity: 60
