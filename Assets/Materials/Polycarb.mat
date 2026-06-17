@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Polycarb
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
-  m_Parent: {fileID: 2100000, guid: 4fee27b819da64142b7a2a9ba75bb033, type: 2}
+  m_Parent: {fileID: 2100000, guid: 5371256dd197914478d3597447634af9, type: 2}
   m_ModifiedSerializedProperties: 16
   m_ValidKeywords:
   - _ALPHAPREMULTIPLY_ON
@@ -54,4 +54,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 9
+  version: 10

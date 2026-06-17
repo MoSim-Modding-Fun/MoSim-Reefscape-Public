@@ -19,9 +19,8 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
         
         [Header("Components")]        
         [SerializeField] private GenericElevator elevator;
-            [SerializeField] private GenericJoint arm, funnelMainLinkage, climber;
-            [SerializeField] private GenericRoller[] climbRollers;
-            [SerializeField] private BoxCollider climbCollider;
+            [SerializeField] private GenericJoint arm, funnelMainLinkage;
+            [SerializeField] private LanternClimb climber;
             [SerializeField] private ClimbScorer scorer;
         
         [Header("PIDS")]        
@@ -82,7 +81,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             
             arm.SetPid(armPid);
             funnelMainLinkage.SetPid(funnelPid);
-            climber.SetPid(climberPid);
 
             _elevatorTargetHeight = 0;
             _armTargetAngle = 0;
@@ -118,7 +116,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
         private void LateUpdate()
         {
             arm.UpdatePid(armPid);
-            climber.UpdatePid(climberPid);
             funnelMainLinkage.UpdatePid(funnelPid);
         }
 
@@ -132,8 +129,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             bool hasCoral = _coralController.atTarget;
             
             _coralController.RequestIntake(coralIntake, AtSetpoint(intake) && !hasCoral);
-
-            climbCollider.enabled = scorer.AutoClimbTriggered;
             
             if (hasCoral)
             {
@@ -162,6 +157,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
                 case ReefscapeSetpoints.Stow: 
                     SetSetpoint(stow);
                     SetEndEffectorWheels(_coralController.HasPiece() ? 0 : endEffectorWheelsSpeeds * 1.5f);
+                    if (climber != null) climber.NotClimbing();
                     break;
                 
                 case ReefscapeSetpoints.Intake:
@@ -182,15 +178,14 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
                 
                 case ReefscapeSetpoints.Climb: 
                     SetSetpoint(climbPrep);
-                    if (scorer.AutoClimbTriggered)
-                    {
-                        SetState(ReefscapeSetpoints.Climbed);
-                        climbClickSource.Play();
-                    }
+                    climber.Climb();
+                    if (climber != null) climber.Climb(); 
                     break;
                 
                 case ReefscapeSetpoints.Climbed: 
                     SetSetpoint(climbClimb);
+                    climber.NotClimbing();
+                    if (climber != null) climber.RetractArm();
                     break;
                 
                 case ReefscapeSetpoints.Place: 
@@ -213,7 +208,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             }
             
             UpdateSetpoints();
-            UpdateRollers();
             //UpdateAudio();
         }
 
@@ -266,24 +260,11 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
         private void UpdateSetpoints()
         {
             elevator.SetTarget(_elevatorTargetHeight);
-            climber.SetTargetAngle(_climberTargetAngle)
-                .withAxis(JointAxis.Z);
             arm.SetTargetAngle(_armTargetAngle)
                 .withAxis(JointAxis.X)
                 .noWrap(270);
             funnelMainLinkage.SetTargetAngle(_funnelMainLinkageTargetAngle)
                 .withAxis(JointAxis.X);
-        }
-
-        private void UpdateRollers()
-        {
-            if (CurrentSetpoint == ReefscapeSetpoints.Climb)
-            {
-                foreach (var roller in climbRollers)
-                {
-                    roller.ChangeAngularVelocity(1500f);
-                }
-            }
         }
         
         #endregion
