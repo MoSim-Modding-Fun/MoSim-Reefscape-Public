@@ -1,5 +1,6 @@
 using MoSimCore.BaseClasses.GameManagement;
 using MoSimCore.Enums;
+using MoSimLib;
 using RobotFramework.Components;
 using RobotFramework.Controllers.PidSystems;
 using RobotFramework.Enums;
@@ -13,6 +14,12 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
         [SerializeField] private GenericJoint climberArm; 
         [SerializeField] private GenericJoint intakeWheelL;
         [SerializeField] private GenericJoint intakeWheelR;
+        
+        [Header("Clicker Joints")]
+        [SerializeField] private GenericAnimationJoint clickerL;
+        [SerializeField] private GenericAnimationJoint clickerR;
+        [SerializeField] private GenericAnimationJoint clickerL1;
+        [SerializeField] private GenericAnimationJoint clickerR1;
 
         [Header("PIDs & Axes")]
         [SerializeField] private PidConstants armPid;
@@ -81,6 +88,22 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             if (intakeWheelR != null) intakeWheelR.UpdatePid(wheelPid);
         }
 
+        private void Update()
+        {
+            clickerL.SpringLoaded().AllowedDirection(1).RotationSpeed(150);
+            clickerR.SpringLoaded().AllowedDirection(1).RotationSpeed(150);
+        
+            clickerL1.SpringLoaded().AllowedDirection(1).RotationSpeed(150);
+            clickerR1.SpringLoaded().AllowedDirection(1).RotationSpeed(150);
+        }
+
+        public bool WingsOpen()
+        {
+            var result = (Utils.InAngularRange(clickerL1.transform.localEulerAngles.y, 0, 3) &&
+                          Utils.InAngularRange(clickerR1.transform.localEulerAngles.y, 0, 3));
+            return result;
+        }
+        
         private void FixedUpdate()
         {
             if (climberArm != null)

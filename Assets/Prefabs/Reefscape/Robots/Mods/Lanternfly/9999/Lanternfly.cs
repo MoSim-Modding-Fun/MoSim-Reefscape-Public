@@ -209,6 +209,13 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             
             UpdateSetpoints();
             //UpdateAudio();
+            
+            
+            // Climber and Drive modifiers remain the same...
+            if (scorer.AutoClimbTriggered && CurrentSetpoint == ReefscapeSetpoints.Climb && climber.WingsOpen())
+                SetState(ReefscapeSetpoints.Climbed);
+            else if (!scorer.AutoClimbTriggered && CurrentSetpoint == ReefscapeSetpoints.Climbed)
+                SetState(ReefscapeSetpoints.Climb);
         }
 
         #region Actuators & Setpoints
