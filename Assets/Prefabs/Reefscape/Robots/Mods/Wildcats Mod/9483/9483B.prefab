@@ -4520,7 +4520,7 @@ CapsuleCollider:
   m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 128
@@ -17100,7 +17100,7 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -23208,7 +23208,7 @@ CapsuleCollider:
   m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 128
@@ -30210,7 +30210,7 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -32508,7 +32508,7 @@ CapsuleCollider:
   m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 128
@@ -33171,7 +33171,7 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -34601,7 +34601,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -37786,7 +37786,7 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -38501,7 +38501,7 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 128
@@ -46142,7 +46142,7 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -53044,7 +53044,7 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
