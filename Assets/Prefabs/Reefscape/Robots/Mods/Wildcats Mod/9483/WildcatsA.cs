@@ -1,3 +1,4 @@
+using System.Collections;
 using Games.Reefscape.Enums;
 using Games.Reefscape.GamePieceSystem;
 using Games.Reefscape.Robots;
@@ -29,6 +30,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
         [Header("Setpoints")]        
         [SerializeField] private WildcatsSetpoint stow, intake, l1, l2, l3, l4;
         [SerializeField] private WildcatsSetpoint lowDescore, highDescore;
+        [SerializeField] private WildcatsSetpoint coralDeposit;
         
         [Header("Climb Setpoints")]        
         [SerializeField] private WildcatsClimbSetpoint climbStow, prep, climb;
@@ -64,6 +66,8 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
         
         private Vector3 _blueReef;
         private Vector3 _redReef;
+
+        private bool depositing;
         
         #endregion
         
@@ -102,6 +106,8 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
             funnelCloseSource.clip = funnelCloseAudio;
             funnelCloseSource.loop = false;
             funnelCloseSource.Stop();
+            
+            depositing = false;
 
             soundDetector = new OverlapBoxBounds(coralTrigger);
             canClack = true;
@@ -129,8 +135,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
 
             if (DistanceToReef(GetClosestReef()) > 2)
             {
-                if (CurrentSetpoint == ReefscapeSetpoints.Place ||
-                    CurrentSetpoint == ReefscapeSetpoints.LowAlgae ||
+                if (CurrentSetpoint == ReefscapeSetpoints.LowAlgae ||
                     CurrentSetpoint == ReefscapeSetpoints.HighAlgae)
                 {
                     SetState(ReefscapeSetpoints.Stow);
@@ -241,6 +246,35 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
         }
 
         #region Actuators & Setpoints
+
+        private IEnumerator DepositCoralFromStow()
+        {
+            if (depositing || !CoralAtState(coralStowState))
+            {
+                yield return null;
+            };
+            depositing = true;
+
+            if (AtSetpoint(coralDeposit) && _coralController.HasPiece())
+            {
+                _coralController.ReleaseGamePieceWithForce(new Vector3(0, 0, 4f));
+            }
+            else if (CoralAtState(coralStowState))
+            {
+                SetSetpoint(coralDeposit);
+            }
+            else if (!CoralAtState(coralStowState))
+            {
+                yield return new WaitForSeconds(0.3f);
+                SetSetpoint(stow);
+            }
+
+            if (!_coralController.HasPiece() && AtSetpoint(stow))
+            {
+                depositing = false;
+                yield return null;
+            }
+        }
         
         private void SetSetpoint(WildcatsSetpoint setpoint)
         {
@@ -376,7 +410,8 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                    AtSetpoint(l4) ||
                    AtSetpoint(l3) ||
                    AtSetpoint(l2) ||
-                   AtSetpoint(l1);
+                   AtSetpoint(l1) ||
+                   AtSetpoint(coralDeposit);
         }
 
         private WildcatsSetpoint GetCurrentCoralSetpointSetpoint()
@@ -394,6 +429,12 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
 
         private void PlacePiece()
         {
+            if (LastSetpoint == ReefscapeSetpoints.Stow && CoralAtState(coralStowState))
+            {
+                StartCoroutine(DepositCoralFromStow());
+                return;
+            }
+
             if (!IsCoralSetpoint() || !AtSetpoint(GetCurrentCoralSetpointSetpoint()) || !CoralAtState(coralStowState)) return;
 
             _coralController.SetTargetState(funnelCoralState);

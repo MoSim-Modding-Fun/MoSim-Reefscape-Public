@@ -17683,9 +17683,9 @@ MonoBehaviour:
   <CurrentCoralStationMode>k__BackingField:
     <DropType>k__BackingField: 1
     <DropDistance>k__BackingField: 1.67
-    <DropStrength>k__BackingField: 4.5
-    <DropForceVariance>k__BackingField: 0
-    <RotationVariance>k__BackingField: 0
+    <DropStrength>k__BackingField: 5
+    <DropForceVariance>k__BackingField: 0.4
+    <RotationVariance>k__BackingField: 0.001
     <DropOrientation>k__BackingField: 1
     <RequireIntaking>k__BackingField: 0
     <TargetTransform>k__BackingField: {fileID: 4973423391262329407}
@@ -17728,6 +17728,7 @@ MonoBehaviour:
   l4: {fileID: 11400000, guid: 28760032bf1453c45a50d6b71ceec747, type: 2}
   lowDescore: {fileID: 11400000, guid: 7e36e59de5039dc4cb713c48a2f6de26, type: 2}
   highDescore: {fileID: 11400000, guid: 9d5526b7f14cca24ea470c7529d89047, type: 2}
+  coralDeposit: {fileID: 11400000, guid: b64e9f8aba4364424a657ead1cad443d, type: 2}
   climbStow: {fileID: 11400000, guid: 2e598064910ef0d4a9c07dc2c6f064e9, type: 2}
   prep: {fileID: 11400000, guid: 0cb373dda6ad7ba4d8fea1a875c06a78, type: 2}
   climb: {fileID: 11400000, guid: 7904e5234fdbde440b71102a4e700c9b, type: 2}
@@ -19364,7 +19365,7 @@ Transform:
   m_GameObject: {fileID: 2738449378977131278}
   serializedVersion: 2
   m_LocalRotation: {x: -0.17155172, y: 0.6859811, z: -0.17155172, w: -0.6859811}
-  m_LocalPosition: {x: -0.119, y: 0.503, z: 0}
+  m_LocalPosition: {x: -0.119, y: 0.5056, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -30140,7 +30141,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 192
+    m_Bits: 128
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -58598,7 +58599,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 192
   m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -59505,7 +59506,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 192
+    m_Bits: 128
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -62049,10 +62050,10 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 3903
+    m_Bits: 128
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8063
   m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0

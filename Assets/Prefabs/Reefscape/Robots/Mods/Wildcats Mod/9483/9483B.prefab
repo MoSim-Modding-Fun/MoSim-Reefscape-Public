@@ -19629,6 +19629,7 @@ MonoBehaviour:
   l4: {fileID: 11400000, guid: 1c628be29aec5c54d87551e2d23ab408, type: 2}
   lowDescore: {fileID: 11400000, guid: f5a7594624f491d488e05a70a03c9136, type: 2}
   highDescore: {fileID: 11400000, guid: d46b86ad45e304c44a822163d430a2b7, type: 2}
+  coralDeposit: {fileID: 11400000, guid: b64e9f8aba4364424a657ead1cad443d, type: 2}
   climbStow: {fileID: 11400000, guid: 2e598064910ef0d4a9c07dc2c6f064e9, type: 2}
   prep: {fileID: 11400000, guid: 0cb373dda6ad7ba4d8fea1a875c06a78, type: 2}
   climb: {fileID: 11400000, guid: 7904e5234fdbde440b71102a4e700c9b, type: 2}
@@ -20672,7 +20673,7 @@ Transform:
   m_GameObject: {fileID: 2738449378977131278}
   serializedVersion: 2
   m_LocalRotation: {x: -0.17155172, y: 0.6859811, z: -0.17155172, w: -0.6859811}
-  m_LocalPosition: {x: -0.118, y: 0.502, z: 0}
+  m_LocalPosition: {x: -0.118, y: 0.506, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
