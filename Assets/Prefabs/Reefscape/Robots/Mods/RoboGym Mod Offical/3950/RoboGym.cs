@@ -160,7 +160,7 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
         private void UpdateSetpoints()
         {
             elevator.SetTarget(_elevatorTargetHeight);
-            climber.SetTargetAngle(_climberTargetAngle).withAxis(JointAxis.Z);
+            climber.SetTargetAngle(_climberTargetAngle).withAxis(JointAxis.X).useCustomStartingOffset(0f);
         }
 
         private void PlacePiece()
