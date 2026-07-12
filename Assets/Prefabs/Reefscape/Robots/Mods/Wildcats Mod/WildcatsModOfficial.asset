@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: WildcatsModOfficial
   m_EditorClassIdentifier: 
   modpackName: Wildcats Mod
-  modpackVersion: 1.0.0
+  modpackVersion: v1.3.1
   authorName: Seb, vprabh, Ari
   description: meow
   robots:
