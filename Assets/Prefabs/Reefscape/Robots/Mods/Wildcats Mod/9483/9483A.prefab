@@ -17682,7 +17682,7 @@ MonoBehaviour:
   <CurrentSetpoint>k__BackingField: 0
   <CurrentCoralStationMode>k__BackingField:
     <DropType>k__BackingField: 1
-    <DropDistance>k__BackingField: 1.67
+    <DropDistance>k__BackingField: 1.6
     <DropStrength>k__BackingField: 5
     <DropForceVariance>k__BackingField: 0.4
     <RotationVariance>k__BackingField: 0.001
@@ -19364,13 +19364,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2738449378977131278}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.17155172, y: 0.6859811, z: -0.17155172, w: -0.6859811}
-  m_LocalPosition: {x: -0.119, y: 0.5056, z: 0}
+  m_LocalRotation: {x: -0.19561268, y: 0.67951137, z: -0.19561268, w: -0.67951137}
+  m_LocalPosition: {x: -0.11803432, y: 0.50605077, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 9073317135027821914}
-  m_LocalEulerAnglesHint: {x: 28.081, y: 270, z: 0}
+  m_LocalEulerAnglesHint: {x: 32.119, y: 270, z: 0}
 --- !u!1 &2742060124511364491
 GameObject:
   m_ObjectHideFlags: 0
