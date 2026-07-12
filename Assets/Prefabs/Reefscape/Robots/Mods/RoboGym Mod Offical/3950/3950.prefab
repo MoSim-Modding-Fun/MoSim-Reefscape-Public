@@ -124356,7 +124356,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8411674003370726640}
   - component: {fileID: 4177688671004122488}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Intake Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -172848,7 +172848,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4662062186161133853}
   - component: {fileID: 1112355622507140068}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Coral Intake
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -172889,7 +172889,7 @@ MonoBehaviour:
   hasGamePiece: 0
   requestIntake: 0
   pieceName: 
-  intakeSpeed: 500
+  intakeSpeed: 120
   intakeForce: 100
   usePlanarTolerancing: 0
   boxExtents: {x: 0, y: 0, z: 0}

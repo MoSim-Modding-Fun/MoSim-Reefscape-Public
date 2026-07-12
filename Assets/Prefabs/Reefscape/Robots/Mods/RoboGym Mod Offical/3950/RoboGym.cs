@@ -79,7 +79,7 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
                 SetRobotMode(ReefscapeRobotMode.Coral);
             }
             
-            PreventAlgaeSetpoints();
+            //PreventAlgaeSetpoints();
             switch (CurrentSetpoint)
             {
                 case ReefscapeSetpoints.Stow:
