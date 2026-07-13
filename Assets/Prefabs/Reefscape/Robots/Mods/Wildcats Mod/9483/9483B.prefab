@@ -1799,11 +1799,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -2569,11 +2569,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -4524,7 +4524,7 @@ CapsuleCollider:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 128
-  m_LayerOverridePriority: 5
+  m_LayerOverridePriority: 10
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -7696,11 +7696,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -9592,11 +9592,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -10005,11 +10005,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -14817,11 +14817,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -15601,11 +15601,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -16197,11 +16197,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -17104,7 +17104,7 @@ BoxCollider:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 5
+  m_LayerOverridePriority: 10
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -17903,11 +17903,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -18212,11 +18212,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -20806,11 +20806,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 99a4521ed91e2a74fb49255117e7d7d0, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 456
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 10
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -20859,11 +20859,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -21140,11 +21140,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -23213,7 +23213,7 @@ CapsuleCollider:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 128
-  m_LayerOverridePriority: 5
+  m_LayerOverridePriority: 10
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -26955,11 +26955,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -28539,11 +28539,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -29443,11 +29443,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -30216,7 +30216,7 @@ BoxCollider:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 5
+  m_LayerOverridePriority: 10
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -31513,11 +31513,11 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 456
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 10
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -32514,7 +32514,7 @@ CapsuleCollider:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 128
-  m_LayerOverridePriority: 5
+  m_LayerOverridePriority: 10
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -33177,7 +33177,7 @@ BoxCollider:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 5
+  m_LayerOverridePriority: 10
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -37845,7 +37845,7 @@ BoxCollider:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 5
+  m_LayerOverridePriority: 10
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -42625,11 +42625,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -43669,11 +43669,11 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 456
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 10
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -46052,7 +46052,7 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
   m_ImplicitCom: 0
   m_ImplicitTensor: 1
   m_UseGravity: 1
@@ -46245,7 +46245,7 @@ BoxCollider:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 5
+  m_LayerOverridePriority: 10
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -46380,11 +46380,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -46519,11 +46519,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -49493,11 +49493,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -52474,11 +52474,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -53147,7 +53147,7 @@ BoxCollider:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 5
+  m_LayerOverridePriority: 10
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -53428,11 +53428,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -54107,11 +54107,11 @@ BoxCollider:
   m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 5
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
