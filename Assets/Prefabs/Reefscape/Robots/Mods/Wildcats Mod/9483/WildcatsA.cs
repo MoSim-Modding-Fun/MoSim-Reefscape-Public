@@ -68,6 +68,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
         private Vector3 _redReef;
 
         private bool depositing;
+        private bool checkingFinishDeposit;
         
         #endregion
         
@@ -108,6 +109,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
             funnelCloseSource.Stop();
             
             depositing = false;
+            checkingFinishDeposit = false;
 
             soundDetector = new OverlapBoxBounds(coralTrigger);
             canClack = true;
@@ -243,6 +245,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
             
             UpdateSetpoints();
             UpdateAudio();
+            CheckForDeposit();
         }
 
         #region Actuators & Setpoints
@@ -268,11 +271,19 @@ namespace Prefabs.Reefscape.Robots.Mods.Wildcats._9483
                 yield return new WaitForSeconds(0.3f);
                 SetSetpoint(stow);
             }
+            
+            checkingFinishDeposit = true;
+        }
 
+        private void CheckForDeposit()
+        {
+            if (!checkingFinishDeposit) return;
+            
             if (!_coralController.HasPiece() && AtSetpoint(stow))
             {
                 depositing = false;
-                yield return null;
+                SetState(ReefscapeSetpoints.Stow);
+                checkingFinishDeposit = false;
             }
         }
         
