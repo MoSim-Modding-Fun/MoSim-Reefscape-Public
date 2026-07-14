@@ -13038,6 +13038,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5621674930688548241}
+  - component: {fileID: 1782540346557343045}
+  - component: {fileID: 583534205622775518}
   m_Layer: 6
   m_Name: 2910 import he
   m_TagString: BlueRobot
@@ -13064,6 +13066,49 @@ Transform:
   - {fileID: 6211151246678316674}
   m_Father: {fileID: 1073932013172941232}
   m_LocalEulerAnglesHint: {x: -15.595, y: 180, z: 0}
+--- !u!54 &1782540346557343045
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1716646612440374132}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 200
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!138 &583534205622775518
+FixedJoint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1716646612440374132}
+  serializedVersion: 1
+  m_ConnectedBody: {fileID: 7471741440753489154}
+  m_ConnectedArticulationBody: {fileID: 0}
+  m_BreakForce: Infinity
+  m_BreakTorque: Infinity
+  m_EnableCollision: 0
+  m_EnablePreprocessing: 1
+  m_MassScale: 1
+  m_ConnectedMassScale: 1
 --- !u!1 &1737853841941065304
 GameObject:
   m_ObjectHideFlags: 0
@@ -46049,7 +46094,7 @@ Rigidbody:
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 200
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
