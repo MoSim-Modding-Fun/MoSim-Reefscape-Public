@@ -1,7 +1,10 @@
 # This MoSimulator repo includes the source for the following Robots:
 
+- 340: GRR
+- 694: Stuypulse
 - 9483: Pre-Champs and Champs Variations
 - 5026: Iron Panthers
+- 5449: Prototype
 - 971: Spartan Robotics
 - 9999: Custom Robot by Dom lol
 
