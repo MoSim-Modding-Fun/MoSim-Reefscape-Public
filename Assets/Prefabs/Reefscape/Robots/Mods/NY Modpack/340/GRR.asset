@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aff2b59de2c4a0c96d6b848990b46af, type: 3}
+  m_Name: GRR
+  m_EditorClassIdentifier: 
+  teamNumber: 340
+  teamName: G.R.R.
+  robotPrefab: {fileID: 6145107239193163244, guid: cf449a6043c39bd4289c3836effc5a37,
+    type: 3}
+  robotPreloadGamePiece: {fileID: 2185987706872048638, guid: 970bdf84a203d9a4b8dc602974341a07,
+    type: 3}
+  mainMenuPrefab: {fileID: 1846715949219510738, guid: 9037f776c93402f48a6e812e3dce47f8,
+    type: 3}
+  hasAlternateRobot: 0
+  alternateRobotPrefab: {fileID: 0}
+  alternateMainMenuPrefab: {fileID: 0}
+  robotImage: {fileID: 21300000, guid: 0eab045cf3f36bb459a36462c6cf4cc9, type: 3}
+  tutorialCards:
+  - {fileID: 6829736770845459078, guid: 6c97fc4b1e1896c4b984a40dd9eddd98, type: 3}
+  - {fileID: 6829736770845459078, guid: 40dadf5387246ca48ae7503b7f8ec02e, type: 3}
+  - {fileID: 6829736770845459078, guid: b487145a447d53b4db09bf70afa2f407, type: 3}
+  alternateTutorialCards: []
+  autoClimbs: 0
+  alternateAutoClimbs: 0

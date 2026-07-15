@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aff2b59de2c4a0c96d6b848990b46af, type: 3}
+  m_Name: ChillOut
+  m_EditorClassIdentifier: 
+  teamNumber: 1778
+  teamName: Chill Out
+  robotPrefab: {fileID: 1627221153509397327, guid: 6bb7c4ada87a7614abdb9064880ba040,
+    type: 3}
+  robotPreloadGamePiece: {fileID: 2185987706872048638, guid: 970bdf84a203d9a4b8dc602974341a07,
+    type: 3}
+  mainMenuPrefab: {fileID: 2534371394911199621, guid: db49ab07b603c8440a3e8d839017b6d7,
+    type: 3}
+  hasAlternateRobot: 0
+  alternateRobotPrefab: {fileID: 0}
+  alternateMainMenuPrefab: {fileID: 0}
+  robotImage: {fileID: 21300000, guid: 7e19c2cf0cb49544db686b8f36e28ccb, type: 3}
+  tutorialCards:
+  - {fileID: 6829736770845459078, guid: d98e647e784ca744bb2d29f5817c44c7, type: 3}
+  - {fileID: 6829736770845459078, guid: aa32674db72ea81499b495abddfbaa0e, type: 3}
+  - {fileID: 6829736770845459078, guid: 882055ef69dba564185af793ebe22c82, type: 3}
+  alternateTutorialCards: []
+  autoClimbs: 0
+  alternateAutoClimbs: 0

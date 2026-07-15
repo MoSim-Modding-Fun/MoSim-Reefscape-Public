@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 713155721937481dbf0332a6dcf52567, type: 3}
+  m_Name: NYModpack
+  m_EditorClassIdentifier: 
+  modpackName: NY Modpack
+  modpackVersion: 1.0.0
+  authorName: Trent (340), Bryce (340), and Seb (694)
+  description: 
+  robots:
+  - {fileID: 11400000, guid: bf13614c2c3c5c24eaadbd50f5093984, type: 2}
+  - {fileID: 11400000, guid: bfdebe1f0a53291449a1e9b7c15a2271, type: 2}

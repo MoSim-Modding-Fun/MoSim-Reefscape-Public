@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aff2b59de2c4a0c96d6b848990b46af, type: 3}
+  m_Name: StuyPulse
+  m_EditorClassIdentifier: 
+  teamNumber: 694
+  teamName: StuyPulse
+  robotPrefab: {fileID: 2534371394911199621, guid: d28908d683e45d8448f7f10a193d7ef4,
+    type: 3}
+  robotPreloadGamePiece: {fileID: 2185987706872048638, guid: 970bdf84a203d9a4b8dc602974341a07,
+    type: 3}
+  mainMenuPrefab: {fileID: 2534371394911199621, guid: c37ee33624c3b4f52afcc602a0a36a2c,
+    type: 3}
+  hasAlternateRobot: 1
+  alternateRobotPrefab: {fileID: 2534371394911199621, guid: fd866afe83a514ee8a93d28ae8708533,
+    type: 3}
+  alternateMainMenuPrefab: {fileID: 8780548993016193416, guid: b379d101ddc3d4847950ee3baa61925b,
+    type: 3}
+  robotImage: {fileID: 21300000, guid: 4b0b8ec21c8df0043b0502cd5de04fd4, type: 3}
+  tutorialCards:
+  - {fileID: 6829736770845459078, guid: dcf6687b2efc00345b64bb8e5791b6ee, type: 3}
+  - {fileID: 6829736770845459078, guid: 9354947a125c3384dba791ea31a8b1ec, type: 3}
+  - {fileID: 6829736770845459078, guid: 44b21fa7e13766549ba2218dc5952059, type: 3}
+  alternateTutorialCards:
+  - {fileID: 6829736770845459078, guid: dcf6687b2efc00345b64bb8e5791b6ee, type: 3}
+  - {fileID: 6829736770845459078, guid: 9354947a125c3384dba791ea31a8b1ec, type: 3}
+  - {fileID: 6829736770845459078, guid: 44b21fa7e13766549ba2218dc5952059, type: 3}
+  autoClimbs: 0
+  alternateAutoClimbs: 0
