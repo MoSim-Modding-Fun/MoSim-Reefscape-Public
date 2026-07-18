@@ -20,6 +20,8 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
         [Header("Components")]        
         [SerializeField] private GenericElevator elevator;
             [SerializeField] private GenericJoint arm, funnelMainLinkage;
+            [SerializeField] private GenericRoller algaeRoller;
+            [SerializeField] private float algaeRollerRpm;
             [SerializeField] private LanternClimb climber;
             [SerializeField] private ClimbScorer scorer;
         
@@ -42,6 +44,8 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
         [Header("Animation Wheels")]
         [SerializeField] private GenericAnimationJoint[] endEffectorWheels;
             [SerializeField] private float endEffectorWheelsSpeeds;
+        [SerializeField] private GenericAnimationJoint[] climberWheels;
+            [SerializeField] private float climberWheelSpeeds;
         
         [Header("Robot Audio")]        
         [SerializeField] private AudioSource rollerSource;
@@ -156,7 +160,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             {
                 case ReefscapeSetpoints.Stow: 
                     SetSetpoint(stow);
-                    SetEndEffectorWheels(_coralController.HasPiece() ? 0 : endEffectorWheelsSpeeds * 1.5f);
                     if (climber != null) climber.NotClimbing();
                     break;
                 
@@ -168,11 +171,13 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
                 
                 case ReefscapeSetpoints.LowAlgae: 
                     SetSetpoint(lowDescore); 
+                    algaeRoller.SetAngularVelocity(algaeRollerRpm);
                     if(IntakeAction.IsPressed()) SetState(ReefscapeSetpoints.Intake); 
                     break;
                 
                 case ReefscapeSetpoints.HighAlgae: 
                     SetSetpoint(highDescore); 
+                    algaeRoller.SetAngularVelocity(algaeRollerRpm);
                     if(IntakeAction.IsPressed()) SetState(ReefscapeSetpoints.Intake); 
                     break;
                 
@@ -190,7 +195,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
                 
                 case ReefscapeSetpoints.Place: 
                     PlacePiece();
-                    if (OuttakeAction.IsPressed()) SetEndEffectorWheels(endEffectorWheelsSpeeds); else SetEndEffectorWheels(0);
                     break;
                 
                 case ReefscapeSetpoints.RobotSpecial:
@@ -209,7 +213,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             
             UpdateSetpoints();
             //UpdateAudio();
-            
+            AnimateWheels();
             
             // Climber and Drive modifiers remain the same...
             if (scorer.AutoClimbTriggered && CurrentSetpoint == ReefscapeSetpoints.Climb && climber.WingsOpen())
@@ -278,6 +282,43 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
         
 
         #region Logic Helpers
+
+        private void AnimateWheels()
+        {
+            if (CurrentSetpoint == ReefscapeSetpoints.Intake)
+            {
+                RunRollers(endEffectorWheels, endEffectorWheelsSpeeds);
+            } 
+            else if (OuttakeAction.IsPressed() && CurrentSetpoint == ReefscapeSetpoints.Place)
+            {
+                RunRollers(endEffectorWheels, -endEffectorWheelsSpeeds);
+            }
+            else if (CurrentSetpoint == ReefscapeSetpoints.LowAlgae || CurrentSetpoint == ReefscapeSetpoints.HighAlgae)
+            {
+                RunRollers(endEffectorWheels, endEffectorWheelsSpeeds);
+            }
+            else
+            {
+                RunRollers(endEffectorWheels, 0f);
+            }
+
+            if (CurrentSetpoint == ReefscapeSetpoints.Climb)
+            {
+                RunRollers(climberWheels, climberWheelSpeeds);
+            }
+            else
+            {
+                RunRollers(climberWheels, 0f);
+            }
+        }
+
+        private void RunRollers(GenericAnimationJoint[] rollerGroup, float rollerSpeed)
+        {
+            foreach (var roller in rollerGroup)
+            {
+                roller.VelocityRoller(rollerSpeed);
+            }
+        }
 
         private bool ArmAtSetpoint(LanternflySetpoint setpoint = null)
         {
@@ -353,8 +394,8 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             }
             else if (LastSetpoint == ReefscapeSetpoints.L1)
             {
-                _coralController.ReleaseGamePieceWithForce(new Vector3(0, 0, 2f));
-                //_coralController.ReleaseGamePieceWithContinuedForce(new Vector3(0, 0, 2), .3f, .75f);
+                //_coralController.ReleaseGamePieceWithForce(new Vector3(0, 0, 2f));
+                _coralController.ReleaseGamePieceWithContinuedForce(new Vector3(0, 0, 2), .3f, .75f);
                 return;
             }
             _coralController.ReleaseGamePieceWithForce(new Vector3(0, 0, 3));
