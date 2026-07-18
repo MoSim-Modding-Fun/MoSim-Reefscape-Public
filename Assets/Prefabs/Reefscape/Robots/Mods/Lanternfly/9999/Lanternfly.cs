@@ -164,18 +164,20 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
                     break;
                 
                 case ReefscapeSetpoints.Intake:
-                    if (_coralController.HasPiece()) { SetSetpoint(stow); break; }
+                    if (_coralController.atTarget) { SetSetpoint(stow); break; }
                     
                     SetSetpoint(intake);
                     break;
                 
                 case ReefscapeSetpoints.LowAlgae: 
+                    SetRobotMode(ReefscapeRobotMode.Algae);
                     SetSetpoint(lowDescore); 
                     algaeRoller.SetAngularVelocity(algaeRollerRpm);
                     if(IntakeAction.IsPressed()) SetState(ReefscapeSetpoints.Intake); 
                     break;
                 
                 case ReefscapeSetpoints.HighAlgae: 
+                    SetRobotMode(ReefscapeRobotMode.Algae);
                     SetSetpoint(highDescore); 
                     algaeRoller.SetAngularVelocity(algaeRollerRpm);
                     if(IntakeAction.IsPressed()) SetState(ReefscapeSetpoints.Intake); 
