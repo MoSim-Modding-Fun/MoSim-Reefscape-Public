@@ -1,13 +1,8 @@
 @echo off
 setlocal EnableExtensions
 
-set "version_number=v1.3.2"
-set "modpack_name=Wildcats Mod"
-set "folder_name=%modpack_name%"
-set "dll_name=Wildcats.dll"
-set "zip_name=Wildcats Release"
-
 set "script_dir=%~dp0"
+call "%script_dir%release_settings.bat"
 for %%I in ("%script_dir%..") do set "repo_root=%%~fI"
 
 set "mods_dir=%repo_root%\Mods"

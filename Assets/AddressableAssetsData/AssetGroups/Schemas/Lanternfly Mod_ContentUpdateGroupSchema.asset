@@ -9,10 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf579136bd08f6e4e8b4e760dde402db, type: 3}
-  m_Name: L1
+  m_Script: {fileID: 11500000, guid: 5834b5087d578d24c926ce20cd31e6d6, type: 3}
+  m_Name: Lanternfly Mod_ContentUpdateGroupSchema
   m_EditorClassIdentifier: 
-  elevatorHeight: 2
-  armAngle: 0
-  funnelAngle: -35
-  climbAngle: 0
+  m_Group: {fileID: 11400000, guid: 7aff7796f0c38514fbb6c27d72245c97, type: 2}
+  m_StaticContent: 0

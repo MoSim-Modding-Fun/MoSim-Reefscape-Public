@@ -1,0 +1,5 @@
+set "version_number=v1.0.0"
+set "modpack_name="Lanternfly"
+set "folder_name=%modpack_name%"
+set "dll_name=Lanternfly.dll"
+set "zip_name=Lanternfly Release"

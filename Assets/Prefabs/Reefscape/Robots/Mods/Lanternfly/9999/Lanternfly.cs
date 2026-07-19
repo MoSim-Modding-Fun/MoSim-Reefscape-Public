@@ -129,10 +129,19 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             {
                 SetRobotMode(ReefscapeRobotMode.Coral);
             }
+
+            if (ArmAtSetpoint(intake))
+            {
+                CurrentCoralStationMode.DropDistance = 2f;
+            }
+            else
+            {
+                CurrentCoralStationMode.DropDistance = 0f;
+            }
             
             bool hasCoral = _coralController.atTarget;
             
-            _coralController.RequestIntake(coralIntake, AtSetpoint(intake) && !hasCoral);
+            _coralController.RequestIntake(coralIntake, AtSetpoint(intake) && !hasCoral && IntakeAction.IsPressed());
             
             if (hasCoral)
             {
@@ -396,8 +405,8 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             }
             else if (LastSetpoint == ReefscapeSetpoints.L1)
             {
-                //_coralController.ReleaseGamePieceWithForce(new Vector3(0, 0, 2f));
-                _coralController.ReleaseGamePieceWithContinuedForce(new Vector3(0, 0, 2), .3f, .75f);
+                _coralController.ReleaseGamePieceWithForce(new Vector3(0, 0, 3.5f));
+                //_coralController.ReleaseGamePieceWithContinuedForce(new Vector3(0, 0, 2), .3f, .75f);
                 return;
             }
             _coralController.ReleaseGamePieceWithForce(new Vector3(0, 0, 3));
