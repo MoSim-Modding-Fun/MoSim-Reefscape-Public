@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 9162ef73a8b7ff14a81079bd59987bc0
   m_currentHash:
     serializedVersion: 2
-    Hash: b06094a9b25b258f79e5a744717fd96f
+    Hash: 00000000000000000000000000000000
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_BundleLocalCatalog: 0
@@ -92,12 +92,16 @@ MonoBehaviour:
         m_Value: 'ServerData/[BuildTarget]'
       - m_Id: 6ae011911ed4dff4eb609933b6caac2a
         m_Value: '{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]'
+      - m_Id: 7d3fa60b82264634a82f9985d6f3a3a7
+        m_Value: '{UnityEngine.Application.dataPath}/../Mods/Lanternfly Mod'
       - m_Id: a2842c0f9ded8a54d9ba8ec693eb3bcc
         m_Value: '{UnityEngine.Application.dataPath}/../Mods/Packed Assets'
       - m_Id: c65595e78f4c7db44a4324f2e84106be
         m_Value: '{UnityEngine.Application.persistentDataPath}/Mods/MechTechMod'
       - m_Id: dc362afee9112ee489246a2a832e6005
         m_Value: '{UnityEngine.Application.dataPath}/../Mods/MechTechMod'
+      - m_Id: eeb8e6721a460524eb8d7dc99129b410
+        m_Value: '{UnityEngine.Application.persistentDataPath}/Mods/Lanternfly Mod'
     m_ProfileEntryNames:
     - m_Id: 05ae8f03d2143b344b8793d154e191f3
       m_Name: Wildcats Mod_BuildPath
@@ -123,6 +127,9 @@ MonoBehaviour:
     - m_Id: 6ae011911ed4dff4eb609933b6caac2a
       m_Name: Local.LoadPath
       m_InlineUsage: 0
+    - m_Id: 7d3fa60b82264634a82f9985d6f3a3a7
+      m_Name: Lanternfly Mod_BuildPath
+      m_InlineUsage: 0
     - m_Id: a2842c0f9ded8a54d9ba8ec693eb3bcc
       m_Name: Packed Assets_BuildPath
       m_InlineUsage: 0
@@ -131,6 +138,9 @@ MonoBehaviour:
       m_InlineUsage: 0
     - m_Id: dc362afee9112ee489246a2a832e6005
       m_Name: MechTechMod_BuildPath
+      m_InlineUsage: 0
+    - m_Id: eeb8e6721a460524eb8d7dc99129b410
+      m_Name: Lanternfly Mod_LoadPath
       m_InlineUsage: 0
     m_ProfileVersion: 1
   m_LabelTable:
