@@ -3,6 +3,8 @@ using Games.Reefscape.Enums;
 using Games.Reefscape.GamePieceSystem;
 using Games.Reefscape.Robots;
 using Games.Reefscape.Scoring.Scorers;
+using MoSimCore.BaseClasses.GameManagement;
+using MoSimCore.Enums;
 using MoSimLib;
 using RobotFramework.Components;
 using RobotFramework.Controllers.GamePieceSystem;
@@ -49,21 +51,13 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
         
         [Header("Robot Audio")]        
         [SerializeField] private AudioSource rollerSource;
-            [SerializeField] private AudioClip intakeClip;
+            [SerializeField] private AudioClip rollerAudio;
         
         [Header("Funnel Close Audio")]        
         [SerializeField] private AudioSource funnelCloseSource;
             [SerializeField] private AudioClip funnelCloseAudio;
             [SerializeField] private BoxCollider coralTrigger;
         private OverlapBoxBounds soundDetector;
-        
-        [Header("Climb Roller Audio")]
-        [SerializeField] private AudioSource climbRollerSource;
-            [SerializeField] private AudioClip climbRollerClip;
-    
-        [Header("Climb Click Audio")]
-        [SerializeField] private AudioSource climbClickSource;
-            [SerializeField] private AudioClip climbClickClip;
         
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _coralController;
 
@@ -102,7 +96,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             
             align = gameObject.GetComponent<ReefscapeAutoAlign>();
             
-            rollerSource.clip = intakeClip;
+            rollerSource.clip = rollerAudio;
             rollerSource.loop = true;
             rollerSource.Stop();
             
@@ -125,6 +119,12 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
 
         private void FixedUpdate()
         {
+            
+            foreach (var roller in endEffectorWheels)
+            {
+                roller.gameObject.transform.localScale = _coralController.atTarget && _coralController.HasPiece() ? new Vector3(0.8f, 0.8f, 0.8f) : new Vector3(1f, 1f, 1f);
+            }
+            
             if (CurrentRobotMode == ReefscapeRobotMode.Algae)
             {
                 SetRobotMode(ReefscapeRobotMode.Coral);
@@ -223,12 +223,15 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             }
             
             UpdateSetpoints();
-            //UpdateAudio();
+            UpdateAudio();
             AnimateWheels();
             
             // Climber and Drive modifiers remain the same...
             if (scorer.AutoClimbTriggered && CurrentSetpoint == ReefscapeSetpoints.Climb && climber.WingsOpen())
+            {
+                climber.PlayClick();
                 SetState(ReefscapeSetpoints.Climbed);
+            }
             else if (!scorer.AutoClimbTriggered && CurrentSetpoint == ReefscapeSetpoints.Climbed)
                 SetState(ReefscapeSetpoints.Climb);
         }
@@ -270,14 +273,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
                 _elevatorTargetHeight = setpoint.elevatorHeight;
             }
         }
-        
-        private void SetEndEffectorWheels(float speed)
-        {
-            foreach (var roller in endEffectorWheels)
-            {
-                roller.VelocityRoller(speed);
-            }
-        }
 
         private void UpdateSetpoints()
         {
@@ -296,21 +291,47 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
 
         private void AnimateWheels()
         {
+            if (BaseGameManager.Instance.RobotState == RobotState.Disabled)
+            {
+                if (rollerSource.isPlaying)
+                {
+                    rollerSource.Stop();
+                }
+                
+                return;
+            }
+            
             if (CurrentSetpoint == ReefscapeSetpoints.Intake)
             {
                 RunRollers(endEffectorWheels, endEffectorWheelsSpeeds);
+                if (!rollerSource.isPlaying)
+                {
+                    rollerSource.Play();
+                }
             } 
             else if (OuttakeAction.IsPressed() && CurrentSetpoint == ReefscapeSetpoints.Place)
             {
                 RunRollers(endEffectorWheels, -endEffectorWheelsSpeeds);
+                if (!rollerSource.isPlaying)
+                {
+                    rollerSource.Play();
+                }
             }
             else if (CurrentSetpoint == ReefscapeSetpoints.LowAlgae || CurrentSetpoint == ReefscapeSetpoints.HighAlgae)
             {
                 RunRollers(endEffectorWheels, endEffectorWheelsSpeeds);
+                if (!rollerSource.isPlaying)
+                {
+                    rollerSource.Play();
+                }
             }
             else
             {
                 RunRollers(endEffectorWheels, 0f);
+                if (rollerSource.isPlaying)
+                {
+                    rollerSource.Stop();
+                }
             }
 
             if (CurrentSetpoint == ReefscapeSetpoints.Climb)
@@ -347,40 +368,8 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             return ElevatorAtSetpoint(setpoint) && ArmAtSetpoint(setpoint);
         }
         
-        /*
         private void UpdateAudio()
         {
-            if (BaseGameManager.Instance.RobotState == RobotState.Disabled)
-            {
-                if (rollerSource.isPlaying)
-                {
-                    rollerSource.Stop();
-                }
-
-                return;
-            }
-
-            if (CurrentSetpoint == ReefscapeSetpoints.Climbed || CurrentSetpoint == ReefscapeSetpoints.Climb)
-            {
-                rollerSource.Stop();
-                return;
-            }
-
-            if ((((AtSetpoint(intake) && !_coralController.HasPiece()) ||
-                 (OuttakeAction.IsPressed() && !AtSetpoint(stow))) || (_coralController.HasPiece() && !CoralAtState(coralStowState))) &&
-                !rollerSource.isPlaying)
-            {
-                rollerSource.Play();
-            }
-            else if ((!AtSetpoint(intake) && (!_coralController.HasPiece() || CoralAtState(coralStowState))) && !OuttakeAction.IsPressed() && rollerSource.isPlaying )
-            {
-                rollerSource.Stop();
-            }
-            else if (AtSetpoint(intake) && (CoralAtState(coralStowState)))
-            {
-                rollerSource.Stop();
-            }
-
             var a = soundDetector.OverlapBox(coralMask);
             if (a.Length > 0)
             {
@@ -395,7 +384,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
                 canClack = true;
             }
         }
-*/
+        
         private void PlacePiece()
         {
             if (LastSetpoint == ReefscapeSetpoints.L4)

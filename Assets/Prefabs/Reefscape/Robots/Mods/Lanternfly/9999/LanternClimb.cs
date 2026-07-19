@@ -188,6 +188,14 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             _isRetracting = false;
         }
 
+        public void PlayClick()
+        {
+            if (oneShotAudioSource != null && detectorClickClip != null)
+            {
+                oneShotAudioSource.PlayOneShot(detectorClickClip);
+            }
+        }
+
         public void RetractArm()
         {
             if (_isRetracting || _armTarget == retractAngle) return;
@@ -196,11 +204,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             _angularVelocity = climbingAngularVelocity; 
             _intakeWheelSpeed = targetIntakeWheelSpeed;
             _isRetracting = true;
-
-            if (oneShotAudioSource != null && detectorClickClip != null)
-            {
-                oneShotAudioSource.PlayOneShot(detectorClickClip, volClick);
-            }
             
             if (oneShotAudioSource != null && pullDownClip != null)
             {
