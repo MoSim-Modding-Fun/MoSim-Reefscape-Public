@@ -1,2 +1,21 @@
 fileFormatVersion: 2
 guid: 65fedd600569a486d9932b6ceec249dc
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - blueBumperMaterial: {instanceID: 0}
+  - redBumperMaterial: {instanceID: 0}
+  - elevator: {instanceID: 0}
+  - stowSetpoint: {instanceID: 0}
+  - intakeSetpoint: {instanceID: 0}
+  - l1: {instanceID: 0}
+  - l2: {instanceID: 0}
+  - l3: {instanceID: 0}
+  - l4: {instanceID: 0}
+  - coralIntake: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
