@@ -21318,6 +21318,7 @@ GameObject:
   - component: {fileID: 657378322173387844}
   - component: {fileID: 8959430803680521310}
   - component: {fileID: 3576782929807310843}
+  - component: {fileID: 2577507601211445355}
   m_Layer: 6
   m_Name: Shaft.005
   m_TagString: Untagged
@@ -21393,6 +21394,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &2577507601211445355
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1020474266093019707}
+  m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.00015788038, y: 0.00016534091, z: 0.0024651976}
+  m_Center: {x: 4.0706077e-10, y: -0.0000032949863, z: -0.000009334641}
 --- !u!1 &1021972737113034102
 GameObject:
   m_ObjectHideFlags: 0
@@ -26044,6 +26066,7 @@ GameObject:
   - component: {fileID: 512093998699182220}
   - component: {fileID: 4620079453894264079}
   - component: {fileID: 6618638270021109339}
+  - component: {fileID: 3574056595295516103}
   m_Layer: 6
   m_Name: Shaft.006
   m_TagString: Untagged
@@ -26119,6 +26142,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &3574056595295516103
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1274057312969264913}
+  m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.00014664698, y: 0.00016062817, z: 0.0015628623}
+  m_Center: {x: 3.4874065e-10, y: -0.0000056518256, z: -4.3655746e-11}
 --- !u!1 &1274391861460930643
 GameObject:
   m_ObjectHideFlags: 0
@@ -68202,6 +68246,7 @@ GameObject:
   - component: {fileID: 8234458259230901474}
   - component: {fileID: 3395681454342253230}
   - component: {fileID: 4788768107232998787}
+  - component: {fileID: 277218064117201092}
   m_Layer: 6
   m_Name: Shaft.007
   m_TagString: Untagged
@@ -68277,6 +68322,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &277218064117201092
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3460034992422745172}
+  m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.00014337286, y: 0.00016062817, z: 0.0017025623}
+  m_Center: {x: 9.3081726e-10, y: -0.000005651069, z: -5.820766e-11}
 --- !u!1 &3463852588732390470
 GameObject:
   m_ObjectHideFlags: 0
@@ -149839,14 +149905,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7633745762507879770}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.59336925, y: -0.3845947, z: -0.5933691, w: 0.38459465}
+  m_LocalRotation: {x: 0.23720409, y: -0.6661337, z: 0.23720431, w: 0.66613376}
   m_LocalPosition: {x: 0.25500003, y: 0.503, z: -0.072999984}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2870916391764844692}
   m_Father: {fileID: 7508108429782771140}
-  m_LocalEulerAnglesHint: {x: -114.101, y: -90, z: 0}
+  m_LocalEulerAnglesHint: {x: 39.201, y: -90, z: 0}
 --- !u!54 &1718068664874829465
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -149868,7 +149934,7 @@ Rigidbody:
     serializedVersion: 2
     m_Bits: 0
   m_ImplicitCom: 1
-  m_ImplicitTensor: 1
+  m_ImplicitTensor: 0
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
@@ -181634,6 +181700,7 @@ GameObject:
   - component: {fileID: 3405966597002388044}
   - component: {fileID: 7641373367031228634}
   - component: {fileID: 3584303487224362636}
+  - component: {fileID: 1057775096151169101}
   m_Layer: 6
   m_Name: Shaft.004
   m_TagString: Untagged
@@ -181709,6 +181776,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &1057775096151169101
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9147366406807692695}
+  m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.00014664697, y: 0.00016062817, z: 0.0015628625}
+  m_Center: {x: 4.66335e-10, y: -0.000005652466, z: 2.0372681e-10}
 --- !u!1 &9153917692683161831
 GameObject:
   m_ObjectHideFlags: 0
