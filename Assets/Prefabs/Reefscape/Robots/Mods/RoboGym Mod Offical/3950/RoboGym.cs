@@ -15,15 +15,11 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
     {
         [Header("Joints")]
         [SerializeField] private GenericElevator elevator;
-        [SerializeField] private GenericJoint climber;
-        
-        [Header("PIDs")]
-        [SerializeField] private PidConstants climberPid;
         
         [Header("Setpoints")]
-        [SerializeField] private ClimbPositions climbPositions;
         [SerializeField] private RoboGymSetpoint stowSetpoint, intakeSetpoint;
         [SerializeField] private RoboGymSetpoint l1, l2, l3, l4;
+        [SerializeField] private Vector3 coralOuttakeForce, coralL1OuttakeForce;
 
         [Header("Intakes")]
         [SerializeField] private ReefscapeGamePieceIntake coralIntake;
@@ -33,25 +29,14 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
 
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _coralController;
         
-        [Serializable]
-        private struct ClimbPositions
-        {
-            public float climbStowPosition;
-            public float climbPrepPosition;
-            public float climbClimbPosition;
-        }
 
         private float _elevatorTargetHeight;
-        private float _climberTargetAngle;
         
         protected override void Start()
         {
             base.Start();
-            
-            climber.SetPid(climberPid);
 
             _elevatorTargetHeight = 0;
-            _climberTargetAngle = 0;
             
             RobotGamePieceController.SetPreload(coralStowState);
             _coralController = RobotGamePieceController.GetPieceByName(ReefscapeGamePieceType.Coral.ToString());
@@ -65,7 +50,6 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
 
         private void LateUpdate()
         {
-            climber.UpdatePid(climberPid);
         }
 
         private void FixedUpdate()
@@ -92,9 +76,6 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
                 case ReefscapeSetpoints.Place:
                     PlacePiece();
                     break;
-                case ReefscapeSetpoints.L1:
-                    SetSetpoint(l1);
-                    break;
                 case ReefscapeSetpoints.L2:
                     SetSetpoint(l2);
                     break;
@@ -106,17 +87,10 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
                     break;
                 case ReefscapeSetpoints.Climb:
                     SetSetpoint(stowSetpoint);
-                    SetClimberAngle(climbPositions.climbPrepPosition);
                     break;
                 case ReefscapeSetpoints.Climbed:
                     SetSetpoint(stowSetpoint);
-                    SetClimberAngle(climbPositions.climbClimbPosition);
                     break;
-            }
-
-            if (CurrentSetpoint != ReefscapeSetpoints.Climb || CurrentSetpoint != ReefscapeSetpoints.Climbed)
-            {
-                SetClimberAngle(climbPositions.climbStowPosition);
             }
             
             UpdateSetpoints();
@@ -144,6 +118,9 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
                 case ReefscapeSetpoints.RobotSpecial:
                     SetState(ReefscapeSetpoints.Stow);
                     break;
+                case ReefscapeSetpoints.L1:
+                    SetState(ReefscapeSetpoints.Stow);
+                    break;
             }
         }
 
@@ -152,20 +129,21 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
             _elevatorTargetHeight = setpoint.elevatorHeight;
         }
 
-        private void SetClimberAngle(float angle)
-        {
-            _climberTargetAngle = angle;
-        }
-
         private void UpdateSetpoints()
         {
             elevator.SetTarget(_elevatorTargetHeight);
-            climber.SetTargetAngle(_climberTargetAngle).withAxis(JointAxis.X).useCustomStartingOffset(0f);
         }
 
         private void PlacePiece()
         {
-            _coralController.ReleaseGamePieceWithForce(new Vector3(0, 0, 0));
+            if (LastSetpoint == ReefscapeSetpoints.L1 || CurrentSetpoint == ReefscapeSetpoints.L1)
+            {
+                _coralController.ReleaseGamePieceWithForce(coralL1OuttakeForce);
+                return;
+            }
+
+            //_coralController.ReleaseGamePieceWithForce(coralOuttakeForce);
+            _coralController.ReleaseGamePieceWithContinuedForce(coralOuttakeForce, .4f, .5f);
         }
     }
 }
