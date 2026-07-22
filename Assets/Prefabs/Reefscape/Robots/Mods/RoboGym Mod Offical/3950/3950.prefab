@@ -48976,6 +48976,7 @@ GameObject:
   - component: {fileID: 3359237141181454309}
   - component: {fileID: 6699703931475903775}
   - component: {fileID: 6304809251990200646}
+  - component: {fileID: 208003191164144946}
   m_Layer: 6
   m_Name: 3950
   m_TagString: BlueRobot
@@ -49335,6 +49336,35 @@ MonoBehaviour:
     stateTarget: {fileID: 6903937330980669423}
     smoothHandoff: 0
     angularSpeed: 0
+--- !u!114 &208003191164144946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2534371394911199621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84285a51c5b987842b784c1508e6a743, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  drivePID:
+    kP: 21
+    kI: 0
+    kD: 2
+    Max: 2.9
+    Isaturation: 0
+  rotatePID:
+    kP: 0.05
+    kI: 0
+    kD: 0.0035
+    Max: 0.65
+    Isaturation: 1
+  offset: {x: 0.28, y: 0, z: 11}
+  rotation: 0
+  enableForwardAlign: 1
+  enableBackwardsAlign: 0
+  maxAlignDistanceFeet: 25
 --- !u!1 &2534996608910385857
 GameObject:
   m_ObjectHideFlags: 0
