@@ -15,6 +15,6 @@ MonoBehaviour:
   modpackName: RoboGym Mod
   modpackVersion: 1.0.0
   authorName: darksplice
-  description: sebtouchedme
+  description: Offical Mod for RoboGym Robot Pepper
   robots:
   - {fileID: 11400000, guid: 0f69fd9d552f9ef168553b398082f171, type: 2}
