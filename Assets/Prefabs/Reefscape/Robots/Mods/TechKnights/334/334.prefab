@@ -21005,14 +21005,14 @@ MonoBehaviour:
     stateMoveSpeed: 50
     stateTarget: {fileID: 3739942933759997299}
     smoothHandoff: 0
-    angularSpeed: 0
+    angularSpeed: 50
   coralHandoffState:
     name: Coral Handoff State
     stateNum: 2
     stateMoveSpeed: 50
     stateTarget: {fileID: 4842417350588373113}
     smoothHandoff: 0
-    angularSpeed: 0
+    angularSpeed: 50
   coralStowState:
     name: Coral Stow State
     stateNum: 3
@@ -32124,8 +32124,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4126281913742164944}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -0, y: 0.217, z: -0.4}
+  m_LocalRotation: {x: 0.00000006705522, y: 0.00000035762784, z: 0.0000000372529,
+    w: 1}
+  m_LocalPosition: {x: -0.09536611, y: 0.13281828, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -51503,8 +51504,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6562894968766116091}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0.000000014901161, y: -0.7071066, z: -0.00000008195639, w: 0.70710707}
+  m_LocalPosition: {x: -0.49536642, y: -0.084181964, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -64839,15 +64840,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8205177093785887567}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.17364825, y: -0, z: -0, w: 0.9848078}
-  m_LocalPosition: {x: -0.004, y: -0.4155351, z: 0.17769489}
+  m_LocalRotation: {x: 0.12278789, y: 0.696364, z: 0.12278791, w: 0.69636446}
+  m_LocalPosition: {x: -0.004, y: -0.164, z: -0.268}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5421757810162097815}
   - {fileID: 3739942933759997299}
   m_Father: {fileID: 1506652156787287612}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 20}
 --- !u!114 &6114230708848332896
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -64866,20 +64867,20 @@ MonoBehaviour:
   hasGamePiece: 0
   requestIntake: 0
   pieceName: 
-  intakeSpeed: 100
-  intakeForce: 100
-  usePlanarTolerancing: 0
-  boxExtents: {x: 5, y: 5, z: 10}
-  maxDistance: 5
-  accuracy: 1
+  intakeSpeed: 84
+  intakeForce: 90
+  usePlanarTolerancing: 1
+  boxExtents: {x: 6.9, y: 5, z: 20}
+  maxDistance: Infinity
+  accuracy: Infinity
   lockXAxis: 0
   lockYAxis: 0
   lockZAxis: 0
-  roationForce: 50
-  maxRotationSpeed: 50
+  roationForce: 0.5
+  maxRotationSpeed: 3
   useRotaion: 1
   smoothHandoff: 1
-  target: {fileID: 3739942933759997299}
+  target: {fileID: 6119703821861557511}
   securedGamePiece: 0
 --- !u!1 &8221927160192217106
 GameObject:
