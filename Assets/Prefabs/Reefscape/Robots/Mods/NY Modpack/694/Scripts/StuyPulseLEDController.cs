@@ -16,18 +16,25 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
     /// off. Reads only the public state already exposed by ReefscapeRobotBase and the game piece
     /// controllers, so it can be dropped onto the existing 694 rig without editing it. Colors default to
     /// the values used in the real robot's Settings.LED constants.
+    ///
+    /// LED surfaces are wired the same way as GRRLights/LEDStripController: drag the LED mesh GameObject(s)
+    /// into `leds`, and this script instantiates one shared material and assigns it to each of their
+    /// renderers at Start, then drives that material's emission color.
     /// </summary>
     public class StuyPulseLEDController : MonoBehaviour
     {
         [Header("LED Surfaces")]
-        [Tooltip("Material used for whole-strip states. Assign the material asset applied to the robot's LED mesh(es).")]
-        [SerializeField] private Material stripMaterial;
+        [Tooltip("Drag every GameObject (with a Renderer) that makes up the main LED strip here.")]
+        [SerializeField] private GameObject[] leds;
 
-        [Tooltip("Optional material for the left half of the strip, used while a side is called out (align left, has algae, etc). Falls back to stripMaterial if empty.")]
-        [SerializeField] private Material leftAccentMaterial;
+        [Tooltip("Optional: the subset of the strip that lights up for the left side during a side-specific state (align left, etc). Falls back to leds if empty.")]
+        [SerializeField] private GameObject[] leftAccentLeds;
 
-        [Tooltip("Optional material for the right half of the strip, used while a side is called out. Falls back to stripMaterial if empty.")]
-        [SerializeField] private Material rightAccentMaterial;
+        [Tooltip("Optional: the subset of the strip that lights up for the right side. Falls back to leds if empty.")]
+        [SerializeField] private GameObject[] rightAccentLeds;
+
+        [Tooltip("Optional shader to build a fresh material from (same idea as GRRLights/LEDStripController's shaderGraphShader). If left empty, this clones whatever material is already on each LED mesh instead.")]
+        [SerializeField] private Shader ledShader;
 
         [Header("Intensity")]
         [SerializeField] private float onIntensity = 20f;
@@ -54,6 +61,10 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private StuyPulseAutoAlign _autoAlign;
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData> _pieces;
 
+        private Material _stripMaterial;
+        private Material _leftMaterial;
+        private Material _rightMaterial;
+
         private float _scoreFlashUntil;
         private bool _hadCoral;
         private bool _hadAlgae;
@@ -63,6 +74,28 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             _base = GetComponent<ReefscapeRobotBase>();
             _autoAlign = GetComponent<StuyPulseAutoAlign>();
             _pieces = GetComponent<RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>>();
+
+            _stripMaterial = BuildSharedMaterial(leds);
+            _leftMaterial = leftAccentLeds is { Length: > 0 } ? BuildSharedMaterial(leftAccentLeds) : _stripMaterial;
+            _rightMaterial = rightAccentLeds is { Length: > 0 } ? BuildSharedMaterial(rightAccentLeds) : _stripMaterial;
+        }
+
+        // Same idea as GRRLights/LEDStripController: one shared, runtime-instanced material assigned across
+        // every renderer in the group, so setting a color on it updates all of them at once.
+        private Material BuildSharedMaterial(GameObject[] objects)
+        {
+            if (objects == null || objects.Length == 0) return null;
+
+            Material shared = null;
+            foreach (var obj in objects)
+            {
+                if (obj == null || !obj.TryGetComponent<Renderer>(out var renderer)) continue;
+
+                shared ??= ledShader != null ? new Material(ledShader) : new Material(renderer.sharedMaterial);
+                renderer.material = shared;
+            }
+
+            return shared;
         }
 
         private void Update()
@@ -143,15 +176,15 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private void SetAll(Color color, float intensity)
         {
-            Set(stripMaterial, color, intensity);
-            Set(leftAccentMaterial != null ? leftAccentMaterial : stripMaterial, color, intensity);
-            Set(rightAccentMaterial != null ? rightAccentMaterial : stripMaterial, color, intensity);
+            Set(_stripMaterial, color, intensity);
+            Set(_leftMaterial, color, intensity);
+            Set(_rightMaterial, color, intensity);
         }
 
         private void SetSides(Color leftColor, Color rightColor, float intensity)
         {
-            Set(leftAccentMaterial != null ? leftAccentMaterial : stripMaterial, leftColor, intensity);
-            Set(rightAccentMaterial != null ? rightAccentMaterial : stripMaterial, rightColor, intensity);
+            Set(_leftMaterial, leftColor, intensity);
+            Set(_rightMaterial, rightColor, intensity);
         }
 
         private void Set(Material material, Color color, float intensity)
