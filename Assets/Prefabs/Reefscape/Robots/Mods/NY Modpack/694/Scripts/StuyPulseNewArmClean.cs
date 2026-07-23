@@ -681,20 +681,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             elevator.SetTarget(_elevatorTargetHeight);
             eeArm.SetTargetAngle(_eeArmTargetAngle).withAxis(JointAxis.X).noWrap(20);
             froggy.SetTargetAngle(_froggyTargetAngle).withAxis(JointAxis.X).noWrap(-110);
-
-            var shimmy = GetClimbShimmyOffset();
-            climbPivot1.SetTargetAngle(_climbPivot1TargetAngle + shimmy).withAxis(JointAxis.X).noWrap(140);
-            climbPivot2.SetTargetAngle(-1 * (_climbPivot2TargetAngle + shimmy)).withAxis(JointAxis.X).noWrap(-140);
-        }
-
-        // Arcade approximation of real ClimbState.SHIMMY: once climbed and settled at the target angle,
-        // gently rock the climb pivots back and forth instead of holding perfectly still.
-        private float GetClimbShimmyOffset()
-        {
-            _isClimbShimmying = CurrentSetpoint == ReefscapeSetpoints.Climbed &&
-                                 Utils.InAngularRange(climbPivot1.GetSingleAxisAngle(JointAxis.X), _climbPivot1TargetAngle, climbSettleTolerance);
-
-            return _isClimbShimmying ? Mathf.Sin(Time.time * climbShimmyFrequency) * climbShimmyAmplitude : 0f;
+            climbPivot1.SetTargetAngle(_climbPivot1TargetAngle).withAxis(JointAxis.X).noWrap(140);
+            climbPivot2.SetTargetAngle(-1 * _climbPivot2TargetAngle).withAxis(JointAxis.X).noWrap(-140);
         }
 
         private void ApplyRollerOutputs()

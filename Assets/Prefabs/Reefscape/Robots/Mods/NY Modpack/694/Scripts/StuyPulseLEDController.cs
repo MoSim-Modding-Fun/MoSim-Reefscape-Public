@@ -12,12 +12,10 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
     /// 694-specific LED controller. Auto align (reef or station) takes over the strip first, mirroring how
     /// the real robot's alignment commands require the LED subsystem and pre-empt LEDDefaultCommand while
     /// they're running. Below that sits the real LEDDefaultCommand's own priority chain (github.com/StuyPulse/Aunt-Mary):
-    /// scoring, shimmy, climbed/climbing, climb open, algae intake, froggy coral intake, funnel unjam,
-    /// processor, has-coral, then off. Reads only the public state already exposed by ReefscapeRobotBase,
-    /// the game piece controllers, and the optional IStuyPulseRealism interface (climb shimmy / funnel
-    /// unjam - only implemented by the *Clean scripts), so it degrades gracefully if dropped onto the
-    /// original StuyPulse.cs / StuyPulseNewArm.cs instead. Colors default to the values used in the real
-    /// robot's Settings.LED constants.
+    /// scoring, climbed/climbing, climb open, algae intake, froggy coral intake, processor, has-coral, then
+    /// off. Reads only the public state already exposed by ReefscapeRobotBase and the game piece
+    /// controllers, so it can be dropped onto the existing 694 rig without editing it. Colors default to
+    /// the values used in the real robot's Settings.LED constants.
     /// </summary>
     public class StuyPulseLEDController : MonoBehaviour
     {
@@ -40,10 +38,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         [SerializeField] private Color scoreColor = Color.green;
         [SerializeField] private Color climbOpenColor = Color.yellow;
         [SerializeField] private Color climbingColor = Color.green;
-        [SerializeField] private Color shimmyColor = Color.red;
         [SerializeField] private Color intakeAlgaeColor = Color.green;
         [SerializeField] private Color froggyIntakeCoralColor = Color.red;
-        [SerializeField] private Color funnelUnjamColor = Color.blue;
         [SerializeField] private Color coralStationAlignColor = Color.red;
         [SerializeField] private Color reefAlignLeftColor = Color.yellow;
         [SerializeField] private Color reefAlignRightColor = Color.red;
@@ -56,7 +52,6 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private ReefscapeRobotBase _base;
         private StuyPulseAutoAlign _autoAlign;
-        private IStuyPulseRealism _realism;
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData> _pieces;
 
         private float _scoreFlashUntil;
@@ -67,7 +62,6 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         {
             _base = GetComponent<ReefscapeRobotBase>();
             _autoAlign = GetComponent<StuyPulseAutoAlign>();
-            _realism = GetComponent<IStuyPulseRealism>();
             _pieces = GetComponent<RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>>();
         }
 
@@ -115,10 +109,6 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             {
                 SetAll(scoreColor, onIntensity);
             }
-            else if (_realism != null && _realism.IsClimbShimmying)
-            {
-                SetAll(shimmyColor, blink);
-            }
             else if (_base.CurrentSetpoint == ReefscapeSetpoints.Climbed)
             {
                 SetAll(climbingColor, blink);
@@ -136,10 +126,6 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             else if (_base.CurrentIntakeMode == ReefscapeIntakeMode.L1 && _base.CurrentSetpoint == ReefscapeSetpoints.Intake && !hasCoral)
             {
                 SetAll(froggyIntakeCoralColor, onIntensity);
-            }
-            else if (_realism != null && _realism.IsFunnelReversing)
-            {
-                SetAll(funnelUnjamColor, onIntensity);
             }
             else if (_base.CurrentSetpoint == ReefscapeSetpoints.Processor)
             {
