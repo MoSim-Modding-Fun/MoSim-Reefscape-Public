@@ -131,6 +131,28 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
 
             AnimateCoral();
             PreventSetpoints();
+            
+            var endEffectorHasCoral = _coralController.atTarget && _coralController.currentStateNum == coralStowState.stateNum;
+            if (endEffectorHasCoral)
+            {
+                switch (CurrentSetpoint)
+                {
+                    case ReefscapeSetpoints.L1:
+                        SetSetpoint(l1);
+                        break;
+                    case ReefscapeSetpoints.L2:
+                        SetSetpoint(l2);
+                        break;
+                    case ReefscapeSetpoints.L3:
+                        SetSetpoint(l3);
+                        break;
+                    case ReefscapeSetpoints.L4:
+                        SetSetpoint(l4);
+                        lastSetpointL4 = true;
+                        break;
+                }
+            }
+            
             switch (CurrentSetpoint)
             {
                 case ReefscapeSetpoints.Stow:
@@ -143,20 +165,6 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
                         _coralController.RequestIntake(coralIntake, !_coralController.atTarget);
                     }
                     SetSetpoint(intake);
-                    break;
-                
-                case ReefscapeSetpoints.L1:
-                    SetSetpoint(l1);
-                    break;
-                case ReefscapeSetpoints.L2:
-                    SetSetpoint(l2);
-                    break;
-                case ReefscapeSetpoints.L3:
-                    SetSetpoint(l3);
-                    break;
-                case ReefscapeSetpoints.L4:
-                    SetSetpoint(l4);
-                    lastSetpointL4 = true;
                     break;
                 
                 case ReefscapeSetpoints.LowAlgae:
@@ -220,13 +228,13 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
                     WaitForElevator(l4, l4Offset, !flip);
                     break;
                 case ReefscapeSetpoints.L3:
-                    WaitForElevator(l3, l3Offset, !flip);
+                    align.offset = !flip ? l3Offset.alignOffset : new Vector3(-l3Offset.alignOffset.x, l3Offset.alignOffset.y, l3Offset.alignOffset.z);
                     break;
                 case ReefscapeSetpoints.L2:
-                    WaitForElevator(l2, l2Offset, !flip);
+                    align.offset = !flip ? l2Offset.alignOffset : new Vector3(-l2Offset.alignOffset.x, l2Offset.alignOffset.y, l2Offset.alignOffset.z);
                     break;
                 case ReefscapeSetpoints.L1:
-                    WaitForElevator(l1, l1Offset, !flip);
+                    align.offset = !flip ? l1Offset.alignOffset : new Vector3(-l1Offset.alignOffset.x, l1Offset.alignOffset.y, l1Offset.alignOffset.z);
                     break;
                 
                 case ReefscapeSetpoints.HighAlgae:
@@ -246,7 +254,8 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
         {
             if (EndEffectorAtSetpoint(setpoint))
             {
-                align.offset = flip ? offset.alignOffset : new Vector3(-offset.alignOffset.x, offset.alignOffset.y, offset.alignOffset.z);
+                var a = flip ? offset.alignOffset : new Vector3(-offset.alignOffset.x, offset.alignOffset.y, offset.alignOffset.z);
+                align.offset = (setpoint == lowAlgae || setpoint == highAlgae) ? FlipAlignForSide(offset, flip) : a;
             }
             else
             {
@@ -271,8 +280,8 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
 
         private bool EndEffectorAtSetpoint(TechKnightsSetpoint setpoint)
         {
-            return Utils.InRange(elevator.GetElevatorHeight(), _elevatorTargetHeight, .2f) &&
-                   Utils.InAngularRange(endEffectorJoint.GetSingleAxisAngle(JointAxis.X), _endEffectorTargetAngle, 5);
+            return Utils.InRange(elevator.GetElevatorHeight(), setpoint.elevatorHeight, .2f) &&
+                   Utils.InAngularRange(endEffectorJoint.GetSingleAxisAngle(JointAxis.X), setpoint.endEffectorAngle, 5);
 
         }
 
@@ -296,6 +305,7 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
             if (_algaeController.HasPiece())
             {
                 _algaeController.ReleaseGamePieceWithForce(algaeOuttake);
+                SetSetpoint(stow);
             }
             else
             {
@@ -326,11 +336,11 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
             else if (lastSetpointL4)
             {
                 _endEffectorTargetAngle = setpoint.endEffectorAngle;
+                _intakeTargetAngle = setpoint.intakeAngle;
                 if (Utils.InAngularRange(endEffectorJoint.GetSingleAxisAngle(JointAxis.X), setpoint.endEffectorAngle,
                         3))
                 {
                     _elevatorTargetHeight = setpoint.elevatorHeight;
-                    _intakeTargetAngle = setpoint.intakeAngle;
                     lastSetpointL4 = false;
                 }
 
