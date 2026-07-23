@@ -133,7 +133,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         [SerializeField] private float reefAvoidExitMargin = 1.3f;
 
         [Header("Human Player Station Align")]
-        [Tooltip("One entry per physical coral station on the field. Takes priority over the auto-derived CoralStation fallback below when something here is in range.")]
+        [Tooltip("One AlignZone (left corner, right corner, facing rotation) per physical coral station slide line on the field - e.g. 4 entries for 2 stations x 2 alliances. No other fallback; a station with nothing here in range simply won't align.")]
         [SerializeField] private AlignZone[] stationTargets;
 
         [Tooltip("Only assist toward the station within this distance (feet)")]
@@ -151,6 +151,18 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         [Tooltip("How fast (world units/sec at full stick deflection) the slide target moves along the barge line")]
         [SerializeField] private float bargeSlideSpeed = 2.5f;
+
+        [Tooltip("Standoff distance (inches) from the barge along its local right axis, for the auto-derived barge zone. Only used when nothing in bargeTargets is in range. Taken directly from the real robot's own constant (TARGET_DISTANCE_FROM_CENTERLINE_FOR_BARGE_118) - real, not a guess.")]
+        [SerializeField] private float bargeStandoffInches = 118f;
+
+        [Tooltip("Half-width (inches) of the auto-derived barge slide line along its local forward axis - still a best-guess estimate, not yet verified against the actual barge mesh.")]
+        [SerializeField] private float bargeHalfWidthInches = 40f;
+
+        [Tooltip("Extra position correction (inches) applied on top of the derived barge zone, in the barge's own local axes: X = toward/away from the barge (positive = further, same axis as bargeStandoffInches), Y = height, Z = shifts the whole slide line left/right along the barge (same axis as bargeHalfWidthInches). Use this to fine-tune distance/position in Play mode without touching the base geometry constants above.")]
+        [SerializeField] private Vector3 bargeOffsetInches = Vector3.zero;
+
+        [Tooltip("Extra heading offset (degrees) added on top of the derived barge facing rotation - use this to fix the approach angle.")]
+        [SerializeField] private float bargeRotationOffsetDegrees = 0f;
 
         [Header("Processor Align")]
         [Tooltip("One entry per alliance's processor - a single fixed point, no slider (unlike station/barge)")]
@@ -194,18 +206,6 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private const float INCHES_TO_METERS = 0.0254f;
         private const float MIN_LINE_LENGTH = 0.01f;
 
-        // Hardcoded, same as GameObject.Find("BlueReef") elsewhere in this file and in the original 694
-        // scripts - no inspector wiring needed for the CoralStation/BargeScorer-derived fallback zones.
-        // Station half-width matches CoralStation.cs's own maxXOffset (0.8m = ~31.5in) so it lines up with
-        // the real coral-drop slide range already tuned in this scene. Barge standoff (118in) comes straight
-        // from the real robot's own constant name/class (TARGET_DISTANCE_FROM_CENTERLINE_FOR_BARGE_118 /
-        // SwerveDriveDriveAlignedToBarge118Score). The rest are reasonable estimates - worth eyeballing
-        // against the actual station/barge meshes once this can be tested in Play mode.
-        private const float DERIVED_STATION_HALF_WIDTH_INCHES = 31.5f;
-        private const float DERIVED_STATION_STANDOFF_INCHES = 30f;
-        private const float DERIVED_BARGE_HALF_WIDTH_INCHES = 40f;
-        private const float DERIVED_BARGE_STANDOFF_INCHES = 118f;
-
         private ReefscapeRobotBase _stuyBase;
         private DriveController _driveController;
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData> _pieces;
@@ -216,7 +216,6 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private Transform _closestReefNode;
         private Transform _secondClosestReefNode;
 
-        private readonly List<CoralStation> _coralStations = new();
         private readonly List<BargeScorer> _bargeScorers = new();
 
         private Vector3 _blueReefPos;
@@ -267,11 +266,6 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             }
 
             // Same object-by-object cast pattern ReefscapeRobotBase itself uses for this non-generic overload.
-            foreach (var found in FindObjectsByType(typeof(CoralStation), FindObjectsSortMode.None))
-            {
-                if (found is CoralStation station) _coralStations.Add(station);
-            }
-
             foreach (var found in FindObjectsByType(typeof(BargeScorer), FindObjectsSortMode.None))
             {
                 if (found is BargeScorer scorer) _bargeScorers.Add(scorer);
@@ -357,10 +351,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             var coral = _pieces != null ? _pieces.GetPieceByName(ReefscapeGamePieceType.Coral.ToString()) : null;
             if (coral != null && coral.HasPiece()) { _stationEngaged = false; return false; }
 
-            // Hand-placed zones take priority; only fall back to deriving one from the nearest same-alliance
-            // CoralStation if nothing hand-placed is in range - keeps this fully revertible by just
-            // populating stationTargets to always win.
-            var zone = GetClosestZone(stationTargets, _stuyBase.Alliance) ?? DeriveClosestStationZone();
+            var zone = GetClosestZone(stationTargets, _stuyBase.Alliance);
             if (zone == null) { _stationEngaged = false; return false; }
 
             if (!TryGetZoneTarget(zone, maxStationAlignDistanceFeet, stationSlideSpeed, ref _stationEngaged, ref _stationSlide, out targetPosition))
@@ -512,8 +503,15 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
                 return false;
             }
 
-            // Fresh engage (button/context just became true this frame) starts the slide back at the middle.
-            if (!engaged) slide = 0.5f;
+            // Fresh engage (button/context just became true this frame) starts the slide at whichever point
+            // on the line is closest to the robot right now, not the middle - so first pressing the button
+            // never yanks the target sideways before the driver's stick input takes over.
+            if (!engaged)
+            {
+                var lineVector = zone.rightCorner - zone.leftCorner;
+                var t = Vector3.Dot(transform.position - zone.leftCorner, lineVector) / (lineLength * lineLength);
+                slide = Mathf.Clamp01(t);
+            }
             engaged = true;
 
             var rawStick = _stuyBase.TranslateAction.ReadValue<Vector2>().x;
@@ -569,44 +567,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             return closest;
         }
 
-        // ---- Deriving station/barge zones from scene objects, no inspector wiring needed ----
-
-        // Only one approach side makes sense for a wall-mounted human player station, so this just stands
-        // off along the station's own forward axis and faces back toward it - no "which side" logic needed,
-        // unlike the barge. Only considers CoralStation objects matching this robot's alliance, so it can
-        // never derive a target on the opponent's side of the field.
-        private AlignZone DeriveClosestStationZone()
-        {
-            CoralStation closest = null;
-            var closestDistance = float.MaxValue;
-
-            foreach (var station in _coralStations)
-            {
-                if (station == null || station.Alliance != _stuyBase.Alliance) continue;
-
-                var distance = Vector3.Distance(transform.position, station.transform.position);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closest = station;
-                }
-            }
-
-            if (closest == null) return null;
-
-            var reference = closest.transform;
-            var standoff = DERIVED_STATION_STANDOFF_INCHES * INCHES_TO_METERS;
-            var halfWidth = DERIVED_STATION_HALF_WIDTH_INCHES * INCHES_TO_METERS;
-            var center = reference.position + reference.forward * standoff;
-
-            return new AlignZone
-            {
-                alliance = _stuyBase.Alliance,
-                leftCorner = center - reference.right * halfWidth,
-                rightCorner = center + reference.right * halfWidth,
-                yRotation = Quaternion.LookRotation(-reference.forward, Vector3.up).eulerAngles.y
-            };
-        }
+        // ---- Deriving barge zones from scene objects, no inspector wiring needed ----
 
         // The barge can be approached from either side (defense/collisions can easily push the robot to the
         // "wrong" side mid-match), so this picks whichever of the two standoff points along the scorer's
@@ -631,22 +592,42 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             if (closest == null) return null;
 
             var reference = closest.transform;
-            var standoff = DERIVED_BARGE_STANDOFF_INCHES * INCHES_TO_METERS;
-            var halfWidth = DERIVED_BARGE_HALF_WIDTH_INCHES * INCHES_TO_METERS;
+            var standoff = bargeStandoffInches * INCHES_TO_METERS;
+            var halfWidth = bargeHalfWidthInches * INCHES_TO_METERS;
 
-            var sideAPos = reference.position + reference.forward * standoff;
-            var sideBPos = reference.position - reference.forward * standoff;
-            var useSideA = Vector3.Distance(transform.position, sideAPos) <= Vector3.Distance(transform.position, sideBPos);
+            // BargeScorer's own BoxCollider (on this same transform, confirmed in Barge.prefab) is narrow
+            // along its local right axis (~1m) and long along its local forward axis (~3.7m) - so the
+            // approach/standoff direction is right, and the corner-to-corner slide line runs along forward.
+            // This was previously swapped, which put the slider on the wrong axis entirely.
+            var sideACenter = reference.position + reference.right * standoff;
+            var sideBCenter = reference.position - reference.right * standoff;
+            var useSideA = Vector3.Distance(transform.position, sideACenter) <= Vector3.Distance(transform.position, sideBCenter);
 
-            var center = useSideA ? sideAPos : sideBPos;
-            var faceDirection = useSideA ? -reference.forward : reference.forward;
+            // Two hardcoded corner points (forward/back along the barge from whichever standoff side is
+            // closer) define the entire slide line - built once from the chosen side's center, not derived
+            // from any further per-frame axis math.
+            var center = useSideA ? sideACenter : sideBCenter;
+            var faceDirection = useSideA ? -reference.right : reference.right;
+
+            // bargeOffsetInches is a tunable correction on top of the derived geometry above, not a
+            // replacement for it - X rides the same standoff axis (sign-flipped per side so positive X
+            // always means "further from the barge" regardless of which side was picked), Y is height, Z
+            // rides the same half-width axis and shifts both corners together.
+            var standoffSign = useSideA ? 1f : -1f;
+            var offsetWorld = reference.right * (standoffSign * bargeOffsetInches.x * INCHES_TO_METERS)
+                             + reference.up * (bargeOffsetInches.y * INCHES_TO_METERS)
+                             + reference.forward * (bargeOffsetInches.z * INCHES_TO_METERS);
+            center += offsetWorld;
+
+            var leftCorner = center - reference.forward * halfWidth;
+            var rightCorner = center + reference.forward * halfWidth;
 
             return new AlignZone
             {
                 alliance = _stuyBase.Alliance,
-                leftCorner = center - reference.right * halfWidth,
-                rightCorner = center + reference.right * halfWidth,
-                yRotation = Quaternion.LookRotation(faceDirection, Vector3.up).eulerAngles.y
+                leftCorner = leftCorner,
+                rightCorner = rightCorner,
+                yRotation = Quaternion.LookRotation(faceDirection, Vector3.up).eulerAngles.y + bargeRotationOffsetDegrees
             };
         }
 
@@ -827,7 +808,11 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             var currentYaw = ToMathYaw(transform.eulerAngles.y);
             var targetYaw = ToMathYaw(targetYawDegrees);
             var angleError = Mathf.Repeat(targetYaw - currentYaw + Mathf.PI, 2f * Mathf.PI) - Mathf.PI;
-            var rotateOutput = Mathf.Clamp(rotate.Update(angleError, dt), -maxRotateOutput, maxRotateOutput);
+            // rotate's gain is tuned for degrees (carried over from the old degree-based PIDController.UpdateAngle),
+            // but angleError above is in radians (ToMathYaw's convention) - convert before feeding the PID or the
+            // proportional term ends up ~57x (1/Rad2Deg) too weak, which is why turning was so slow.
+            var angleErrorDegrees = angleError * Mathf.Rad2Deg;
+            var rotateOutput = Mathf.Clamp(rotate.Update(angleErrorDegrees, dt), -maxRotateOutput, maxRotateOutput);
 
             _driveController.overideInput(translateOutput, rotateOutput, DriveController.DriveMode.FieldOriented);
         }

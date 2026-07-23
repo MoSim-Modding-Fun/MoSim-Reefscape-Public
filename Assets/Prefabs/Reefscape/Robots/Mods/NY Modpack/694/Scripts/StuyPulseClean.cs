@@ -182,9 +182,17 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private Vector3 _blueReef;
         private Vector3 _redReef;
 
+        // ReefscapeRobotBase.LastSetpoint is meant to hold the setpoint from before the current transition,
+        // but its update logic reassigns it to the new CurrentSetpoint in the same Update() call that changes
+        // CurrentSetpoint, so external readers never actually see the old value - it always just mirrors
+        // CurrentSetpoint. That's shared framework code other mods depend on, so instead of touching it this
+        // tracks the same "previous distinct setpoint" concept locally, correctly delayed by one FixedUpdate.
+        private ReefscapeSetpoints _trackedSetpoint;
+        private ReefscapeSetpoints _priorDistinctSetpoint;
+
         public bool HasFroggyCoral => _coralController.currentStateNum == froggyCoralStowState.stateNum && _coralController.atTarget;
         public bool HasShooterAlgae => _algaeController.currentStateNum == shooterAlgaeStowState.stateNum && _algaeController.atTarget;
-        public bool WantsExtraReefClearance => LastSetpoint == ReefscapeSetpoints.L4 && CurrentRobotMode == ReefscapeRobotMode.Algae;
+        public bool WantsExtraReefClearance => _priorDistinctSetpoint == ReefscapeSetpoints.L4 && CurrentRobotMode == ReefscapeRobotMode.Algae;
 
         public bool IsIntakingAlgae =>
             CurrentRobotMode == ReefscapeRobotMode.Algae ||
@@ -232,6 +240,12 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private void FixedUpdate()
         {
+            if (CurrentSetpoint != _trackedSetpoint)
+            {
+                _priorDistinctSetpoint = _trackedSetpoint;
+                _trackedSetpoint = CurrentSetpoint;
+            }
+
             if (BaseGameManager.Instance.RobotState == RobotState.Disabled)
             {
                 funnelAudioSource?.Stop();
