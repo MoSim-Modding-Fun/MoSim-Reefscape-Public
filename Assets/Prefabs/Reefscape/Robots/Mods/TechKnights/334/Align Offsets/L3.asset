@@ -9,9 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 963d060b2a770474eb50a1fbd459a1fd, type: 3}
-  m_Name: High Algae
+  m_Script: {fileID: 11500000, guid: 89bc32d2f49045b478094de5779ecb32, type: 3}
+  m_Name: L3
   m_EditorClassIdentifier: 
-  elevatorHeight: 46.2
-  endEffectorAngle: 14.82
-  intakeAngle: 0
+  alignOffset: {x: 0, y: 0, z: 0}

@@ -20672,7 +20672,7 @@ Rigidbody:
   m_Mass: 98
   m_Drag: 3
   m_AngularDrag: 5
-  m_CenterOfMass: {x: 0, y: -0.067, z: 0}
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
   m_IncludeLayers:
@@ -20969,6 +20969,14 @@ MonoBehaviour:
   elevator: {fileID: 4000945422463968738}
   endEffectorJoint: {fileID: 4623580104699913922}
   intakeJoint: {fileID: 2433086520585975329}
+  align: {fileID: 208003191164144946}
+  prepOffset: {fileID: 11400000, guid: 25c4e5d499418de42a5dc65630552b8a, type: 2}
+  l4Offset: {fileID: 11400000, guid: 41a42e52b5d2f884dabd54b0f8bd06a6, type: 2}
+  l3Offset: {fileID: 11400000, guid: 41a42e52b5d2f884dabd54b0f8bd06a6, type: 2}
+  l2Offset: {fileID: 11400000, guid: 4943705bac1dcc44abaa77e0cb83c6bb, type: 2}
+  l1Offset: {fileID: 11400000, guid: acf76a1770d450443a44512eb120ed3f, type: 2}
+  highAlgaeOffset: {fileID: 11400000, guid: f3e56d34bd0012e42ab24da5cb6d5111, type: 2}
+  lowAlgaeOffset: {fileID: 11400000, guid: 9466aacbe2a640847b7b2b23f5442f07, type: 2}
   endEffectorPid:
     kP: 5
     kI: 0
@@ -20976,11 +20984,14 @@ MonoBehaviour:
     Max: 4
     Isaturation: 0
   intakePid:
-    kP: 5
+    kP: 0.5
     kI: 0
     kD: 0
-    Max: 4
-    Isaturation: 0
+    Max: 4.5
+    Isaturation: 1
+  coralL4OuttakeForce: {x: 0, y: 0, z: -3}
+  coralOuttakeForce: {x: 0, y: 0, z: 3}
+  algaeOuttake: {x: 0, y: 0, z: 0}
   stow: {fileID: 11400000, guid: 1c24acd984e8441439f0f79579b3bec2, type: 2}
   intake: {fileID: 11400000, guid: fab1cf3438c175941bb773878e1cd7a1, type: 2}
   l1: {fileID: 11400000, guid: 5440848ea0548ab47a67ada37869947b, type: 2}
@@ -21012,14 +21023,14 @@ MonoBehaviour:
     stateMoveSpeed: 50
     stateTarget: {fileID: 4842417350588373113}
     smoothHandoff: 0
-    angularSpeed: 50
+    angularSpeed: 360
   coralStowState:
     name: Coral Stow State
     stateNum: 3
     stateMoveSpeed: 50
     stateTarget: {fileID: 236281633136640818}
     smoothHandoff: 0
-    angularSpeed: 50
+    angularSpeed: 360
   algaeStallSource: {fileID: 0}
   algaeStallAudio: {fileID: 0}
   rollerSource: {fileID: 0}
@@ -40279,6 +40290,7 @@ GameObject:
   - component: {fileID: 1888891341091965854}
   - component: {fileID: 427953394917010592}
   - component: {fileID: 7146354422266169761}
+  - component: {fileID: 64722682808574517}
   m_Layer: 6
   m_Name: Solid1.275
   m_TagString: Untagged
@@ -40353,6 +40365,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &64722682808574517
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5262788426965084862}
+  m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.00038100014, y: 0.00037521226, z: 0.006111621}
+  m_Center: {x: 5.1145455e-10, y: 3.2236297e-10, z: 0.00305581}
 --- !u!1 &5285904041426548529
 GameObject:
   m_ObjectHideFlags: 0
@@ -49060,6 +49093,7 @@ Transform:
   - {fileID: 4222343571025986222}
   - {fileID: 1641219675687189087}
   - {fileID: 6886060187378866637}
+  - {fileID: 3268121906322690729}
   m_Father: {fileID: 7332679893596340406}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6306692423605811274
@@ -51505,7 +51539,7 @@ Transform:
   m_GameObject: {fileID: 6562894968766116091}
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000014901161, y: -0.7071066, z: -0.00000008195639, w: 0.70710707}
-  m_LocalPosition: {x: -0.49536642, y: -0.084181964, z: 0}
+  m_LocalPosition: {x: -0.025, y: 0.032, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -51530,8 +51564,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.672467, y: 0.1232433, z: 0.09726727}
-  m_Center: {x: 0, y: 0.09906854, z: -0.46870345}
+  m_Size: {x: 0.672467, y: 0.12324329, z: 0.15039167}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6569463986713312486
 GameObject:
   m_ObjectHideFlags: 0
@@ -55093,6 +55127,95 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: -7583770122707970208, guid: 48b6fde5ce00e124b8be147dfcc30acf, type: 3}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &6949462206163135377
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3268121906322690729}
+  - component: {fileID: 1624575733967294950}
+  - component: {fileID: 3848621723268324623}
+  m_Layer: 6
+  m_Name: Robot Battery
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3268121906322690729
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6949462206163135377}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.7071068, z: -0.7071068, w: 0}
+  m_LocalPosition: {x: 0.0010000002, y: 0.0823, z: 0.248}
+  m_LocalScale: {x: 100, y: 100.00003, z: 100}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8575615787823871150}
+  m_LocalEulerAnglesHint: {x: 90, y: 90, z: -90}
+--- !u!33 &1624575733967294950
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6949462206163135377}
+  m_Mesh: {fileID: -8497212673072231815, guid: 92559ea18a6f71d49892adbc66f07411, type: 3}
+--- !u!23 &3848621723268324623
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6949462206163135377}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: -1039426160997558291, guid: 92559ea18a6f71d49892adbc66f07411, type: 3}
+  - {fileID: -8080814032270573387, guid: 92559ea18a6f71d49892adbc66f07411, type: 3}
+  - {fileID: 2100000, guid: ff27964ca4bc9d0478dd78a63c8aa123, type: 2}
+  - {fileID: -2599012482402032195, guid: 92559ea18a6f71d49892adbc66f07411, type: 3}
+  - {fileID: 2100000, guid: d67b61713074e07428e9bbb765346c8d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -61588,8 +61711,8 @@ Rigidbody:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
+  m_ImplicitCom: 0
+  m_ImplicitTensor: 0
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0

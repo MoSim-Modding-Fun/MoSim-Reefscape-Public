@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: L1
   m_EditorClassIdentifier: 
   elevatorHeight: 0
-  endEffectorAngle: 0
+  endEffectorAngle: -47.4
   intakeAngle: 0

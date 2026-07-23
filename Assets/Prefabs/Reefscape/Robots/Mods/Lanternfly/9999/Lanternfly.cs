@@ -120,10 +120,10 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
         private void FixedUpdate()
         {
             
-            foreach (var roller in endEffectorWheels)
-            {
-                roller.gameObject.transform.localScale = _coralController.atTarget && _coralController.HasPiece() ? new Vector3(0.8f, 0.8f, 0.8f) : new Vector3(1f, 1f, 1f);
-            }
+            // foreach (var roller in endEffectorWheels)
+            // {
+            //     roller.gameObject.transform.localScale = _coralController.atTarget && _coralController.HasPiece() ? new Vector3(0.8f, 0.8f, 0.8f) : new Vector3(1f, 1f, 1f);
+            // }
             
             if (CurrentRobotMode == ReefscapeRobotMode.Algae)
             {
@@ -304,9 +304,14 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             if (CurrentSetpoint == ReefscapeSetpoints.Intake)
             {
                 RunRollers(endEffectorWheels, endEffectorWheelsSpeeds);
-                if (!rollerSource.isPlaying)
+                if (!rollerSource.isPlaying && !_coralController.atTarget)
                 {
                     rollerSource.Play();
+                }
+
+                if (_coralController.atTarget)
+                {
+                    rollerSource.Stop();
                 }
             } 
             else if (OuttakeAction.IsPressed() && CurrentSetpoint == ReefscapeSetpoints.Place)

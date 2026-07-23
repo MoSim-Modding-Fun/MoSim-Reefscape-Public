@@ -1,3 +1,4 @@
+using System;
 using Games.Reefscape.Enums;
 using Games.Reefscape.GamePieceSystem;
 using Games.Reefscape.Robots;
@@ -19,10 +20,21 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
         [SerializeField] private GenericElevator elevator;
         [SerializeField] private GenericJoint endEffectorJoint;
         [SerializeField] private GenericJoint intakeJoint;
+        [SerializeField] private ReefscapeAutoAlign align;
+        
+        [Header("Align Offsets")]
+        [SerializeField] private TechKnightsAlignOffset prepOffset;
+        [SerializeField] private TechKnightsAlignOffset l4Offset, l3Offset, l2Offset, l1Offset;
+        [SerializeField] private TechKnightsAlignOffset highAlgaeOffset, lowAlgaeOffset;
         
         [Header("PIDS")]
         [SerializeField] private PidConstants endEffectorPid;
         [SerializeField] private PidConstants intakePid;
+        
+        [Header("Outtakes")]
+        [SerializeField] private Vector3 coralL4OuttakeForce;
+        [SerializeField] private Vector3 coralOuttakeForce;
+        [SerializeField] private Vector3 algaeOuttake;
 
         [Header("Coral Setpoints")]
         [SerializeField] private TechKnightsSetpoint stow;
@@ -56,6 +68,8 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
         private bool canClack;
 
         private bool lastSetpointL4;
+
+        private bool placed = false;
         
         protected override void Start()
         {
@@ -98,6 +112,7 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
             canClack = true;
 
             lastSetpointL4 = false;
+            placed = false;
         }
 
         private void LateUpdate()
@@ -126,7 +141,6 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
                     if (CurrentRobotMode == ReefscapeRobotMode.Coral)
                     {
                         _coralController.RequestIntake(coralIntake, !_coralController.atTarget);
-                        print("yo i want intake");
                     }
                     SetSetpoint(intake);
                     break;
@@ -162,7 +176,10 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
             }
             
             UpdateSetpoints();
+            DealWithAutoAlign();
             //UpdateAudio();
+            
+            if (CurrentSetpoint != ReefscapeSetpoints.Place) placed = false;
         }
 
         private void AnimateCoral()
@@ -182,8 +199,69 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
             else
             {
                 _coralController.SetTargetState(coralIntakeState);
-                print("intake ts brro");
             }
+        }
+
+        private void DealWithAutoAlign()
+        {
+            if (CurrentSetpoint == ReefscapeSetpoints.Place)
+            {
+                return;
+            }
+
+            var flip = false;
+            if (GetActiveCamera().transform.eulerAngles.y < 180) flip = !flip;
+            if (Math.Abs(transform.position.x) > 4.489323 && PlayerPrefs.GetInt("PerspectiveAutoAlign", 1) == 1) flip = !flip;
+            if (transform.position.x > 0) flip = !flip;
+            
+            switch (CurrentSetpoint)
+            {
+                case ReefscapeSetpoints.L4:
+                    WaitForElevator(l4, l4Offset, !flip);
+                    break;
+                case ReefscapeSetpoints.L3:
+                    WaitForElevator(l3, l3Offset, !flip);
+                    break;
+                case ReefscapeSetpoints.L2:
+                    WaitForElevator(l2, l2Offset, !flip);
+                    break;
+                case ReefscapeSetpoints.L1:
+                    WaitForElevator(l1, l1Offset, !flip);
+                    break;
+                
+                case ReefscapeSetpoints.HighAlgae:
+                    WaitForElevator(highAlgae, highAlgaeOffset, !flip);
+                    break;
+                case ReefscapeSetpoints.LowAlgae:
+                    WaitForElevator(lowAlgae, lowAlgaeOffset, !flip);
+                    break;
+                
+                default:
+                    align.offset = FlipAlignForSide(prepOffset, !flip);
+                    break;
+            }
+        }
+
+        private void WaitForElevator(TechKnightsSetpoint setpoint, TechKnightsAlignOffset offset, bool flip)
+        {
+            if (EndEffectorAtSetpoint(setpoint))
+            {
+                align.offset = flip ? offset.alignOffset : new Vector3(-offset.alignOffset.x, offset.alignOffset.y, offset.alignOffset.z);
+            }
+            else
+            {
+                align.offset = FlipAlignForSide(prepOffset, flip);
+            }
+        }
+
+        private Vector3 FlipAlignForSide(TechKnightsAlignOffset offset, bool flip)
+        {
+            Vector3 a = offset.alignOffset;
+            if (AutoAlignLeftAction.IsPressed())
+            {
+                return new Vector3(flip ? a.x : -a.x,  a.y, a.z);
+            }
+            return new Vector3(flip ? -a.x : a.x,  a.y, a.z);
         }
 
         private bool CoralAtState(GamePieceState state)
@@ -213,19 +291,23 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
 
         private void PlacePiece()
         {
+            if (placed) return;
+            
             if (_algaeController.HasPiece())
             {
-                _algaeController.ReleaseGamePieceWithForce(new Vector3(0, 0, 0));
+                _algaeController.ReleaseGamePieceWithForce(algaeOuttake);
             }
             else
             {
                 if (_coralController.atTarget && _coralController.currentStateNum == coralStowState.stateNum)
                 {
                     _coralController.ReleaseGamePieceWithForce(LastSetpoint == ReefscapeSetpoints.L4
-                        ? new Vector3(0, 0, 0)      // L4 Release
-                        : new Vector3(0, 0, 0));    // Other Release
+                        ? coralL4OuttakeForce      // L4 Release
+                        : coralOuttakeForce);    // Other Release
                 }
             }
+
+            placed = true;
         }
 
         private void SetSetpoint(TechKnightsSetpoint setpoint)
