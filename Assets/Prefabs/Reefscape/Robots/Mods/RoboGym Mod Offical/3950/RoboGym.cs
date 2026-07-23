@@ -2,6 +2,7 @@ using System;
 using Games.Reefscape.Enums;
 using Games.Reefscape.GamePieceSystem;
 using Games.Reefscape.Robots;
+using Games.Reefscape.Scoring.Scorers;
 using RobotFramework.Components;
 using RobotFramework.Controllers.GamePieceSystem;
 using RobotFramework.Controllers.PidSystems;
@@ -28,7 +29,7 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
         [SerializeField] private float climberStow, climberOut, climberClimb;
         [SerializeField] private float hopperAngle, hopperClimbAngle;
         [SerializeField] private float climberDeployHopperAngle = -30f;
-        [SerializeField] private BoxCollider cageLockDetector, cageLock;
+        [SerializeField] private BoxCollider cageLock;
 
         [Header("Intakes")]
         [SerializeField] private ReefscapeGamePieceIntake coralIntake;
@@ -43,6 +44,7 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
 
         private float _elevatorTargetHeight;
         private bool _climberDeployed;
+        private ClimbScorer _climbScorer;
 
         protected override void Start()
         {
@@ -63,6 +65,9 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
                 coralStowState
             };
             _coralController.intakes.Add(coralIntake);
+
+            _climbScorer = GetComponent<ClimbScorer>();
+            cageLock.gameObject.SetActive(false);
         }
 
         private void LateUpdate()
@@ -122,7 +127,7 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
                 case ReefscapeSetpoints.Climbed:
                     _climberTargetAngle = climberClimb;
                     _hopperTargetAngle = hopperClimbAngle;
-                    if (cageLockDetector.isTrigger)
+                    if (_climbScorer.AutoClimbTriggered)
                     {
                         cageLock.gameObject.SetActive(true);
                     }
