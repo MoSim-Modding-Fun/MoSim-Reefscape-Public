@@ -296,7 +296,7 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
 
         private bool EndEffectorAtSetpoint(TechKnightsSetpoint setpoint)
         {
-            return Utils.InRange(elevator.GetElevatorHeight(), setpoint.elevatorHeight, 2f) &&
+            return Utils.InRange(elevator.GetElevatorHeight(), setpoint.elevatorHeight, 1f) &&
                    Utils.InAngularRange(endEffectorJoint.GetSingleAxisAngle(JointAxis.X), setpoint.endEffectorAngle, 5);
 
         }
@@ -346,7 +346,7 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
             {
                 _elevatorTargetHeight = setpoint.elevatorHeight;
                 _intakeTargetAngle = setpoint.intakeAngle;
-                if (Utils.InRange(elevator.GetElevatorHeight(), setpoint.elevatorHeight, 2f))
+                if (Utils.InRange(elevator.GetElevatorHeight(), setpoint.elevatorHeight, 5f))
                 {
                     _endEffectorTargetAngle = setpoint.endEffectorAngle;
                 }

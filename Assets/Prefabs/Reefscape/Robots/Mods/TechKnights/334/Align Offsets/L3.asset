@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89bc32d2f49045b478094de5779ecb32, type: 3}
   m_Name: L3
   m_EditorClassIdentifier: 
-  alignOffset: {x: 0, y: 0, z: 5.39}
+  alignOffset: {x: 0, y: 0, z: 6.23}
