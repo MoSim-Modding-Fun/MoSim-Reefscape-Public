@@ -58,6 +58,9 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
         [SerializeField] private AudioSource rollerSource;
         [SerializeField] private AudioClip intakeClip;
         
+        [Header("Animation Rollers")]
+        [SerializeField] private GenericAnimationJoint[] intakeRollers;
+        
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _coralController;
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _algaeController;
 
@@ -160,9 +163,13 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
                     break;
                 
                 case ReefscapeSetpoints.Intake:
-                    if (CurrentRobotMode == ReefscapeRobotMode.Coral)
+                    if (CurrentRobotMode == ReefscapeRobotMode.Coral || !hasAlgae)
                     {
                         _coralController.RequestIntake(coralIntake, !_coralController.atTarget);
+                        if (!(_coralController.atTarget && _coralController.currentStateNum == coralStowState.stateNum))
+                        {
+                            RunRollers(intakeRollers, -1000);
+                        }
                     }
                     SetSetpoint(intake);
                     break;
@@ -198,7 +205,8 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
             }
             else if (CoralAtState(coralHandoffState))
             {
-                _coralController.SetTargetState(EndEffectorAtSetpoint(intake) && !_algaeController.HasPiece() ? coralStowState : coralHandoffState);
+                print(EndEffectorAtSetpoint(intake));
+                _coralController.SetTargetState(EndEffectorAtSetpoint(stow) && !_algaeController.HasPiece() ? coralStowState : coralHandoffState);
             }
             else if (CoralAtState(coralStowState))
             {
@@ -207,6 +215,14 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
             else
             {
                 _coralController.SetTargetState(coralIntakeState);
+            }
+        }
+
+        private void RunRollers(GenericAnimationJoint[] rollerGroup, float speed)
+        {
+            foreach (var roller in rollerGroup)
+            {
+                roller.VelocityRoller(speed);
             }
         }
 
@@ -280,7 +296,7 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
 
         private bool EndEffectorAtSetpoint(TechKnightsSetpoint setpoint)
         {
-            return Utils.InRange(elevator.GetElevatorHeight(), setpoint.elevatorHeight, .2f) &&
+            return Utils.InRange(elevator.GetElevatorHeight(), setpoint.elevatorHeight, 2f) &&
                    Utils.InAngularRange(endEffectorJoint.GetSingleAxisAngle(JointAxis.X), setpoint.endEffectorAngle, 5);
 
         }
@@ -314,6 +330,10 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
                     _coralController.ReleaseGamePieceWithForce(LastSetpoint == ReefscapeSetpoints.L4
                         ? coralL4OuttakeForce      // L4 Release
                         : coralOuttakeForce);    // Other Release
+                }
+                else if (_coralController.atTarget && _coralController.currentStateNum == coralHandoffState.stateNum)
+                {
+                    _coralController.ReleaseGamePieceWithForce(new Vector3(0, 0, -4f));
                 }
             }
 
@@ -355,8 +375,8 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
         private void UpdateSetpoints()
         {
             elevator.SetTarget(_elevatorTargetHeight);
-            endEffectorJoint.SetTargetAngle(_endEffectorTargetAngle).withAxis(JointAxis.X).useCustomStartingOffset(0);
-            intakeJoint.SetTargetAngle(_intakeTargetAngle).withAxis(JointAxis.X).useCustomStartingOffset(0);
+            endEffectorJoint.SetTargetAngle(_endEffectorTargetAngle).withAxis(JointAxis.X);
+            intakeJoint.SetTargetAngle(_intakeTargetAngle).withAxis(JointAxis.X);
         }
 
         private void UpdateAudio()
