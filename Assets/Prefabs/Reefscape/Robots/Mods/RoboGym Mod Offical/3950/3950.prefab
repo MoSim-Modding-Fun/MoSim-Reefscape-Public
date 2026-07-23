@@ -49286,6 +49286,7 @@ MonoBehaviour:
   red: {fileID: 2800000, guid: 6112a20fe410a60fe89e794e50fb1df5, type: 3}
   green: {fileID: 2800000, guid: 6a6542f5326617b829f81989e67c6cd8, type: 3}
   white: {fileID: 2800000, guid: 877025efd89029e5886441508b8ffe7d, type: 3}
+  disabled: {fileID: 2800000, guid: 3db6ae6b925e0f3798751f2018b1e240, type: 3}
   elevator: {fileID: 4000945422463968738}
   align: {fileID: 208003191164144946}
 --- !u!114 &2662521178962797803

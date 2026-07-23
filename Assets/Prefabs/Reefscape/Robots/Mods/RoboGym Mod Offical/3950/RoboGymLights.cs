@@ -1,6 +1,8 @@
 using Games.Reefscape.Enums;
 using Games.Reefscape.GamePieceSystem;
 using Games.Reefscape.Robots;
+using MoSimCore.BaseClasses.GameManagement;
+using MoSimCore.Enums;
 using RobotFramework.Components;
 using RobotFramework.Controllers.GamePieceSystem;
 using UnityEngine;
@@ -17,6 +19,7 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
         public Texture red;
         public Texture green;
         public Texture white;
+        public Texture disabled;
 
         [SerializeField] private GenericElevator elevator;
         [SerializeField] private ReefscapeAutoAlign align;
@@ -41,6 +44,13 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
         private void Update()
         {
             if (_base == null || _coralController == null) return;
+
+            if (BaseGameManager.Instance.RobotState == RobotState.Disabled)
+            {
+                Set(disabled, 20f);
+                _material.SetFloat("_X", Time.time * 0.5f);
+                return;
+            }
 
             bool coral = _coralController.HasPiece();
             bool elevatorUp = elevator != null && elevator.GetElevatorHeight() > 1f;
