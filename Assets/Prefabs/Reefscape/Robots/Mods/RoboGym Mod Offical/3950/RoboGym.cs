@@ -15,11 +15,18 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
     {
         [Header("Joints")]
         [SerializeField] private GenericElevator elevator;
+        [SerializeField] private GenericJoint hopper, climber;
+        
+        [Header("PIDS")]
+        [SerializeField] private PidConstants hopperPid;
+        [SerializeField] private PidConstants climberPid;
         
         [Header("Setpoints")]
         [SerializeField] private RoboGymSetpoint stowSetpoint, intakeSetpoint;
         [SerializeField] private RoboGymSetpoint l1, l2, l3, l4;
         [SerializeField] private Vector3 coralOuttakeForce, coralL1OuttakeForce;
+        [SerializeField] private float climberStow, climberOut, climberClimb;
+        [SerializeField] private float hopperAngle, hopperClimbAngle;
 
         [Header("Intakes")]
         [SerializeField] private ReefscapeGamePieceIntake coralIntake;
@@ -28,7 +35,9 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
         [SerializeField] private GamePieceState coralStowState;
 
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _coralController;
-        
+
+        private float _climberTargetAngle;
+        private float _hopperTargetAngle;
 
         private float _elevatorTargetHeight;
         
@@ -37,6 +46,11 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
             base.Start();
 
             _elevatorTargetHeight = 0;
+            _climberTargetAngle = climberStow;
+            _hopperTargetAngle = hopperAngle;
+            
+            climber.SetPid(climberPid);
+            hopper.SetPid(hopperPid);
             
             RobotGamePieceController.SetPreload(coralStowState);
             _coralController = RobotGamePieceController.GetPieceByName(ReefscapeGamePieceType.Coral.ToString());
@@ -50,6 +64,8 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
 
         private void LateUpdate()
         {
+            hopper.UpdatePid(hopperPid);
+            climber.UpdatePid(climberPid);
         }
 
         private void FixedUpdate()
@@ -86,11 +102,21 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
                     SetSetpoint(l4);
                     break;
                 case ReefscapeSetpoints.Climb:
+                    _climberTargetAngle = climberOut;
+                    _hopperTargetAngle = hopperClimbAngle;
                     SetSetpoint(stowSetpoint);
                     break;
                 case ReefscapeSetpoints.Climbed:
+                    _climberTargetAngle = climberClimb;
+                    _hopperTargetAngle = hopperClimbAngle;
                     SetSetpoint(stowSetpoint);
                     break;
+            }
+
+            if (CurrentSetpoint != ReefscapeSetpoints.Climb && CurrentSetpoint != ReefscapeSetpoints.Climbed)
+            {
+                _climberTargetAngle = climberStow;
+                _hopperTargetAngle = hopperAngle;
             }
             
             UpdateSetpoints();
@@ -132,6 +158,8 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
         private void UpdateSetpoints()
         {
             elevator.SetTarget(_elevatorTargetHeight);
+            climber.SetTargetAngle(_climberTargetAngle).withAxis(JointAxis.X).noWrap(290);
+            hopper.SetTargetAngle(_hopperTargetAngle).withAxis(JointAxis.X);
         }
 
         private void PlacePiece()
