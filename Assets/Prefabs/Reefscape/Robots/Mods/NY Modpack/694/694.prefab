@@ -37327,12 +37327,12 @@ GameObject:
   - component: {fileID: 6856889037359247344}
   - component: {fileID: 3163079999352775637}
   - component: {fileID: 6063528476714597936}
-  - component: {fileID: 4251578646721059028}
   - component: {fileID: -5212941126464287568}
   - component: {fileID: -3530780218628199161}
-  - component: {fileID: 2166937717901567993}
   - component: {fileID: -5136736742946363422}
-  - component: {fileID: 4122192858087937648}
+  - component: {fileID: 5361424018193177630}
+  - component: {fileID: 1965229076109290868}
+  - component: {fileID: 4721948632804874561}
   m_Layer: 6
   m_Name: 694
   m_TagString: BlueRobot
@@ -37553,7 +37553,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.8513222, y: 0.12444097, z: 0.8490521}
   m_Center: {x: -0.0030757189, y: 0.07349157, z: 0.0010063052}
---- !u!114 &4251578646721059028
+--- !u!114 &-5212941126464287568
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -37562,19 +37562,180 @@ MonoBehaviour:
   m_GameObject: {fileID: 2534371394911199621}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 753dc129ef5225d48ac46742c4c2995f, type: 3}
+  m_Script: {fileID: 11500000, guid: 20cb3794f26a4d04dab8b954d1f65ffa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  alliance: 1
+  stages:
+  - {fileID: 6363807337354431504}
+  elevatorType: 1
+  pidConstants:
+    kP: 13
+    kI: 0
+    kD: 0.1
+    Max: 2.2
+    Isaturation: 0
+  stagesPidConstants:
+    kP: 85
+    kI: 0
+    kD: 0.1
+    Max: 15
+    Isaturation: 0
+  elevatorAxis: 1
+  flipped: 0
+  setStageOverrides: []
+  stageHeight: 36
+  stageOverlap: 5
+  carriageHeight: 8
+  elevatorSound: {fileID: 5562532637733056548}
+  elevatorClip: {fileID: 8300000, guid: ae1ae9edf291fcf44b1aa0ebe48dd814, type: 3}
+  minSpeed: 1
+  maxSpeed: 60
+  soundPitchRange: {x: 0.6, y: 0.8}
+  soundVolumeRange: {x: 0.01, y: 0.1}
+  stageClickClip: {fileID: 8300000, guid: b45c16bea63f3ee4b97133104a8d9017, type: 3}
+  clickVolume: 0
+  clickSoundCooldown: 0.2
+  topClickOffset: 0.5
+  bottomClickOffset: 0.5
+  referenceTransform: {fileID: 9067804489163290750}
+--- !u!114 &-3530780218628199161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2534371394911199621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abc605c990df445aa1e4023538cc900d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gamePieceNodes: []
+--- !u!114 &-5136736742946363422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2534371394911199621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40c9f738d2c54a48ad3e959efd15d13b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cageScoringTrigger: {fileID: 3871378140202876108}
+  autoClimbTriggers: []
+--- !u!114 &5361424018193177630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2534371394911199621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7a8b938d9cd4bf479a21a3abda0e5ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  leds:
+  - {fileID: 3303865458386478618}
+  - {fileID: 7972503902204647618}
+  - {fileID: 3394576130013563394}
+  - {fileID: 7683619693006534629}
+  - {fileID: 1729140744008166597}
+  leftAccentLeds: []
+  rightAccentLeds: []
+  shaderGraphShader: {fileID: 0}
+  onIntensity: 20
+  offIntensity: 0
+  blinkPeriod: 0.5
+  scoreColor: {r: 0, g: 1, b: 0, a: 1}
+  climbOpenColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  climbingColor: {r: 0, g: 1, b: 0, a: 1}
+  intakeAlgaeColor: {r: 0, g: 1, b: 0, a: 1}
+  froggyIntakeCoralColor: {r: 1, g: 0, b: 0, a: 1}
+  coralStationAlignColor: {r: 1, g: 0, b: 0, a: 1}
+  reefAlignLeftColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  reefAlignRightColor: {r: 1, g: 0, b: 0, a: 1}
+  bargeAlignColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  processorColor: {r: 0.5, g: 0, b: 0.5, a: 1}
+  hasCoralColor: {r: 0, g: 0, b: 1, a: 1}
+  disabledColorBlue: {r: 0, g: 0, b: 1, a: 1}
+  disabledColorRed: {r: 1, g: 0, b: 0, a: 1}
+--- !u!114 &1965229076109290868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2534371394911199621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27671364a69fad24e83ff9973a93ea13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stationTargets:
+  - alliance: 0
+    leftCorner: {x: 8.096719, y: 0.003154305, z: -2.523623}
+    rightCorner: {x: 7.01474, y: 0.003154305, z: -3.262733}
+    yRotation: -35
+  maxStationAlignDistanceFeet: 12
+  stationSlideSpeed: 1.5
+  bargeTargets:
+  - alliance: 0
+    leftCorner: {x: 1.335773, y: 0, z: -3.558512}
+    rightCorner: {x: 1.335773, y: 0, z: -0.6461046}
+    yRotation: 90
+  maxBargeAlignDistanceFeet: 20
+  bargeSlideSpeed: 2.5
+  l1offset: {fileID: 11400000, guid: 7e4c11949277d46638df57358f31ea0f, type: 2}
+  frontLeftOffset: {fileID: 11400000, guid: cce9cb342279f4491831e85304b52af7, type: 2}
+  frontRightOffset: {fileID: 11400000, guid: 1427f00439aeb4826b224fa3c2dcf248, type: 2}
+  backLeftOffset: {fileID: 11400000, guid: 5fd843c47f6454aeeb111bceb54a4a89, type: 2}
+  backRightOffset: {fileID: 11400000, guid: 794f2d109f2bd4dcfbad45a3a1387409, type: 2}
+  frontLeftL4Offset: {fileID: 11400000, guid: 78090d7c4779e40978ed8fe221debeb4, type: 2}
+  frontRightL4Offset: {fileID: 11400000, guid: 57e9c2bbef15a45e3926fd9c82f3be4c, type: 2}
+  backLeftL4Offset: {fileID: 11400000, guid: 1670fb083d2f347779f2d40bc69111f7, type: 2}
+  backRightL4Offset: {fileID: 11400000, guid: 840951305e1da4ba98b22759ec0de7c4, type: 2}
+  maxReefAlignDistanceFeet: 25
+  translateX:
+    kP: 3
+    kI: 0
+    kD: 0
+    integralLimit: 0.5
+  translateZ:
+    kP: 3
+    kI: 0
+    kD: 0
+    integralLimit: 0.5
+  rotate:
+    kP: 1.5
+    kI: 0
+    kD: 0
+    integralLimit: 1
+  maxTranslateOutput: 1
+--- !u!114 &4721948632804874561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2534371394911199621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c773eb71d9f9944ebf38ad57f8edde9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  alliance: 0
   bumperMeshes:
   - {fileID: 1582742520845217027}
   - {fileID: 2846344185725546329}
-  - {fileID: 4970590081421306838}
-  - {fileID: 2307173082036486660}
   - {fileID: 3713716821096948345}
   - {fileID: 3296828095717689945}
   - {fileID: 6473937740990258416}
   - {fileID: 5695379171710660666}
+  - {fileID: 4970590081421306838}
+  - {fileID: 2307173082036486660}
   blueBumperMaterial: {fileID: 2100000, guid: 0926bc09723ca46b7a771be102ebebca, type: 2}
   redBumperMaterial: {fileID: 2100000, guid: b1abef3ed5da44944a7085fbf3036210, type: 2}
   <CurrentSetpoint>k__BackingField: 0
@@ -37670,16 +37831,6 @@ MonoBehaviour:
     stateTarget: {fileID: 3885021024700828827}
     smoothHandoff: 0
     angularSpeed: 180
-  l1offset: {fileID: 11400000, guid: 60b903726380add42863fa046b433ad2, type: 2}
-  frontLeftOffset: {fileID: 11400000, guid: cdf8fb4f19570bd42a25951e84dd6ac9, type: 2}
-  frontRightOffset: {fileID: 11400000, guid: cdf8fb4f19570bd42a25951e84dd6ac9, type: 2}
-  backLeftOffset: {fileID: 11400000, guid: 6ce4e5c286a805743968a32caa93531e, type: 2}
-  backRightOffset: {fileID: 11400000, guid: 6ce4e5c286a805743968a32caa93531e, type: 2}
-  frontLeftL4Offset: {fileID: 11400000, guid: 6886f975edfe43b42a81e6ef4ae01619, type: 2}
-  frontRightL4Offset: {fileID: 11400000, guid: 6886f975edfe43b42a81e6ef4ae01619, type: 2}
-  backLeftL4Offset: {fileID: 11400000, guid: ceb62cc8af90f6749b079a8ad8a79d67, type: 2}
-  backRightL4Offset: {fileID: 11400000, guid: ceb62cc8af90f6749b079a8ad8a79d67, type: 2}
-  L1FroggyOffset: {fileID: 11400000, guid: 7e4c11949277d46638df57358f31ea0f, type: 2}
   forggyCoralTarget: {fileID: 5091313674055304550}
   frogyCoralSlid: {fileID: 3911111398027635487}
   froggyAlgaeTarger: {fileID: 8355820442551903481}
@@ -37699,21 +37850,24 @@ MonoBehaviour:
   - {fileID: 5369986737703624443}
   - {fileID: 1054295400795045824}
   collidersToDisableForFroggyCoralScoring:
-  - {fileID: 2802161523138154557}
-  - {fileID: 7856757310448116238}
-  - {fileID: 5042242922179007010}
-  - {fileID: 5355823896774928509}
-  - {fileID: 40427654855881536}
-  - {fileID: 8163474212607932555}
-  - {fileID: 6528699839852619961}
   - {fileID: 9164267428774313568}
   - {fileID: 6032446796526612587}
+  - {fileID: 9059189545154682724}
   - {fileID: 7013694880294231022}
   - {fileID: 5191831565331534826}
   - {fileID: 4288946065853823569}
   - {fileID: 7968916340639822802}
   - {fileID: 2468712579026506019}
   - {fileID: 5897854438541187148}
+  - {fileID: 6528699839852619961}
+  - {fileID: 2346116602439304954}
+  - {fileID: 8045407185422257845}
+  - {fileID: 8163474212607932555}
+  - {fileID: 40427654855881536}
+  - {fileID: 5355823896774928509}
+  - {fileID: 5042242922179007010}
+  - {fileID: 7856757310448116238}
+  - {fileID: 2802161523138154557}
   - {fileID: 5813109464882048724}
   - {fileID: 5388221630775434175}
   - {fileID: 5630889453235811001}
@@ -37730,7 +37884,7 @@ MonoBehaviour:
   - {fileID: 6265299153353237739}
   - {fileID: 5586238383967617797}
   - {fileID: 5633283812810357082}
-  - {fileID: 6701077927110756208}
+  - {fileID: 6459828017418238016}
   - {fileID: 6888386942905065405}
   - {fileID: 8593042104643010844}
   - {fileID: 8881813515609371100}
@@ -37749,145 +37903,13 @@ MonoBehaviour:
   - {fileID: 4664301074167687213}
   - {fileID: 1271887917312371420}
   - {fileID: 3801333044666826419}
-  shooterAnimationWheelSpeeds: 900
+  shooterAnimationWheelSpeeds: 900.9
   froggyGreenRollerWheels:
   - {fileID: 5894139274813668962}
   froggyOrangeRollerWheels:
   - {fileID: 445430712957941900}
   froggyAnimationWheelSpeeds: 900
   frogState: 0
---- !u!114 &-5212941126464287568
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2534371394911199621}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 20cb3794f26a4d04dab8b954d1f65ffa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  stages:
-  - {fileID: 6363807337354431504}
-  elevatorType: 1
-  pidConstants:
-    kP: 13
-    kI: 0
-    kD: 0.1
-    Max: 2.2
-    Isaturation: 0
-  stagesPidConstants:
-    kP: 85
-    kI: 0
-    kD: 0.1
-    Max: 15
-    Isaturation: 0
-  elevatorAxis: 1
-  flipped: 0
-  setStageOverrides: []
-  stageHeight: 36
-  stageOverlap: 5
-  carriageHeight: 8
-  elevatorSound: {fileID: 5562532637733056548}
-  elevatorClip: {fileID: 8300000, guid: ae1ae9edf291fcf44b1aa0ebe48dd814, type: 3}
-  minSpeed: 1
-  maxSpeed: 60
-  soundPitchRange: {x: 0.6, y: 0.8}
-  soundVolumeRange: {x: 0.01, y: 0.1}
-  stageClickClip: {fileID: 8300000, guid: b45c16bea63f3ee4b97133104a8d9017, type: 3}
-  clickVolume: 0
-  clickSoundCooldown: 0.2
-  topClickOffset: 0.5
-  bottomClickOffset: 0.5
-  referenceTransform: {fileID: 9067804489163290750}
---- !u!114 &-3530780218628199161
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2534371394911199621}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: abc605c990df445aa1e4023538cc900d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gamePieceNodes: []
---- !u!114 &2166937717901567993
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2534371394911199621}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84285a51c5b987842b784c1508e6a743, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  drivePID:
-    kP: 30
-    kI: 0.1
-    kD: 1.65
-    Max: 1
-    Isaturation: 1
-  rotatePID:
-    kP: 0.1
-    kI: 0
-    kD: 0.003
-    Max: 0.75
-    Isaturation: 1
-  offset: {x: 0, y: 0, z: 8}
-  rotation: 0
-  enableForwardAlign: 1
-  enableBackwardsAlign: 1
-  maxAlignDistanceFeet: 25
---- !u!114 &-5136736742946363422
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2534371394911199621}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40c9f738d2c54a48ad3e959efd15d13b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cageScoringTrigger: {fileID: 3871378140202876108}
-  autoClimbTriggers: []
---- !u!114 &4122192858087937648
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2534371394911199621}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62833179775b24641ac356a730f39fd3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  leds:
-  - {fileID: 3303865458386478618}
-  - {fileID: 3394576130013563394}
-  - {fileID: 7683619693006534629}
-  - {fileID: 1729140744008166597}
-  - {fileID: 7972503902204647618}
-  shaderGraphShader: {fileID: -6465566751694194690, guid: 88d82d76b25302e4f81533f3cee81aab,
-    type: 3}
-  hasAlgae: {fileID: 2800000, guid: 8a2dd088b5fa4264281546728edb0d60, type: 3}
-  Disabled: {fileID: 2800000, guid: fd981d817d2e4844f98bcb3431cf18f2, type: 3}
-  Intake: {fileID: 2800000, guid: a3571a6ac8d6ebe4b8dbfbe129d94d9a, type: 3}
-  hasCoral: {fileID: 2800000, guid: 803191a9cf121b747a564e6b3f196ddb, type: 3}
-  CoralMode: {fileID: 2800000, guid: 89471c0c0beb95e4ba2f56d18ab3cb34, type: 3}
-  AlgaeMode: {fileID: 2800000, guid: 0b413960445674a4abc63ed85c3b0d8f, type: 3}
-  L1Mode: {fileID: 2800000, guid: 5e80cbf4e690954429db86f8f0c70d9e, type: 3}
-  prepClimb: {fileID: 2800000, guid: c2b5c3a2f2e8eb347a43648842fbcb73, type: 3}
-  Climbed: {fileID: 2800000, guid: b3eb1b064e441444690caffbd939d3de, type: 3}
-  AutoAligning: {fileID: 2800000, guid: 155136162c02c734591de6be1a521d30, type: 3}
-  Processor: {fileID: 2800000, guid: b3eb1b064e441444690caffbd939d3de, type: 3}
 --- !u!1 &2536444504193739657
 GameObject:
   m_ObjectHideFlags: 0

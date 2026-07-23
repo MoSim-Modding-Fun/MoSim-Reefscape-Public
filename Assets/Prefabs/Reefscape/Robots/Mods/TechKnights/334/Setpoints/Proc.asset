@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 963d060b2a770474eb50a1fbd459a1fd, type: 3}
   m_Name: Proc
   m_EditorClassIdentifier: 
-  elevatorHeight: 0
-  endEffectorAngle: -20
+  elevatorHeight: 8.23
+  endEffectorAngle: -0.9
   intakeAngle: 135
