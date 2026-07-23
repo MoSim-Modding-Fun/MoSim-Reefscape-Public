@@ -27,6 +27,7 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
         [SerializeField] private Vector3 coralOuttakeForce, coralL1OuttakeForce;
         [SerializeField] private float climberStow, climberOut, climberClimb;
         [SerializeField] private float hopperAngle, hopperClimbAngle;
+        [SerializeField] private float climberDeployHopperAngle = -30f;
 
         [Header("Intakes")]
         [SerializeField] private ReefscapeGamePieceIntake coralIntake;
@@ -40,7 +41,8 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
         private float _hopperTargetAngle;
 
         private float _elevatorTargetHeight;
-        
+        private bool _climberDeployed;
+
         protected override void Start()
         {
             base.Start();
@@ -102,8 +104,14 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
                     SetSetpoint(l4);
                     break;
                 case ReefscapeSetpoints.Climb:
-                    _climberTargetAngle = climberOut;
                     _hopperTargetAngle = hopperClimbAngle;
+                    if (!_climberDeployed)
+                    {
+                        var hopperNow = hopper.GetSingleAxisAngle(JointAxis.X);
+                        if (hopperNow > 180f) hopperNow -= 360f;
+                        _climberDeployed = hopperNow <= climberDeployHopperAngle;
+                    }
+                    _climberTargetAngle = _climberDeployed ? climberOut : climberStow;
                     SetSetpoint(stowSetpoint);
                     break;
                 case ReefscapeSetpoints.Climbed:
@@ -116,7 +124,9 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
             if (CurrentSetpoint != ReefscapeSetpoints.Climb && CurrentSetpoint != ReefscapeSetpoints.Climbed)
             {
                 _climberTargetAngle = climberStow;
-                _hopperTargetAngle = hopperAngle;
+                var climberAtStow = Mathf.Abs(Mathf.DeltaAngle(climber.GetSingleAxisAngle(JointAxis.X), climberStow)) < 40f;
+                _hopperTargetAngle = climberAtStow ? hopperAngle : hopperClimbAngle;
+                _climberDeployed = false;
             }
             
             UpdateSetpoints();
