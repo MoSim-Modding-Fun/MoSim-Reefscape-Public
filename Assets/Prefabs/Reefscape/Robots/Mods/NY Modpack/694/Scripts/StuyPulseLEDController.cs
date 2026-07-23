@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Games.Reefscape.Enums;
 using Games.Reefscape.GamePieceSystem;
 using Games.Reefscape.Robots;
@@ -9,17 +10,21 @@ using UnityEngine;
 namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 {
     /// <summary>
-    /// 694-specific LED controller. Auto align (reef or station) takes over the strip first, mirroring how
-    /// the real robot's alignment commands require the LED subsystem and pre-empt LEDDefaultCommand while
-    /// they're running. Below that sits the real LEDDefaultCommand's own priority chain (github.com/StuyPulse/Aunt-Mary):
+    /// 694-specific LED controller. Auto align (reef, barge, or station) takes over the strip first,
+    /// mirroring how the real robot's alignment commands require the LED subsystem and pre-empt
+    /// LEDDefaultCommand while they're running. Below that sits the real LEDDefaultCommand's own priority
+    /// chain (github.com/StuyPulse/Aunt-Mary):
     /// scoring, climbed/climbing, climb open, algae intake, froggy coral intake, processor, has-coral, then
     /// off. Reads only the public state already exposed by ReefscapeRobotBase and the game piece
     /// controllers, so it can be dropped onto the existing 694 rig without editing it. Colors default to
     /// the values used in the real robot's Settings.LED constants.
     ///
-    /// LED surfaces are wired the same way as GRRLights/LEDStripController: drag the LED mesh GameObject(s)
-    /// into `leds`, and this script instantiates one shared material and assigns it to each of their
-    /// renderers at Start, then drives that material's emission color.
+    /// LED surfaces are wired the same way as GRRLights (340) and the framework's LEDStripController: assign
+    /// the generated Shader from Assets/Materials/LEds/LEDs.shadergraph to shaderGraphShader and drag the LED
+    /// mesh GameObject(s) into `leds`; this script builds one shared material instance and assigns it to each
+    /// of their renderers at Start. That shader has no color input though - only _Texture2D/_X/_Y/_intensity -
+    /// so instead of requiring a texture asset per state, this generates a small solid-color Texture2D at
+    /// runtime from each Color field below and feeds that into _Texture2D. _intensity is what drives on/off/blink.
     /// </summary>
     public class StuyPulseLEDController : MonoBehaviour
     {
@@ -33,8 +38,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         [Tooltip("Optional: the subset of the strip that lights up for the right side. Falls back to leds if empty.")]
         [SerializeField] private GameObject[] rightAccentLeds;
 
-        [Tooltip("Optional shader to build a fresh material from (same idea as GRRLights/LEDStripController's shaderGraphShader). If left empty, this clones whatever material is already on each LED mesh instead.")]
-        [SerializeField] private Shader ledShader;
+        [Tooltip("The generated Shader asset from Assets/Materials/LEds/LEDs.shadergraph - the same one GRRLights (340) and LEDStripController use. If left empty, this clones whatever material is already on each LED mesh instead.")]
+        [SerializeField] private Shader shaderGraphShader;
 
         [Header("Intensity")]
         [SerializeField] private float onIntensity = 20f;
@@ -50,12 +55,11 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         [SerializeField] private Color coralStationAlignColor = Color.red;
         [SerializeField] private Color reefAlignLeftColor = Color.yellow;
         [SerializeField] private Color reefAlignRightColor = Color.red;
+        [SerializeField] private Color bargeAlignColor = Color.yellow;
         [SerializeField] private Color processorColor = new Color(0.5f, 0f, 0.5f); // purple
         [SerializeField] private Color hasCoralColor = Color.blue;
         [SerializeField] private Color disabledColorBlue = Color.blue;
         [SerializeField] private Color disabledColorRed = Color.red;
-
-        private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
 
         private ReefscapeRobotBase _base;
         private StuyPulseAutoAlign _autoAlign;
@@ -64,6 +68,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private Material _stripMaterial;
         private Material _leftMaterial;
         private Material _rightMaterial;
+
+        private readonly Dictionary<Color, Texture2D> _solidTextures = new();
 
         private float _scoreFlashUntil;
         private bool _hadCoral;
@@ -80,8 +86,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             _rightMaterial = rightAccentLeds is { Length: > 0 } ? BuildSharedMaterial(rightAccentLeds) : _stripMaterial;
         }
 
-        // Same idea as GRRLights/LEDStripController: one shared, runtime-instanced material assigned across
-        // every renderer in the group, so setting a color on it updates all of them at once.
+        // Same as GRRLights/LEDStripController: one shared, runtime-instanced material assigned across every
+        // renderer in the group, so setting a texture/intensity on it updates all of them at once.
         private Material BuildSharedMaterial(GameObject[] objects)
         {
             if (objects == null || objects.Length == 0) return null;
@@ -91,11 +97,27 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             {
                 if (obj == null || !obj.TryGetComponent<Renderer>(out var renderer)) continue;
 
-                shared ??= ledShader != null ? new Material(ledShader) : new Material(renderer.sharedMaterial);
+                shared ??= shaderGraphShader != null ? new Material(shaderGraphShader) : new Material(renderer.sharedMaterial);
                 renderer.material = shared;
             }
 
             return shared;
+        }
+
+        // The shader only takes a texture, not a color, so this bakes a tiny solid-color texture the first
+        // time a given color is used and reuses it after that.
+        private Texture2D GetSolidTexture(Color color)
+        {
+            if (_solidTextures.TryGetValue(color, out var existing)) return existing;
+
+            var texture = new Texture2D(4, 4) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
+            var pixels = new Color[texture.width * texture.height];
+            for (var i = 0; i < pixels.Length; i++) pixels[i] = color;
+            texture.SetPixels(pixels);
+            texture.Apply();
+
+            _solidTextures[color] = texture;
+            return texture;
         }
 
         private void Update()
@@ -123,7 +145,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
             if (BaseGameManager.Instance.RobotState == RobotState.Disabled)
             {
-                SetAll(_base.Alliance == Alliance.Blue ? disabledColorBlue : disabledColorRed, offIntensity);
+                SetAll(_base.Alliance == Alliance.Blue ? disabledColorBlue : disabledColorRed, onIntensity);
                 return;
             }
 
@@ -132,7 +154,11 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             if (_autoAlign != null && _autoAlign.ReefAlignActive())
             {
                 var left = _autoAlign.ReefAlignLeft();
-                SetSides(left ? reefAlignLeftColor : Color.black, left ? Color.black : reefAlignRightColor, blink);
+                SetSides(reefAlignLeftColor, reefAlignRightColor, left ? blink : offIntensity, left ? offIntensity : blink);
+            }
+            else if (_autoAlign != null && _autoAlign.BargeAlignActive())
+            {
+                SetAll(bargeAlignColor, blink);
             }
             else if (_autoAlign != null && _autoAlign.StationAlignActive())
             {
@@ -176,21 +202,28 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private void SetAll(Color color, float intensity)
         {
-            Set(_stripMaterial, color, intensity);
-            Set(_leftMaterial, color, intensity);
-            Set(_rightMaterial, color, intensity);
+            var texture = GetSolidTexture(color);
+            Set(_stripMaterial, texture, intensity);
+            Set(_leftMaterial, texture, intensity);
+            Set(_rightMaterial, texture, intensity);
         }
 
-        private void SetSides(Color leftColor, Color rightColor, float intensity)
+        private void SetSides(Color leftColor, Color rightColor, float leftIntensity, float rightIntensity)
         {
-            Set(_leftMaterial, leftColor, intensity);
-            Set(_rightMaterial, rightColor, intensity);
+            Set(_leftMaterial, GetSolidTexture(leftColor), leftIntensity);
+            Set(_rightMaterial, GetSolidTexture(rightColor), rightIntensity);
         }
 
-        private void Set(Material material, Color color, float intensity)
+        // Same idea as GRRLights' Set(): _X/_Y stay at 0 (they're the shader's scroll offset, unused here),
+        // _intensity is what actually drives on/off/blink, and _Texture2D gets the baked solid-color texture.
+        private void Set(Material material, Texture texture, float intensity)
         {
             if (material == null) return;
-            material.SetColor(EmissionColor, color * intensity);
+
+            material.SetFloat("_X", 0f);
+            material.SetFloat("_Y", 0f);
+            material.SetFloat("_intensity", intensity);
+            material.SetTexture("_Texture2D", texture);
         }
     }
 }

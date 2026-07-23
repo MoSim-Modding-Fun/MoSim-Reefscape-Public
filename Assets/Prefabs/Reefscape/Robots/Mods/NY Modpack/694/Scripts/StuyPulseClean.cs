@@ -16,13 +16,16 @@ using UnityEngine;
 namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 {
     /// <summary>
-    /// Small surface the sibling StuyPulseAutoAlign component reads instead of holding its own reference
-    /// to (and comparing against) the froggy coral stow GamePieceState directly.
+    /// Small surface the sibling StuyPulseAutoAlign component reads instead of holding its own references
+    /// to (and comparing against) the froggy coral stow / shooter algae stow GamePieceStates directly.
     /// </summary>
-    public interface IStuyPulseCoralStatus
+    public interface IStuyPulseGamePieceStatus
     {
         /// <summary>True while a coral is docked in the froggy/L1 holder.</summary>
         bool HasFroggyCoral { get; }
+
+        /// <summary>True while an algae is docked in the shooter, ready to score (barge/processor).</summary>
+        bool HasShooterAlgae { get; }
     }
 
     /// <summary>
@@ -41,10 +44,10 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
     /// Each of those becomes its own Update*() method instead of one long FixedUpdate, and the big nested
     /// PlacePiece if-chain becomes one Try*() helper per real scoring scenario.
     ///
-    /// Reef branch and human player station alignment are both handled by the sibling StuyPulseAutoAlign
-    /// component now, not by the framework's ReefscapeAutoAlign - see that file for details.
+    /// Reef branch, human player station, and barge alignment are all handled by the sibling
+    /// StuyPulseAutoAlign component now, not by the framework's ReefscapeAutoAlign - see that file for details.
     /// </summary>
-    public class StuyPulseClean : ReefscapeRobotBase, IStuyPulseCoralStatus
+    public class StuyPulseClean : ReefscapeRobotBase, IStuyPulseGamePieceStatus
     {
         [Header("SuperStructure (Elevator + Arm)")]
         [SerializeField] private GenericElevator elevator;
@@ -165,6 +168,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private Vector3 _redReef;
 
         public bool HasFroggyCoral => _coralController.currentStateNum == froggyCoralStowState.stateNum && _coralController.atTarget;
+        public bool HasShooterAlgae => _algaeController.currentStateNum == shooterAlgaeStowState.stateNum && _algaeController.atTarget;
 
         protected override void Start()
         {

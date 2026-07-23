@@ -34,10 +34,10 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
     /// clearance check before backing into the lollipop intake pose, the extra shooterCollidersForAlgae
     /// reset, and the L4 back-side coral release using a continued force instead of an instant one.
     ///
-    /// Reef branch and human player station alignment are both handled by the sibling StuyPulseAutoAlign
-    /// component now, not by the framework's ReefscapeAutoAlign - see that file for details.
+    /// Reef branch, human player station, and barge alignment are all handled by the sibling
+    /// StuyPulseAutoAlign component now, not by the framework's ReefscapeAutoAlign - see that file for details.
     /// </summary>
-    public class StuyPulseNewArmClean : ReefscapeRobotBase, IStuyPulseCoralStatus
+    public class StuyPulseNewArmClean : ReefscapeRobotBase, IStuyPulseGamePieceStatus
     {
         [Header("SuperStructure (Elevator + Arm)")]
         [SerializeField] private GenericElevator elevator;
@@ -159,6 +159,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private Vector3 _redReef;
 
         public bool HasFroggyCoral => _coralController.currentStateNum == froggyCoralStowState.stateNum && _coralController.atTarget;
+        public bool HasShooterAlgae => _algaeController.currentStateNum == shooterAlgaeStowState.stateNum && _algaeController.atTarget;
 
         protected override void Start()
         {

@@ -12,14 +12,25 @@ using UnityEngine;
 namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 {
     /// <summary>
-    /// 694's single custom auto align - handles BOTH reef branch scoring and the human player station,
-    /// the same way 340's GRRAutoAlign is one self-contained component rather than relying on the shared
-    /// framework AutoAlign. It replaces the framework's ReefscapeAutoAlign component for this robot.
+    /// 694's single custom auto align - handles reef branch scoring, the human player station, and the
+    /// barge, the same way 340's GRRAutoAlign is one self-contained component rather than relying on the
+    /// shared framework AutoAlign. It replaces the framework's ReefscapeAutoAlign component for this robot.
     ///
-    /// Station align mirrors SwerveDrivePIDToCoralStation from the real 694 code as it existed at the
-    /// Champs release (github.com/StuyPulse/Aunt-Mary/releases/tag/Champs) - one fixed pose per physical
-    /// station, no left/right slot split (that was added later alongside NewArm on main). Station poses
-    /// are plain serialized Vector3 positions so they can be placed by hand in the inspector.
+    /// Station and barge align both work the same way: an AlignZone is a corner-to-corner line (its
+    /// rotation is the heading to face). Rotation and the distance perpendicular to that line are always
+    /// PID-corrected, but the position *along* the line is a slider that starts centered the moment you
+    /// engage and can be nudged toward either corner with the left stick, clamped so you can't slide past
+    /// either end - "aligns to the middle, but lets you slide across it to either corner while it holds you
+    /// at the right distance away," per the corresponding real StuyPulse commands
+    /// (github.com/StuyPulse/Aunt-Mary): SwerveDrivePIDAssistToClosestCoralStation for the station, and
+    /// SwerveDriveDriveAlignedToBarge118Score for the barge (which locks distance-to-line + heading and
+    /// leaves the driver's left stick fully in control of position along the line - this is a clamped,
+    /// centered version of that same idea rather than the real robot's unclamped open-ended slide).
+    ///
+    /// Barge align engages automatically while CurrentSetpoint is Barge and the driver is holding algae
+    /// ready to score, while either AutoAlignLeft or AutoAlignRight is held - MoSim has no dedicated barge
+    /// button, so this reuses the same "hold align" buttons the reef branch align uses, just routed to
+    /// different behavior based on what setpoint you're currently in.
     ///
     /// Reef branch align keeps the exact same node-finding and offset-application logic the framework's
     /// ReefscapeAutoAlign used (closest ReefFace-tagged AlignNode, perspective-relative left/right,
@@ -27,25 +38,29 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
     /// it's just re-hosted here so the whole thing runs through one PID loop instead of two components
     /// fighting over the drivetrain.
     ///
-    /// Neither alignment mode uses RobotFramework.Controllers.PidSystems.PIDController (the shared
-    /// controller the joints are tuned through) - the translation/rotation PID loops below are implemented
-    /// from scratch so a future change to that shared PID controller cannot change this component's behavior.
+    /// None of the three alignment modes use RobotFramework.Controllers.PidSystems.PIDController (the
+    /// shared controller the joints are tuned through) - the translation/rotation PID loops below are
+    /// implemented from scratch so a future change to that shared PID controller cannot change this
+    /// component's behavior.
     ///
-    /// This script doesn't hold its own reference to the froggy coral stow GamePieceState - it reads
-    /// whether coral is docked there through the sibling robot script's IStuyPulseCoralStatus.HasFroggyCoral
-    /// instead, so that single piece of game-piece-system knowledge lives in one place.
+    /// This script doesn't hold its own references to the froggy coral stow / shooter algae stow
+    /// GamePieceStates - it reads whether coral/algae is docked there through the sibling robot script's
+    /// IStuyPulseGamePieceStatus instead, so that game-piece-system knowledge lives in one place.
     /// </summary>
     public class StuyPulseAutoAlign : MonoBehaviour
     {
         [Serializable]
-        public class CoralStationTarget
+        public class AlignZone
         {
             public Alliance alliance;
 
-            [Tooltip("World-space position (meters) of this station's pickup slot")]
-            public Vector3 position;
+            [Tooltip("World-space position of one end of this align zone's line (e.g. one edge of the HP station opening, or one end of the barge line)")]
+            public Vector3 leftCorner;
 
-            [Tooltip("Robot heading (degrees) to face when aligned to this station")]
+            [Tooltip("World-space position of the other end of this align zone's line")]
+            public Vector3 rightCorner;
+
+            [Tooltip("Robot heading (degrees) to face while aligned to this zone")]
             public float yRotation;
         }
 
@@ -85,11 +100,24 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         }
 
         [Header("Human Player Station Align")]
-        [Tooltip("One entry per physical coral station on the field, populated with its pickup slot position")]
-        [SerializeField] private CoralStationTarget[] stationTargets;
+        [Tooltip("One entry per physical coral station on the field")]
+        [SerializeField] private AlignZone[] stationTargets;
 
         [Tooltip("Only assist toward the station within this distance (feet)")]
         [SerializeField] private float maxStationAlignDistanceFeet = 12f;
+
+        [Tooltip("How fast (world units/sec at full stick deflection) the slide target moves along the station line")]
+        [SerializeField] private float stationSlideSpeed = 1.5f;
+
+        [Header("Barge Align")]
+        [Tooltip("One entry per alliance's barge line")]
+        [SerializeField] private AlignZone[] bargeTargets;
+
+        [Tooltip("Only assist toward the barge within this distance (feet)")]
+        [SerializeField] private float maxBargeAlignDistanceFeet = 20f;
+
+        [Tooltip("How fast (world units/sec at full stick deflection) the slide target moves along the barge line")]
+        [SerializeField] private float bargeSlideSpeed = 2.5f;
 
         [Header("Reef Branch Align")]
         [SerializeField] private AutoAlignOffset l1offset;
@@ -115,18 +143,26 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private const float FEET_TO_METERS = 0.3048f;
         private const float INCHES_TO_METERS = 0.0254f;
+        private const float MIN_LINE_LENGTH = 0.01f;
 
         private ReefscapeRobotBase _stuyBase;
         private DriveController _driveController;
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData> _pieces;
-        private IStuyPulseCoralStatus _coralStatus;
+        private IStuyPulseGamePieceStatus _gamePieceStatus;
 
         private readonly List<AlignNode> _reefFaces = new();
         private readonly Dictionary<Transform, AlignNode> _reefNodeParents = new();
         private Transform _closestReefNode;
         private Transform _secondClosestReefNode;
 
+        private bool _stationEngaged;
+        private float _stationSlide = 0.5f;
+
+        private bool _bargeEngaged;
+        private float _bargeSlide = 0.5f;
+
         private bool _stationAlignActive;
+        private bool _bargeAlignActive;
         private bool _reefAlignActive;
         private bool _reefAlignLeft;
 
@@ -135,7 +171,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             _stuyBase = GetComponent<ReefscapeRobotBase>();
             _driveController = GetComponent<DriveController>();
             _pieces = GetComponent<RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>>();
-            _coralStatus = GetComponent<IStuyPulseCoralStatus>();
+            _gamePieceStatus = GetComponent<IStuyPulseGamePieceStatus>();
         }
 
         private void Start()
@@ -163,7 +199,18 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private void FixedUpdate()
         {
-            var wasActive = _stationAlignActive || _reefAlignActive;
+            var wasActive = _stationAlignActive || _bargeAlignActive || _reefAlignActive;
+
+            if (TryGetBargeAlignTarget(out var bargeTarget, out var bargeYaw))
+            {
+                _bargeAlignActive = true;
+                _reefAlignActive = false;
+                _stationAlignActive = false;
+                DriveManualPid(bargeTarget, bargeYaw);
+                return;
+            }
+
+            _bargeAlignActive = false;
 
             if (TryGetReefAlignTarget(out var reefTarget, out var reefYaw))
             {
@@ -194,44 +241,111 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             targetPosition = Vector3.zero;
             targetYaw = 0f;
 
-            if (_stuyBase == null || _driveController == null || stationTargets == null || stationTargets.Length == 0) return false;
+            if (_stuyBase == null || _driveController == null || stationTargets == null || stationTargets.Length == 0)
+            {
+                _stationEngaged = false;
+                return false;
+            }
 
-            if (_stuyBase.AutoAlignLeftAction.IsPressed() || _stuyBase.AutoAlignRightAction.IsPressed()) return false;
-            if (_stuyBase.CurrentRobotMode != ReefscapeRobotMode.Coral) return false;
-            if (_stuyBase.CurrentIntakeMode != ReefscapeIntakeMode.Normal) return false;
-            if (!_stuyBase.IntakeAction.IsPressed()) return false;
+            if (_stuyBase.AutoAlignLeftAction.IsPressed() || _stuyBase.AutoAlignRightAction.IsPressed()) { _stationEngaged = false; return false; }
+            if (_stuyBase.CurrentRobotMode != ReefscapeRobotMode.Coral) { _stationEngaged = false; return false; }
+            if (_stuyBase.CurrentIntakeMode != ReefscapeIntakeMode.Normal) { _stationEngaged = false; return false; }
+            if (!_stuyBase.IntakeAction.IsPressed()) { _stationEngaged = false; return false; }
 
             var coral = _pieces != null ? _pieces.GetPieceByName(ReefscapeGamePieceType.Coral.ToString()) : null;
-            if (coral != null && coral.HasPiece()) return false;
+            if (coral != null && coral.HasPiece()) { _stationEngaged = false; return false; }
 
-            var station = GetClosestStation(_stuyBase.Alliance);
-            if (station == null) return false;
+            var zone = GetClosestZone(stationTargets, _stuyBase.Alliance);
+            if (zone == null) { _stationEngaged = false; return false; }
 
-            var robotXZ = new Vector2(transform.position.x, transform.position.z);
-            var stationXZ = new Vector2(station.position.x, station.position.z);
-            if (Vector2.Distance(robotXZ, stationXZ) > maxStationAlignDistanceFeet * FEET_TO_METERS) return false;
+            if (!TryGetZoneTarget(zone, maxStationAlignDistanceFeet, stationSlideSpeed, ref _stationEngaged, ref _stationSlide, out targetPosition))
+            {
+                return false;
+            }
 
-            targetPosition = station.position;
-            targetYaw = station.yRotation;
+            targetYaw = zone.yRotation;
             return true;
         }
 
-        private CoralStationTarget GetClosestStation(Alliance alliance)
+        // ---- Barge ----
+
+        private bool TryGetBargeAlignTarget(out Vector3 targetPosition, out float targetYaw)
         {
-            CoralStationTarget closest = null;
+            targetPosition = Vector3.zero;
+            targetYaw = 0f;
+
+            if (_stuyBase == null || _driveController == null || bargeTargets == null || bargeTargets.Length == 0)
+            {
+                _bargeEngaged = false;
+                return false;
+            }
+
+            if (_stuyBase.CurrentSetpoint != ReefscapeSetpoints.Barge) { _bargeEngaged = false; return false; }
+            if (!(_stuyBase.AutoAlignLeftAction.IsPressed() || _stuyBase.AutoAlignRightAction.IsPressed())) { _bargeEngaged = false; return false; }
+            if (_gamePieceStatus == null || !_gamePieceStatus.HasShooterAlgae) { _bargeEngaged = false; return false; }
+
+            var zone = GetClosestZone(bargeTargets, _stuyBase.Alliance);
+            if (zone == null) { _bargeEngaged = false; return false; }
+
+            if (!TryGetZoneTarget(zone, maxBargeAlignDistanceFeet, bargeSlideSpeed, ref _bargeEngaged, ref _bargeSlide, out targetPosition))
+            {
+                return false;
+            }
+
+            targetYaw = zone.yRotation;
+            return true;
+        }
+
+        // ---- Shared corner-to-corner slide logic used by both station and barge align ----
+
+        private bool TryGetZoneTarget(AlignZone zone, float maxDistanceFeet, float slideSpeed, ref bool engaged, ref float slide, out Vector3 targetPosition)
+        {
+            targetPosition = Vector3.zero;
+
+            var lineLength = Vector3.Distance(zone.leftCorner, zone.rightCorner);
+            if (lineLength < MIN_LINE_LENGTH)
+            {
+                engaged = false;
+                return false;
+            }
+
+            var center = (zone.leftCorner + zone.rightCorner) * 0.5f;
+            var robotXZ = new Vector2(transform.position.x, transform.position.z);
+            var centerXZ = new Vector2(center.x, center.z);
+            if (Vector2.Distance(robotXZ, centerXZ) > maxDistanceFeet * FEET_TO_METERS)
+            {
+                engaged = false;
+                return false;
+            }
+
+            // Fresh engage (button/context just became true this frame) starts the slide back at the middle.
+            if (!engaged) slide = 0.5f;
+            engaged = true;
+
+            var stick = _stuyBase.TranslateAction.ReadValue<Vector2>().x;
+            slide = Mathf.Clamp01(slide + stick * slideSpeed * Time.fixedDeltaTime / lineLength);
+
+            targetPosition = Vector3.Lerp(zone.leftCorner, zone.rightCorner, slide);
+            return true;
+        }
+
+        private AlignZone GetClosestZone(AlignZone[] zones, Alliance alliance)
+        {
+            AlignZone closest = null;
             var closestDistance = float.MaxValue;
             var robotXZ = new Vector2(transform.position.x, transform.position.z);
 
-            foreach (var station in stationTargets)
+            foreach (var zone in zones)
             {
-                if (station == null || station.alliance != alliance) continue;
+                if (zone == null || zone.alliance != alliance) continue;
 
-                var distance = Vector2.Distance(robotXZ, new Vector2(station.position.x, station.position.z));
+                var center = (zone.leftCorner + zone.rightCorner) * 0.5f;
+                var distance = Vector2.Distance(robotXZ, new Vector2(center.x, center.z));
 
                 if (distance < closestDistance)
                 {
                     closestDistance = distance;
-                    closest = station;
+                    closest = zone;
                 }
             }
 
@@ -252,6 +366,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             var pressedRight = _stuyBase.AutoAlignRightAction.IsPressed();
             if (!pressedLeft && !pressedRight) return false;
             if (_stuyBase.CurrentSetpoint == ReefscapeSetpoints.Place) return false;
+            if (_stuyBase.CurrentSetpoint == ReefscapeSetpoints.Barge) return false;
 
             var usePerspective = PlayerPrefs.GetInt("PerspectiveAutoAlign", 1) == 1;
             var cameraFacesLeftNode = usePerspective && _closestReefNode != null &&
@@ -288,7 +403,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
             if (Vector3.Distance(transform.position, node.position) > maxReefAlignDistanceFeet * FEET_TO_METERS) return false;
 
-            var holdingFroggyCoral = _coralStatus != null && _coralStatus.HasFroggyCoral;
+            var holdingFroggyCoral = _gamePieceStatus != null && _gamePieceStatus.HasFroggyCoral;
 
             var offset = holdingFroggyCoral ? l1offset : GetScoringOffset(wantsLeftSide);
             if (offset == null) return false;
@@ -430,6 +545,9 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         /// <summary>True while this component is actively driving the robot toward a human player station.</summary>
         public bool StationAlignActive() => _stationAlignActive;
+
+        /// <summary>True while this component is actively driving the robot toward the barge.</summary>
+        public bool BargeAlignActive() => _bargeAlignActive;
 
         /// <summary>True while this component is actively driving the robot toward a reef branch.</summary>
         public bool ReefAlignActive() => _reefAlignActive;
