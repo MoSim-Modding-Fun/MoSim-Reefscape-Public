@@ -7,7 +7,6 @@ using Games.Reefscape.Robots;
 using MoSimCore.Enums;
 using RobotFramework.Controllers.Drivetrain;
 using RobotFramework.Controllers.GamePieceSystem;
-using RobotFramework.GamePieceSystem;
 using UnityEngine;
 
 namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
@@ -31,6 +30,10 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
     /// Neither alignment mode uses RobotFramework.Controllers.PidSystems.PIDController (the shared
     /// controller the joints are tuned through) - the translation/rotation PID loops below are implemented
     /// from scratch so a future change to that shared PID controller cannot change this component's behavior.
+    ///
+    /// This script doesn't hold its own reference to the froggy coral stow GamePieceState - it reads
+    /// whether coral is docked there through the sibling robot script's IStuyPulseCoralStatus.HasFroggyCoral
+    /// instead, so that single piece of game-piece-system knowledge lives in one place.
     /// </summary>
     public class StuyPulseAutoAlign : MonoBehaviour
     {
@@ -89,9 +92,6 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         [SerializeField] private float maxStationAlignDistanceFeet = 12f;
 
         [Header("Reef Branch Align")]
-        [Tooltip("Game piece state that means coral is docked in the froggy/L1 holder - while true, always uses the L1 offset and never flips to backwards align")]
-        [SerializeField] private GamePieceState froggyCoralStowState;
-
         [SerializeField] private AutoAlignOffset l1offset;
         [SerializeField] private AutoAlignOffset frontLeftOffset;
         [SerializeField] private AutoAlignOffset frontRightOffset;
@@ -119,6 +119,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private ReefscapeRobotBase _stuyBase;
         private DriveController _driveController;
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData> _pieces;
+        private IStuyPulseCoralStatus _coralStatus;
 
         private readonly List<AlignNode> _reefFaces = new();
         private readonly Dictionary<Transform, AlignNode> _reefNodeParents = new();
@@ -134,6 +135,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             _stuyBase = GetComponent<ReefscapeRobotBase>();
             _driveController = GetComponent<DriveController>();
             _pieces = GetComponent<RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>>();
+            _coralStatus = GetComponent<IStuyPulseCoralStatus>();
         }
 
         private void Start()
@@ -286,9 +288,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
             if (Vector3.Distance(transform.position, node.position) > maxReefAlignDistanceFeet * FEET_TO_METERS) return false;
 
-            var coral = _pieces != null ? _pieces.GetPieceByName(ReefscapeGamePieceType.Coral.ToString()) : null;
-            var holdingFroggyCoral = coral != null && froggyCoralStowState != null &&
-                                      coral.currentStateNum == froggyCoralStowState.stateNum && coral.atTarget;
+            var holdingFroggyCoral = _coralStatus != null && _coralStatus.HasFroggyCoral;
 
             var offset = holdingFroggyCoral ? l1offset : GetScoringOffset(wantsLeftSide);
             if (offset == null) return false;

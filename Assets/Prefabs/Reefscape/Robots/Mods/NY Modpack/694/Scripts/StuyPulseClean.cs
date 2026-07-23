@@ -16,6 +16,16 @@ using UnityEngine;
 namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 {
     /// <summary>
+    /// Small surface the sibling StuyPulseAutoAlign component reads instead of holding its own reference
+    /// to (and comparing against) the froggy coral stow GamePieceState directly.
+    /// </summary>
+    public interface IStuyPulseCoralStatus
+    {
+        /// <summary>True while a coral is docked in the froggy/L1 holder.</summary>
+        bool HasFroggyCoral { get; }
+    }
+
+    /// <summary>
     /// Cleaned-up rewrite of StuyPulse.cs (the regular/Champs-era arm). Behavior is unchanged from the
     /// original - same setpoints, same offsets, same scoring physics, same serialized fields so it can be
     /// wired up the same way on a duplicated prefab variant. The code is reorganized to mirror the real
@@ -34,7 +44,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
     /// Reef branch and human player station alignment are both handled by the sibling StuyPulseAutoAlign
     /// component now, not by the framework's ReefscapeAutoAlign - see that file for details.
     /// </summary>
-    public class StuyPulseClean : ReefscapeRobotBase
+    public class StuyPulseClean : ReefscapeRobotBase, IStuyPulseCoralStatus
     {
         [Header("SuperStructure (Elevator + Arm)")]
         [SerializeField] private GenericElevator elevator;
@@ -153,6 +163,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private Vector3 _blueReef;
         private Vector3 _redReef;
+
+        public bool HasFroggyCoral => _coralController.currentStateNum == froggyCoralStowState.stateNum && _coralController.atTarget;
 
         protected override void Start()
         {

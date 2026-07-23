@@ -37,7 +37,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
     /// Reef branch and human player station alignment are both handled by the sibling StuyPulseAutoAlign
     /// component now, not by the framework's ReefscapeAutoAlign - see that file for details.
     /// </summary>
-    public class StuyPulseNewArmClean : ReefscapeRobotBase
+    public class StuyPulseNewArmClean : ReefscapeRobotBase, IStuyPulseCoralStatus
     {
         [Header("SuperStructure (Elevator + Arm)")]
         [SerializeField] private GenericElevator elevator;
@@ -157,6 +157,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private Vector3 _blueReef;
         private Vector3 _redReef;
+
+        public bool HasFroggyCoral => _coralController.currentStateNum == froggyCoralStowState.stateNum && _coralController.atTarget;
 
         protected override void Start()
         {
