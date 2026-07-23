@@ -19,6 +19,7 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
         public Texture white;
 
         [SerializeField] private GenericElevator elevator;
+        [SerializeField] private ReefscapeAutoAlign align;
 
         private ReefscapeRobotBase _base;
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _coralController;
@@ -45,7 +46,11 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
             bool elevatorUp = elevator != null && elevator.GetElevatorHeight() > 1f;
             bool aligning = _base.AutoAlignLeftAction.IsPressed() || _base.AutoAlignRightAction.IsPressed();
 
-            if (aligning)
+            if (align.getDistance() < 0.35f && aligning)
+            {
+                Set(white, 20f);
+            }
+            else if (aligning)
             {
                 Set(white, Blink(6f));
             }

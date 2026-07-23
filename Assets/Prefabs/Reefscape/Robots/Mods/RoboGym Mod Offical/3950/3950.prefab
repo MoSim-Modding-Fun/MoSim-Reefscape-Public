@@ -49227,6 +49227,8 @@ MonoBehaviour:
   hopperAngle: 0
   hopperClimbAngle: -75
   climberDeployHopperAngle: -35
+  cageLockDetector: {fileID: 6503812106138248368}
+  cageLock: {fileID: 8949704044912008035}
   coralIntake: {fileID: 1112355622507140068}
   coralStowState:
     name: Coral Stow State
@@ -49286,6 +49288,7 @@ MonoBehaviour:
   green: {fileID: 2800000, guid: 6a6542f5326617b829f81989e67c6cd8, type: 3}
   white: {fileID: 2800000, guid: 877025efd89029e5886441508b8ffe7d, type: 3}
   elevator: {fileID: 4000945422463968738}
+  align: {fileID: 208003191164144946}
 --- !u!114 &2662521178962797803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85749,6 +85752,59 @@ Transform:
   - {fileID: 357263098595562609}
   m_Father: {fileID: 1224995487620487967}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4358203422298134582
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6836421833320431582}
+  - component: {fileID: 6503812106138248368}
+  m_Layer: 0
+  m_Name: Cage Lock Detector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6836421833320431582
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4358203422298134582}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.1621097, y: -0, z: -0.000000014901159, w: 0.98677284}
+  m_LocalPosition: {x: -0.000237, y: -0.003238, z: 0.003187}
+  m_LocalScale: {x: 0.03, y: 0.03, z: 0.03}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 4464751552610110978}
+  m_LocalEulerAnglesHint: {x: 18.659, y: 0, z: 0}
+--- !u!65 &6503812106138248368
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4358203422298134582}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.01828949, y: 0.017171597, z: 0.01}
+  m_Center: {x: 0.0041447505, y: 0.0035857817, z: -8.1266177e-10}
 --- !u!1 &4360529398969488711
 GameObject:
   m_ObjectHideFlags: 0
@@ -92319,6 +92375,59 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &4680873297400888761
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8776603386490604842}
+  - component: {fileID: 8949704044912008035}
+  m_Layer: 0
+  m_Name: Cage Lock
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8776603386490604842
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4680873297400888761}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.1621097, y: -0, z: -0.000000014901159, w: 0.98677284}
+  m_LocalPosition: {x: 0.000228, y: -0.003238, z: 0.003187}
+  m_LocalScale: {x: 0.03, y: 0.03, z: 0.03}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 4464751552610110978}
+  m_LocalEulerAnglesHint: {x: 18.659, y: 0, z: 0}
+--- !u!65 &8949704044912008035
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4680873297400888761}
+  m_Material: {fileID: 13400000, guid: 99a4521ed91e2a74fb49255117e7d7d0, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.004765588, y: 0.017171597, z: 0.01}
+  m_Center: {x: -0.0026171957, y: 0.0035857821, z: -3.9300382e-10}
 --- !u!1 &4685635716429299326
 GameObject:
   m_ObjectHideFlags: 0
@@ -109741,13 +109850,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5609809310997339197}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0.119473234, y: -0, z: -0.00000001117587, w: 0.9928375}
   m_LocalPosition: {x: -0.000151, y: -0.003124, z: 0.003269}
   m_LocalScale: {x: 0.6177519, y: 0.5761863, z: 0.43122926}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4464751552610110978}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 13.723, y: 0, z: 0}
 --- !u!65 &1271499883637452117
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -119044,7 +119153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   brakeModeMultiplyer: 1
-  ignoreDisabledMode: 0
+  ignoreDisabledMode: 1
   movementAudioClip: {fileID: 0}
   audioErrorThreshold: 3
   audioErrorDeltaThreshold: 25
@@ -126124,6 +126233,8 @@ Transform:
   - {fileID: 3500426929506490170}
   - {fileID: 2775326878193716983}
   - {fileID: 1911013037481662716}
+  - {fileID: 6836421833320431582}
+  - {fileID: 8776603386490604842}
   m_Father: {fileID: 5834472765867728050}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6459869271371696416

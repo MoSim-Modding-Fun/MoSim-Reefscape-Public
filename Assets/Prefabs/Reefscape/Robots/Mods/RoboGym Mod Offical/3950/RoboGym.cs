@@ -28,6 +28,7 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
         [SerializeField] private float climberStow, climberOut, climberClimb;
         [SerializeField] private float hopperAngle, hopperClimbAngle;
         [SerializeField] private float climberDeployHopperAngle = -30f;
+        [SerializeField] private BoxCollider cageLockDetector, cageLock;
 
         [Header("Intakes")]
         [SerializeField] private ReefscapeGamePieceIntake coralIntake;
@@ -80,6 +81,10 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
             {
                 SetRobotMode(ReefscapeRobotMode.Coral);
             }
+            if (CurrentSetpoint != ReefscapeSetpoints.Climbed)
+            {
+                cageLock.gameObject.SetActive(false);
+            }
             
             PreventAlgaeSetpoints();
             switch (CurrentSetpoint)
@@ -117,6 +122,10 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
                 case ReefscapeSetpoints.Climbed:
                     _climberTargetAngle = climberClimb;
                     _hopperTargetAngle = hopperClimbAngle;
+                    if (cageLockDetector.isTrigger)
+                    {
+                        cageLock.gameObject.SetActive(true);
+                    }
                     SetSetpoint(stowSetpoint);
                     break;
             }
