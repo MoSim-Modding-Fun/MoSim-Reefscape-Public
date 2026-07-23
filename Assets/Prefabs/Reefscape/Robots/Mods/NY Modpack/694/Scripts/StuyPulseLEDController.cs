@@ -15,9 +15,10 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
     /// LEDDefaultCommand while they're running. Below that sits the real LEDDefaultCommand's own priority
     /// chain (github.com/StuyPulse/Aunt-Mary):
     /// scoring, climbed/climbing, climb open, algae intake, froggy coral intake, processor, has-coral, then
-    /// off. Reads only the public state already exposed by ReefscapeRobotBase and the game piece
-    /// controllers, so it can be dropped onto the existing 694 rig without editing it. Colors default to
-    /// the values used in the real robot's Settings.LED constants.
+    /// a Coral/Algae mode idle color - the strip is never actually driven fully off, "off" just means dim
+    /// (offIntensity) instead of 0. Reads only the public state already exposed by ReefscapeRobotBase and
+    /// the game piece controllers, so it can be dropped onto the existing 694 rig without editing it. Colors
+    /// default to the values used in the real robot's Settings.LED constants.
     ///
     /// LED surfaces are wired the same way as GRRLights (340) and the framework's LEDStripController: assign
     /// the generated Shader from Assets/Materials/LEds/LEDs.shadergraph to shaderGraphShader and drag the LED
@@ -42,8 +43,10 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         [SerializeField] private Shader shaderGraphShader;
 
         [Header("Intensity")]
-        [SerializeField] private float onIntensity = 20f;
-        [SerializeField] private float offIntensity = 0f;
+        [Tooltip("How bright a fully \"on\" state is. The shader's emission is HDR, so this can go well past 1 without clipping to white.")]
+        [SerializeField] private float onIntensity = 150f;
+        [Tooltip("The low phase of a blink, and the floor for any state - never fully 0, so the strip is always at least dimly lit instead of going dark.")]
+        [SerializeField] private float offIntensity = 30f;
         [SerializeField] private float blinkPeriod = 0.5f;
 
         [Header("Colors (defaults match Settings.LED from the real robot code)")]
@@ -60,6 +63,11 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         [SerializeField] private Color hasCoralColor = Color.blue;
         [SerializeField] private Color disabledColorBlue = Color.blue;
         [SerializeField] private Color disabledColorRed = Color.red;
+
+        [Tooltip("Idle fallback while in Coral mode and nothing more specific applies - matches the old, unused LEDStripController's CoralMode texture idea so the strip is never just off.")]
+        [SerializeField] private Color coralModeColor = Color.white;
+        [Tooltip("Idle fallback while in Algae mode and nothing more specific applies.")]
+        [SerializeField] private Color algaeModeColor = new Color(0f, 1f, 1f); // cyan
 
         private ReefscapeRobotBase _base;
         private StuyPulseAutoAlign _autoAlign;
@@ -160,6 +168,10 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             {
                 SetAll(bargeAlignColor, blink);
             }
+            else if (_autoAlign != null && _autoAlign.ProcessorAlignActive())
+            {
+                SetAll(processorColor, blink);
+            }
             else if (_autoAlign != null && _autoAlign.StationAlignActive())
             {
                 SetAll(coralStationAlignColor, onIntensity);
@@ -196,7 +208,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             }
             else
             {
-                SetAll(Color.black, offIntensity);
+                // Never just "off" - fall back to a steady robot-mode indicator instead of a blank strip.
+                SetAll(_base.CurrentRobotMode == ReefscapeRobotMode.Algae ? algaeModeColor : coralModeColor, onIntensity);
             }
         }
 

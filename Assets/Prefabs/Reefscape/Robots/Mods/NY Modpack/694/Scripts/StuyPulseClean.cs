@@ -17,7 +17,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 {
     /// <summary>
     /// Small surface the sibling StuyPulseAutoAlign component reads instead of holding its own references
-    /// to (and comparing against) the froggy coral stow / shooter algae stow GamePieceStates directly.
+    /// to (and comparing against) the froggy coral stow / shooter algae stow GamePieceStates, or the
+    /// protected LastSetpoint, directly.
     /// </summary>
     public interface IStuyPulseGamePieceStatus
     {
@@ -26,6 +27,20 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         /// <summary>True while an algae is docked in the shooter, ready to score (barge/processor).</summary>
         bool HasShooterAlgae { get; }
+
+        /// <summary>
+        /// True right after scoring/backing out of L4 if the driver has switched to Algae mode - the arm has
+        /// farther to swing to reposition for algae than for another coral level, so reef align should hold
+        /// a bigger standoff distance for this transition instead of pulling the robot in close as normal.
+        /// </summary>
+        bool WantsExtraReefClearance { get; }
+
+        /// <summary>
+        /// True while the driver is going for algae - either fully in Algae mode, sitting at one of the
+        /// algae grab setpoints, or mid-way through the two-step "grabbed algae off the reef, now seating it
+        /// in the shooter" handoff. Station align should never engage while this is true.
+        /// </summary>
+        bool IsIntakingAlgae { get; }
     }
 
     /// <summary>
@@ -169,6 +184,12 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         public bool HasFroggyCoral => _coralController.currentStateNum == froggyCoralStowState.stateNum && _coralController.atTarget;
         public bool HasShooterAlgae => _algaeController.currentStateNum == shooterAlgaeStowState.stateNum && _algaeController.atTarget;
+        public bool WantsExtraReefClearance => LastSetpoint == ReefscapeSetpoints.L4 && CurrentRobotMode == ReefscapeRobotMode.Algae;
+
+        public bool IsIntakingAlgae =>
+            CurrentRobotMode == ReefscapeRobotMode.Algae ||
+            CurrentSetpoint is ReefscapeSetpoints.Stack or ReefscapeSetpoints.LowAlgae or ReefscapeSetpoints.HighAlgae ||
+            (CurrentSetpoint == ReefscapeSetpoints.Intake && LastSetpoint is ReefscapeSetpoints.Stack or ReefscapeSetpoints.LowAlgae or ReefscapeSetpoints.HighAlgae);
 
         protected override void Start()
         {

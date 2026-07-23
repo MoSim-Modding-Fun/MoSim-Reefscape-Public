@@ -160,6 +160,12 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         public bool HasFroggyCoral => _coralController.currentStateNum == froggyCoralStowState.stateNum && _coralController.atTarget;
         public bool HasShooterAlgae => _algaeController.currentStateNum == shooterAlgaeStowState.stateNum && _algaeController.atTarget;
+        public bool WantsExtraReefClearance => LastSetpoint == ReefscapeSetpoints.L4 && CurrentRobotMode == ReefscapeRobotMode.Algae;
+
+        public bool IsIntakingAlgae =>
+            CurrentRobotMode == ReefscapeRobotMode.Algae ||
+            CurrentSetpoint is ReefscapeSetpoints.Stack or ReefscapeSetpoints.LowAlgae or ReefscapeSetpoints.HighAlgae ||
+            (CurrentSetpoint == ReefscapeSetpoints.Intake && LastSetpoint is ReefscapeSetpoints.Stack or ReefscapeSetpoints.LowAlgae or ReefscapeSetpoints.HighAlgae);
 
         protected override void Start()
         {
