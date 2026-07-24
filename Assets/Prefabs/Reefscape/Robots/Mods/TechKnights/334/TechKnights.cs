@@ -79,6 +79,10 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
 
         private bool placed = false;
         private bool handoff = false;
+
+        private bool _intakeRollersActive;
+        private bool _handoffRollersActive;
+        private bool _eeRollersActive;
         
         protected override void Start()
         {
@@ -144,7 +148,11 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
         {
             bool hasAlgae = _algaeController.HasPiece();
             bool hasCoral = _coralController.HasPiece();
-            
+
+            _intakeRollersActive = false;
+            _handoffRollersActive = false;
+            _eeRollersActive = false;
+
             _algaeController.SetTargetState(algaeStowState);
             _algaeController.RequestIntake(algaeIntake, !hasCoral && !hasAlgae && (CurrentSetpoint == ReefscapeSetpoints.LowAlgae || CurrentSetpoint == ReefscapeSetpoints.HighAlgae) && IntakeAction.IsPressed());
 
@@ -153,8 +161,8 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
 
             if (handoff)
             {
-                RunRollers(eeRollers, eeSpeed);
-                RunRollers(handoffRollers, handoffSpeed);
+                RunRollers(eeRollers, eeSpeed, EESource);
+                RunRollers(handoffRollers, handoffSpeed, HandoffSource);
                 if (EndEffectorAtSetpoint(processor)) SetState(ReefscapeSetpoints.Stow);
             }
             
@@ -189,20 +197,20 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
                     _coralController.RequestIntake(coralIntake, !_coralController.atTarget);
                     if (!(_coralController.atTarget && _coralController.currentStateNum == coralStowState.stateNum))
                     {
-                        RunRollers(intakeRollers, intakeSpeed);
-                        RunRollers(handoffRollers, hasAlgae ? (_coralController.currentStateNum == coralHandoffState.stateNum && _coralController.atTarget) ? 0 : handoffSpeed : handoffSpeed);
-                        RunRollers(eeRollers, hasAlgae ? 0 : eeSpeed);
+                        RunRollers(intakeRollers, intakeSpeed, IntakeSource);
+                        RunRollers(handoffRollers, hasAlgae ? (_coralController.currentStateNum == coralHandoffState.stateNum && _coralController.atTarget) ? 0 : handoffSpeed : handoffSpeed, HandoffSource);
+                        RunRollers(eeRollers, hasAlgae ? 0 : eeSpeed, EESource);
                     }
                     SetSetpoint(hasAlgae ? intakeWithAlgae : intake);
                     break;
                 
                 case ReefscapeSetpoints.LowAlgae:
                     SetSetpoint(lowAlgae);
-                    if (!hasCoral && !hasAlgae && IntakeAction.IsPressed()) RunRollers(eeRollers, -eeSpeed);
+                    if (!hasCoral && !hasAlgae && IntakeAction.IsPressed()) RunRollers(eeRollers, -eeSpeed, EESource);
                     break;
                 case ReefscapeSetpoints.HighAlgae:
                     SetSetpoint(highAlgae);
-                    if (!hasCoral && !hasAlgae && IntakeAction.IsPressed()) RunRollers(eeRollers, -eeSpeed);
+                    if (!hasCoral && !hasAlgae && IntakeAction.IsPressed()) RunRollers(eeRollers, -eeSpeed, EESource);
                     break;
                 
                 case ReefscapeSetpoints.Processor:
@@ -224,10 +232,12 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
 
             if (OuttakeAction.IsPressed())
             {
-                if (EndEffectorAtSetpoint(l4) || EndEffectorAtSetpoint(processor)) RunRollers(eeRollers, -eeSpeed);
-                if (EndEffectorAtSetpoint(l3) || EndEffectorAtSetpoint(l2) || EndEffectorAtSetpoint(l1) || EndEffectorAtSetpoint(stow)) RunRollers(eeRollers, eeSpeed);
+                if (EndEffectorAtSetpoint(l4) || EndEffectorAtSetpoint(processor)) RunRollers(eeRollers, -eeSpeed, EESource);
+                if (EndEffectorAtSetpoint(l3) || EndEffectorAtSetpoint(l2) || EndEffectorAtSetpoint(l1) || EndEffectorAtSetpoint(stow)) RunRollers(eeRollers, eeSpeed, EESource);
             }
-            
+
+            ResolveRollerAudio();
+
             if (CurrentSetpoint != ReefscapeSetpoints.Place) placed = false;
         }
 
@@ -269,12 +279,31 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
             }
         }
 
-        private void RunRollers(GenericAnimationJoint[] rollerGroup, float speed)
+        private void RunRollers(GenericAnimationJoint[] rollerGroup, float speed, AudioSource source)
         {
             foreach (var roller in rollerGroup)
             {
                 roller.VelocityRoller(speed);
             }
+
+            // VelocityRoller only rotates on the frame it's called, so a roller group with no
+            // RunRollers call this frame has already visually stopped. Just mark which groups
+            // were actually driven here; ResolveRollerAudio() decides play/stop once every call
+            // site for this frame has had a chance to run (including the outtake block, which
+            // fires after this).
+            if (speed == 0f) return;
+            if (source == IntakeSource) _intakeRollersActive = true;
+            else if (source == HandoffSource) _handoffRollersActive = true;
+            else if (source == EESource) _eeRollersActive = true;
+        }
+
+        private void ResolveRollerAudio()
+        {
+            if (BaseGameManager.Instance.RobotState == RobotState.Disabled) return;
+
+            if (_intakeRollersActive) PlaySource(IntakeSource); else StopSource(IntakeSource);
+            if (_handoffRollersActive) PlaySource(HandoffSource); else StopSource(HandoffSource);
+            if (_eeRollersActive) PlaySource(EESource); else StopSource(EESource);
         }
 
         private void DealWithAutoAlign()
