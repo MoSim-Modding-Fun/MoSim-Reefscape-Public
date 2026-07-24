@@ -20,6 +20,11 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
     /// the game piece controllers, so it can be dropped onto the existing 694 rig without editing it. Colors
     /// default to the values used in the real robot's Settings.LED constants.
     ///
+    /// One addition beyond the real robot's own LED chain: froggy/L1 coral mode gets its own visual states
+    /// (froggyModeColor while in the mode generally, froggyCoralHeldColor once a piece is actually secured
+    /// in froggy) slotted in right after algae intake and above the existing narrower froggyIntakeCoralColor
+    /// state, so switching into froggy coral mode is visually distinct even outside that narrower moment.
+    ///
     /// LED surfaces are wired the same way as GRRLights (340) and the framework's LEDStripController: assign
     /// the generated Shader from Assets/Materials/LEds/LEDs.shadergraph to shaderGraphShader and drag the LED
     /// mesh GameObject(s) into `leds`; this script builds one shared material instance and assigns it to each
@@ -55,6 +60,10 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         [SerializeField] private Color climbingColor = Color.green;
         [SerializeField] private Color intakeAlgaeColor = Color.green;
         [SerializeField] private Color froggyIntakeCoralColor = Color.red;
+        [Tooltip("General indicator for being in froggy/L1 intake mode at all, not just the narrower 'actively grabbing coral' moment froggyIntakeCoralColor covers. Not part of the real robot's LED chain - added on request for a visual mode distinction.")]
+        [SerializeField] private Color froggyModeColor = new Color(1f, 0.5f, 0f); // orange
+        [Tooltip("Coral physically secured in the froggy mechanism (HasFroggyCoral), distinct from the plain hasCoralColor below which doesn't otherwise distinguish froggy-held vs. normal/shooter-held coral.")]
+        [SerializeField] private Color froggyCoralHeldColor = Color.magenta;
         [SerializeField] private Color coralStationAlignColor = Color.red;
         [SerializeField] private Color reefAlignLeftColor = Color.yellow;
         [SerializeField] private Color reefAlignRightColor = Color.red;
@@ -72,6 +81,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private ReefscapeRobotBase _base;
         private StuyPulseAutoAlign _autoAlign;
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData> _pieces;
+        private IStuyPulseGamePieceStatus _gamePieceStatus;
 
         private Material _stripMaterial;
         private Material _leftMaterial;
@@ -88,6 +98,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             _base = GetComponent<ReefscapeRobotBase>();
             _autoAlign = GetComponent<StuyPulseAutoAlign>();
             _pieces = GetComponent<RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>>();
+            _gamePieceStatus = GetComponent<IStuyPulseGamePieceStatus>();
 
             _stripMaterial = BuildSharedMaterial(leds);
             _leftMaterial = leftAccentLeds is { Length: > 0 } ? BuildSharedMaterial(leftAccentLeds) : _stripMaterial;
@@ -188,15 +199,44 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             {
                 SetAll(climbOpenColor, onIntensity);
             }
-            else if (_base.CurrentRobotMode == ReefscapeRobotMode.Algae && _base.IsIntaking && !hasAlgae &&
-                     _base.CurrentSetpoint is ReefscapeSetpoints.Intake or ReefscapeSetpoints.HighAlgae
-                         or ReefscapeSetpoints.LowAlgae or ReefscapeSetpoints.Stack)
+            else if (_base.IsIntaking && !hasAlgae &&
+                     (_base.CurrentSetpoint is ReefscapeSetpoints.HighAlgae or ReefscapeSetpoints.LowAlgae ||
+                      (_base.CurrentRobotMode == ReefscapeRobotMode.Algae &&
+                       _base.CurrentSetpoint is ReefscapeSetpoints.Intake or ReefscapeSetpoints.Stack)))
             {
+                // HighAlgae/LowAlgae are unambiguous algae setpoints, so they win regardless of
+                // CurrentRobotMode (you can be in Coral mode while sitting at an algae setpoint). Intake and
+                // Stack are shared with coral, so those still need CurrentRobotMode to disambiguate.
                 SetAll(intakeAlgaeColor, onIntensity);
+            }
+            else if (_gamePieceStatus != null && _gamePieceStatus.HasFroggyCoral && _gamePieceStatus.HasShooterAlgae &&
+                     (_base.CurrentSetpoint == ReefscapeSetpoints.Processor || _base.CurrentSetpoint == ReefscapeSetpoints.L1))
+            {
+                // Holding a froggy coral and a shooter algae at once only happens while resolving the stack
+                // button (StuyPulseClean/StuyPulseNewArmClean.ResolveStackOrder picks Processor vs L1 based on
+                // which piece was grabbed first) - froggy coral stays physically held for the whole Processor
+                // sequence, so without this the froggyCoralHeldColor branch below would mask which outcome was
+                // actually picked for the entire scoring cycle. algaeModeColor/coralModeColor reused here to
+                // match the "which mode" idiom already used for the idle fallback further down.
+                SetAll(_base.CurrentSetpoint == ReefscapeSetpoints.Processor ? algaeModeColor : coralModeColor, blink);
+            }
+            else if (_gamePieceStatus != null && _gamePieceStatus.HasFroggyCoral)
+            {
+                // Coral is physically secured in froggy - takes priority over the narrower "actively
+                // grabbing" and general "in the mode" froggy states below, and over the plain hasCoral blue
+                // further down, since none of those distinguish froggy-held from normal/shooter-held coral.
+                SetAll(froggyCoralHeldColor, blink);
             }
             else if (_base.CurrentIntakeMode == ReefscapeIntakeMode.L1 && _base.CurrentSetpoint == ReefscapeSetpoints.Intake && !hasCoral)
             {
                 SetAll(froggyIntakeCoralColor, onIntensity);
+            }
+            else if (_base.CurrentIntakeMode == ReefscapeIntakeMode.L1)
+            {
+                // General froggy/L1 mode indicator for any other moment in this mode - e.g. just having
+                // switched into it but not yet intaking - so entering froggy coral mode is visually distinct
+                // even outside the two narrower states above.
+                SetAll(froggyModeColor, onIntensity);
             }
             else if (_base.CurrentSetpoint == ReefscapeSetpoints.Processor)
             {
@@ -208,8 +248,12 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             }
             else
             {
-                // Never just "off" - fall back to a steady robot-mode indicator instead of a blank strip.
-                SetAll(_base.CurrentRobotMode == ReefscapeRobotMode.Algae ? algaeModeColor : coralModeColor, onIntensity);
+                // Never just "off" - fall back to a steady mode indicator instead of a blank strip. An
+                // algae-intent setpoint (HighAlgae/LowAlgae) says algae regardless of CurrentRobotMode, same
+                // reasoning as the intake-color check above; only Stow/etc fall back to CurrentRobotMode.
+                var showAlgae = _base.CurrentRobotMode == ReefscapeRobotMode.Algae ||
+                                 _base.CurrentSetpoint is ReefscapeSetpoints.HighAlgae or ReefscapeSetpoints.LowAlgae;
+                SetAll(showAlgae ? algaeModeColor : coralModeColor, onIntensity);
             }
         }
 
