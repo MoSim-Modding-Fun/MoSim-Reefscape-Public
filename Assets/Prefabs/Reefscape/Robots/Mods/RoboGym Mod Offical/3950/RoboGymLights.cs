@@ -48,7 +48,7 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
             if (BaseGameManager.Instance.RobotState == RobotState.Disabled)
             {
                 Set(disabled, 20f);
-                _material.SetFloat("_X", Time.time * 0.5f);
+                _material.SetFloat("_X", Time.time * 0.08f);
                 return;
             }
 
