@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamNumber: 694
   teamName: StuyPulse
-  robotPrefab: {fileID: 2534371394911199621, guid: fd866afe83a514ee8a93d28ae8708533,
+  robotPrefab: {fileID: 2534371394911199621, guid: d28908d683e45d8448f7f10a193d7ef4,
     type: 3}
   robotPreloadGamePiece: {fileID: 2185987706872048638, guid: 970bdf84a203d9a4b8dc602974341a07,
     type: 3}
