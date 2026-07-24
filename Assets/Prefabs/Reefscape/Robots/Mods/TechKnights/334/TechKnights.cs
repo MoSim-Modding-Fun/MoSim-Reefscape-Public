@@ -172,15 +172,19 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
                 switch (CurrentSetpoint)
                 {
                     case ReefscapeSetpoints.L1:
+                        SetRobotMode(ReefscapeRobotMode.Coral);
                         SetSetpoint(l1);
                         break;
                     case ReefscapeSetpoints.L2:
+                        SetRobotMode(ReefscapeRobotMode.Coral);
                         SetSetpoint(l2);
                         break;
                     case ReefscapeSetpoints.L3:
+                        SetRobotMode(ReefscapeRobotMode.Coral);
                         SetSetpoint(l3);
                         break;
                     case ReefscapeSetpoints.L4:
+                        SetRobotMode(ReefscapeRobotMode.Coral);
                         SetSetpoint(l4);
                         lastSetpointL4 = true;
                         break;
@@ -190,6 +194,7 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
             switch (CurrentSetpoint)
             {
                 case ReefscapeSetpoints.Stow:
+                    SetRobotMode(hasAlgae ? ReefscapeRobotMode.Algae : ReefscapeRobotMode.Coral);
                     SetSetpoint(hasAlgae ? processor : stow);
                     break;
                 
@@ -205,15 +210,18 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
                     break;
                 
                 case ReefscapeSetpoints.LowAlgae:
+                    SetRobotMode(ReefscapeRobotMode.Algae);
                     SetSetpoint(lowAlgae);
                     if (!hasCoral && !hasAlgae && IntakeAction.IsPressed()) RunRollers(eeRollers, -eeSpeed, EESource);
                     break;
                 case ReefscapeSetpoints.HighAlgae:
+                    SetRobotMode(ReefscapeRobotMode.Algae);
                     SetSetpoint(highAlgae);
                     if (!hasCoral && !hasAlgae && IntakeAction.IsPressed()) RunRollers(eeRollers, -eeSpeed, EESource);
                     break;
                 
                 case ReefscapeSetpoints.Processor:
+                    SetRobotMode(ReefscapeRobotMode.Coral);
                     SetSetpoint(processor);
                     break;
                 
@@ -286,11 +294,6 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
                 roller.VelocityRoller(speed);
             }
 
-            // VelocityRoller only rotates on the frame it's called, so a roller group with no
-            // RunRollers call this frame has already visually stopped. Just mark which groups
-            // were actually driven here; ResolveRollerAudio() decides play/stop once every call
-            // site for this frame has had a chance to run (including the outtake block, which
-            // fires after this).
             if (speed == 0f) return;
             if (source == IntakeSource) _intakeRollersActive = true;
             else if (source == HandoffSource) _handoffRollersActive = true;
