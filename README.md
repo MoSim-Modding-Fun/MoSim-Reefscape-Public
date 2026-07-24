@@ -2,6 +2,7 @@
 
 - 340: GRR
 - 694: Stuypulse
+- 3950: RoboGym Robotics
 - 9483: Pre-Champs and Champs Variations
 - 5026: Iron Panthers
 - 5449: Prototype
