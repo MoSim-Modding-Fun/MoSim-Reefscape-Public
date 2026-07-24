@@ -497,7 +497,14 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private void HandleL1(bool shooterHasCoral)
         {
-            if (!shooterHasCoral) SetSetpoint(froggyCoralPlace);
+            if (!shooterHasCoral)
+            {
+                // Same reef-clearance guard as the scoring branch below - without it, going straight from a
+                // just-scored L4 into L1 mode let froggyCoralPlace's intake pose swing in immediately while
+                // still physically close to the reef, clipping it. Wait until the arm's left L4 (or the robot
+                // has backed off far enough) before moving to the froggy intake pose.
+                if (!SuperstructureAtSetpoint(backL4) && !SuperstructureAtSetpoint(frontL4) || DistanceToReef(GetClosestReef()) > 1.8) SetSetpoint(froggyCoralPlace);
+            }
             else if (!SuperstructureAtSetpoint(backL4) && !SuperstructureAtSetpoint(frontL4) || DistanceToReef(GetClosestReef()) > 1.8) SetSetpoint(eeL1);
             frogState = FroggyState.Stow;
 

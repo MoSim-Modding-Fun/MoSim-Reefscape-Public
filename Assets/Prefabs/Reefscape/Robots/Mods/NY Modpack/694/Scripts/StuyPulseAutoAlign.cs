@@ -260,12 +260,22 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         // standoff, tighten if it pulls in too early.
         private const float ALGAE_FAR_STANDOFF_ARRIVAL_TOLERANCE_METERS = 0.15f;
 
+        // Delay after the algae is confirmed secured before forcing one more retreat to the far standoff -
+        // gives the intake motion a moment to settle instead of yanking the target back out the instant
+        // HasShooterAlgae/HasFroggyAlgae flips true. Untested guess like the other algae align timings here.
+        private const float ALGAE_BACKOFF_DELAY_SECONDS = 0.2f;
+
         // Below this angular separation (degrees, measured around the reef center) between the robot and a
         // reef-adjacent target (algae/processor), ApplyReefAvoidance treats the reef as not being in the way
         // at all and skips routing outright - see its "close-to-reef" early-out comment. Untested guess; if
         // the robot still cuts through the reef approaching a nearby-but-not-quite-same-side face, lower it,
         // if it routes around for faces that were actually a clear direct shot, raise it.
         private const float REEF_AVOID_SAME_SIDE_ANGLE_DEGREES = 90f;
+
+        // Used by ReefAlignAtTarget() to tell the LED controller when reef/coral align has actually arrived
+        // (vs. still driving in) so it can switch from blinking to solid. Untested guesses.
+        private const float REEF_ALIGN_POSITION_TOLERANCE_METERS = 0.05f;
+        private const float REEF_ALIGN_YAW_TOLERANCE_DEGREES = 3f;
 
         private ReefscapeRobotBase _stuyBase;
         private DriveController _driveController;
@@ -294,6 +304,10 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private float _algaeRoutingSide;
         private bool _algaeEngaged;
         private bool _algaeReachedFarStandoff;
+        private AlignNode _algaeTargetFace;
+        private float? _algaeSecuredSince;
+        private bool _algaeBackoffApplied;
+        private bool _algaeBackoffComplete;
 
         private bool _bargeEngaged;
         private float _bargeSlide = 0.5f;
@@ -306,6 +320,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private bool _algaeAlignActive;
         private bool _reefAlignActive;
         private bool _reefAlignLeft;
+        private Vector3 _reefAlignTargetPosition;
+        private float _reefAlignTargetYaw;
 
         private bool _l1Engaged;
         private float _l1Slide;
@@ -620,8 +636,16 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             // pressed, even if CurrentSetpoint isn't Barge - that's the explicit ask, not an oversight. The
             // one exception is Processor: if the driver has deliberately set Processor as the setpoint, that's
             // an explicit "I want to score at the processor" signal that should override the barge default,
-            // so processor align (checked right after barge) gets a chance to win instead.
-            if (_stuyBase.CurrentSetpoint == ReefscapeSetpoints.Processor) { _bargeEngaged = false; _bargeRoutingAroundReef = false; _bargeRoutingSide = 0f; return false; }
+            // so processor align (checked right after barge) gets a chance to win instead. Same idea for
+            // LowAlgae/HighAlgae: the instant a held algae secures mid-pickup, HasShooterAlgae flips true and
+            // this method would otherwise yank the robot straight toward the barge before algae align's own
+            // "back off to the far standoff first" retreat (see TryGetAlgaeAlignTarget) ever gets a chance to
+            // run, since barge is checked earlier in FixedUpdate's priority chain - so while still in an algae
+            // setpoint, exclude barge only until that retreat finishes (_algaeBackoffComplete); once the robot
+            // has backed off to the far standoff, hand off to barge align as normal.
+            if (_stuyBase.CurrentSetpoint == ReefscapeSetpoints.Processor ||
+                ((_stuyBase.CurrentSetpoint == ReefscapeSetpoints.LowAlgae || _stuyBase.CurrentSetpoint == ReefscapeSetpoints.HighAlgae) && !_algaeBackoffComplete))
+            { _bargeEngaged = false; _bargeRoutingAroundReef = false; _bargeRoutingSide = 0f; return false; }
             if (!(_stuyBase.AutoAlignLeftAction.IsPressed() || _stuyBase.AutoAlignRightAction.IsPressed())) { _bargeEngaged = false; _bargeRoutingAroundReef = false; _bargeRoutingSide = 0f; return false; }
             if (_gamePieceStatus == null || !_gamePieceStatus.HasShooterAlgae) { _bargeEngaged = false; _bargeRoutingAroundReef = false; _bargeRoutingSide = 0f; return false; }
 
@@ -925,54 +949,108 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             // routingSide instead of reusing a stale locked value from the previous approach - and also
             // clears _algaeEngaged/_algaeReachedFarStandoff, so a fresh press always starts back at the
             // far "not ready" standoff instead of possibly remembering having reached it last time.
-            if (_stuyBase == null || _driveController == null) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; return false; }
-            if (_stuyBase.CurrentSetpoint != ReefscapeSetpoints.LowAlgae && _stuyBase.CurrentSetpoint != ReefscapeSetpoints.HighAlgae) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; return false; }
-            if (!(_stuyBase.AutoAlignLeftAction.IsPressed() || _stuyBase.AutoAlignRightAction.IsPressed())) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; return false; }
-            if (_gamePieceStatus == null || !_gamePieceStatus.IsIntakingAlgae) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; return false; }
+            if (_stuyBase == null || _driveController == null) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
+            if (_stuyBase.CurrentSetpoint != ReefscapeSetpoints.LowAlgae && _stuyBase.CurrentSetpoint != ReefscapeSetpoints.HighAlgae) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
+            if (!(_stuyBase.AutoAlignLeftAction.IsPressed() || _stuyBase.AutoAlignRightAction.IsPressed())) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
+            if (_gamePieceStatus == null || !_gamePieceStatus.IsIntakingAlgae) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
 
             var wantsHigh = _stuyBase.CurrentSetpoint == ReefscapeSetpoints.HighAlgae;
 
+            // Once the algae is actually secured, the piece being held is by definition the one that was
+            // just taken from _algaeTargetFace - re-running the nearest-available-spot search at this point
+            // would immediately exclude that face (its piece has moved away from spawn, see
+            // ALGAE_PRESENCE_TOLERANCE_METERS) and jump the target straight to the NEXT closest face's far
+            // standoff instead of just backing straight away from where the robot already is. So while secured,
+            // skip the search entirely and keep targeting the same face that was locked in before pickup - the
+            // face search only resumes once the piece is released/scored and a fresh engage starts over.
+            var isSecured = _gamePieceStatus.HasShooterAlgae || _gamePieceStatus.HasFroggyAlgae;
+
             AlignNode closestFace = null;
-            var closestDistance = float.MaxValue;
-            AlignNode closestFaceAnySide = null;
-            var closestDistanceAnySide = float.MaxValue;
-            var robotOnPositiveSide = transform.position.x >= 0f;
+            var closestDistance = 0f;
 
-            foreach (var spot in _algaeSpots)
+            if (isSecured && _algaeTargetFace != null)
             {
-                if (spot.isHigh != wantsHigh) continue;
-                if (spot.pieceTransform == null) continue;
-                if (Vector3.Distance(spot.pieceTransform.position, spot.spawnPosition) > ALGAE_PRESENCE_TOLERANCE_METERS) continue;
+                closestFace = _algaeTargetFace;
+                closestDistance = Vector3.Distance(transform.position, closestFace.transform.position);
+            }
+            else
+            {
+                closestDistance = float.MaxValue;
+                AlignNode closestFaceAnySide = null;
+                var closestDistanceAnySide = float.MaxValue;
+                var robotOnPositiveSide = transform.position.x >= 0f;
 
-                var distance = Vector3.Distance(transform.position, spot.face.transform.position);
-                if (distance < closestDistanceAnySide)
+                foreach (var spot in _algaeSpots)
                 {
-                    closestDistanceAnySide = distance;
-                    closestFaceAnySide = spot.face;
+                    if (spot.isHigh != wantsHigh) continue;
+                    if (spot.pieceTransform == null) continue;
+                    if (Vector3.Distance(spot.pieceTransform.position, spot.spawnPosition) > ALGAE_PRESENCE_TOLERANCE_METERS) continue;
+
+                    var distance = Vector3.Distance(transform.position, spot.face.transform.position);
+                    if (distance < closestDistanceAnySide)
+                    {
+                        closestDistanceAnySide = distance;
+                        closestFaceAnySide = spot.face;
+                    }
+
+                    if ((spot.face.transform.position.x >= 0f) != robotOnPositiveSide) continue;
+
+                    if (distance < closestDistance)
+                    {
+                        closestDistance = distance;
+                        closestFace = spot.face;
+                    }
                 }
 
-                if ((spot.face.transform.position.x >= 0f) != robotOnPositiveSide) continue;
-
-                if (distance < closestDistance)
+                // Prefer a still-available spot on the robot's own side of the field (x>0/x<0) over a closer
+                // one across the midline - crossing the midline mid-approach is exactly the "seizure" scenario
+                // GetClosestReef()'s flip causes (see IsFacingReef's deadband comment), so favoring same-side
+                // spots avoids inducing that crossing in the first place. Falls back to the nearest spot on
+                // either side if the robot's own side has nothing left at the wanted level.
+                if (closestFace == null)
                 {
-                    closestDistance = distance;
-                    closestFace = spot.face;
+                    closestFace = closestFaceAnySide;
+                    closestDistance = closestDistanceAnySide;
                 }
             }
 
-            // Prefer a still-available spot on the robot's own side of the field (x>0/x<0) over a closer
-            // one across the midline - crossing the midline mid-approach is exactly the "seizure" scenario
-            // GetClosestReef()'s flip causes (see IsFacingReef's deadband comment), so favoring same-side
-            // spots avoids inducing that crossing in the first place. Falls back to the nearest spot on
-            // either side if the robot's own side has nothing left at the wanted level.
-            if (closestFace == null)
+            if (closestFace == null) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
+            if (closestDistance > maxAlgaeAlignDistanceFeet * FEET_TO_METERS) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
+
+            // If the picked face changed since last frame (e.g. this one's algae just got taken, or the
+            // robot drifted enough that a different face is now closest), treat it like a fresh engage for
+            // standoff purposes - forces another visit to the far "not ready" standoff before pulling back in
+            // close, so switching faces backs the robot away from the reef first instead of sliding directly
+            // from one face's close standoff to another's. Never actually fires while isSecured (closestFace
+            // is pinned to _algaeTargetFace above), only relevant during the pre-pickup approach.
+            if (closestFace != _algaeTargetFace)
             {
-                closestFace = closestFaceAnySide;
-                closestDistance = closestDistanceAnySide;
+                _algaeReachedFarStandoff = false;
+                _algaeTargetFace = closestFace;
             }
 
-            if (closestFace == null) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; return false; }
-            if (closestDistance > maxAlgaeAlignDistanceFeet * FEET_TO_METERS) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; return false; }
+            // Once the algae is actually secured (not just mid-intake), force one more retreat to the far
+            // "not ready" standoff before letting the robot slide left/right onto whatever face is picked
+            // next - otherwise a held algae piece can clip the reef structure while the robot swings laterally
+            // close in. Waits ALGAE_BACKOFF_DELAY_SECONDS after securing (rather than triggering the instant
+            // HasShooterAlgae/HasFroggyAlgae flips true) so the intake motion has a moment to settle before
+            // the align target yanks back outward. _algaeBackoffApplied makes this a one-shot per pickup - it
+            // doesn't keep forcing the far standoff every frame the algae stays held, just once right after.
+            if (!isSecured)
+            {
+                _algaeSecuredSince = null;
+                _algaeBackoffApplied = false;
+                _algaeBackoffComplete = false;
+            }
+            else
+            {
+                _algaeSecuredSince ??= Time.time;
+                if (!_algaeBackoffApplied && Time.time - _algaeSecuredSince.Value >= ALGAE_BACKOFF_DELAY_SECONDS)
+                {
+                    _algaeReachedFarStandoff = false;
+                    _algaeBackoffApplied = true;
+                }
+            }
 
             // Middle between the face's two coral poles ("the 2 pipes"), standing off along the face's own
             // outward-facing axis - untested which way that axis actually points, so if algaeStandoffInches
@@ -1005,12 +1083,24 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             // instead of sometimes skipping straight to the close distance.
             var farTarget = center + closestFace.transform.forward * (algaeStandoffNotReadyInches * INCHES_TO_METERS) +
                              targetRotation * new Vector3(lateralOffsetInches * INCHES_TO_METERS, 0f, 0f);
-            if (Vector3.Distance(transform.position, farTarget) < ALGAE_FAR_STANDOFF_ARRIVAL_TOLERANCE_METERS)
+            var atFarStandoff = Vector3.Distance(transform.position, farTarget) < ALGAE_FAR_STANDOFF_ARRIVAL_TOLERANCE_METERS;
+            if (atFarStandoff)
             {
                 _algaeReachedFarStandoff = true;
+                // Once the post-pickup backoff has kicked in, arriving at the far standoff means the retreat
+                // is done - flag it so TryGetBargeAlignTarget (checked earlier in FixedUpdate's priority
+                // chain) is allowed to take over instead of algae align continuing to hold this spot.
+                if (_algaeBackoffApplied) _algaeBackoffComplete = true;
             }
 
-            var standoffInches = (_algaeReachedFarStandoff && _gamePieceStatus.IsAtAlgaeSetpoint) ? algaeStandoffInches : algaeStandoffNotReadyInches;
+            // While the post-pickup backoff is in effect, stay pinned to the far standoff regardless of
+            // _algaeReachedFarStandoff/IsAtAlgaeSetpoint - without this, the instant the robot arrives at the
+            // far standoff the line above sets _algaeReachedFarStandoff back to true and the ordinary
+            // "pull in once ready" rule below would immediately pull it back into the close standoff, which
+            // is exactly the "backs out then back into the algae align" oscillation that was reported.
+            var standoffInches = _algaeBackoffApplied
+                ? algaeStandoffNotReadyInches
+                : (_algaeReachedFarStandoff && _gamePieceStatus.IsAtAlgaeSetpoint) ? algaeStandoffInches : algaeStandoffNotReadyInches;
             _algaeEngaged = true;
             var rawTarget = center + closestFace.transform.forward * (standoffInches * INCHES_TO_METERS) +
                              targetRotation * new Vector3(lateralOffsetInches * INCHES_TO_METERS, 0f, 0f);
@@ -1124,6 +1214,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             targetYaw = targetRotation.eulerAngles.y;
 
             _reefAlignLeft = wantsLeftSide;
+            _reefAlignTargetPosition = targetPosition;
+            _reefAlignTargetYaw = targetYaw;
             return true;
         }
 
@@ -1292,5 +1384,23 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         /// <summary>True if the reef branch currently being targeted is the left one.</summary>
         public bool ReefAlignLeft() => _reefAlignLeft;
+
+        /// <summary>True once reef/coral align has actually arrived at its computed target (position + yaw
+        /// within tolerance), not just while it's still driving in. Used by the LED controller to distinguish
+        /// "en route" (blink) from "there" (solid).</summary>
+        public bool ReefAlignAtTarget()
+        {
+            if (!_reefAlignActive) return false;
+
+            var positionError = Vector3.Distance(
+                new Vector3(transform.position.x, 0f, transform.position.z),
+                new Vector3(_reefAlignTargetPosition.x, 0f, _reefAlignTargetPosition.z));
+            if (positionError > REEF_ALIGN_POSITION_TOLERANCE_METERS) return false;
+
+            var currentYaw = ToMathYaw(transform.eulerAngles.y);
+            var targetYaw = ToMathYaw(_reefAlignTargetYaw);
+            var angleErrorDegrees = Mathf.Abs(Mathf.Repeat(targetYaw - currentYaw + Mathf.PI, 2f * Mathf.PI) - Mathf.PI) * Mathf.Rad2Deg;
+            return angleErrorDegrees <= REEF_ALIGN_YAW_TOLERANCE_DEGREES;
+        }
     }
 }

@@ -170,10 +170,26 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
             // Auto align owns the LEDs while it's actually driving the robot, same as the real LEDApplyPattern
             // command taking over from LEDDefaultCommand for the duration of an alignment command.
-            if (_autoAlign != null && _autoAlign.ReefAlignActive())
+            if (_autoAlign != null && _autoAlign.ReefAlignActive() &&
+                (_base.AutoAlignLeftAction.IsPressed() || _base.AutoAlignRightAction.IsPressed()))
             {
                 var left = _autoAlign.ReefAlignLeft();
-                SetSides(reefAlignLeftColor, reefAlignRightColor, left ? blink : offIntensity, left ? offIntensity : blink);
+                // Blink while still driving toward the target, solid once actually there - lets the driver see
+                // at a glance whether it's safe to place yet instead of a constant blink the whole approach.
+                // Unlike the shared `blink` value (which floors at offIntensity so the strip is never fully
+                // dark elsewhere), this blink drops all the way to black - a more attention-grabbing "not
+                // aligned yet" signal specifically requested for coral align.
+                var reefBlink = Time.time % blinkPeriod > blinkPeriod / 2f ? onIntensity : 0f;
+                var reefIntensity = _autoAlign.ReefAlignAtTarget() ? onIntensity : reefBlink;
+                // SetSides (below) writes to _leftMaterial/_rightMaterial - but 694.prefab has no
+                // leftAccentLeds/rightAccentLeds configured, so both fall back to the same shared
+                // _stripMaterial instance (see Start()). Two SetSides calls against the same material just
+                // stomp each other, and only the second (right-side) write actually stuck - which pinned the
+                // left-pole case to a constant offIntensity with no blink at all, i.e. blinking only ever
+                // showed up when aligning right, reading as "flashes every other coral." Since there's only
+                // one physical strip on this robot right now, use SetAll with whichever side's color is
+                // active instead of trying to split a single strip into two independently-lit halves.
+                SetAll(left ? reefAlignLeftColor : reefAlignRightColor, reefIntensity);
             }
             else if (_autoAlign != null && _autoAlign.BargeAlignActive())
             {
