@@ -83,6 +83,8 @@ MonoBehaviour:
         m_Value: 'http://[PrivateIpAddress]:[HostingServicePort]'
       - m_Id: 09b0b24e528b599428cd44c5db541c03
         m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
+      - m_Id: 0e5919d6f1e0aa942884f286be525d14
+        m_Value: '{UnityEngine.Application.dataPath}/../Mods/NY Modpack'
       - m_Id: 37e529e86860a7741a1cf0fcf45e094b
         m_Value: '[UnityEngine.AddressableAssets.Addressables.BuildPath]/[BuildTarget]'
       - m_Id: 3995af1f76783674a86b8f7323c5f71e
@@ -99,6 +101,8 @@ MonoBehaviour:
         m_Value: '{UnityEngine.Application.dataPath}/../Mods/Packed Assets'
       - m_Id: c65595e78f4c7db44a4324f2e84106be
         m_Value: '{UnityEngine.Application.persistentDataPath}/Mods/MechTechMod'
+      - m_Id: d7ce8c026e36f7d42a1bcf400a2df73e
+        m_Value: '{UnityEngine.Application.persistentDataPath}/Mods/NY Modpack'
       - m_Id: dc362afee9112ee489246a2a832e6005
         m_Value: '{UnityEngine.Application.dataPath}/../Mods/MechTechMod'
       - m_Id: eeb8e6721a460524eb8d7dc99129b410
@@ -112,6 +116,9 @@ MonoBehaviour:
       m_InlineUsage: 0
     - m_Id: 09b0b24e528b599428cd44c5db541c03
       m_Name: BuildTarget
+      m_InlineUsage: 0
+    - m_Id: 0e5919d6f1e0aa942884f286be525d14
+      m_Name: NY Modpack_BuildPath
       m_InlineUsage: 0
     - m_Id: 37e529e86860a7741a1cf0fcf45e094b
       m_Name: Local.BuildPath
@@ -136,6 +143,9 @@ MonoBehaviour:
       m_InlineUsage: 0
     - m_Id: c65595e78f4c7db44a4324f2e84106be
       m_Name: MechTechMod_LoadPath
+      m_InlineUsage: 0
+    - m_Id: d7ce8c026e36f7d42a1bcf400a2df73e
+      m_Name: NY Modpack_LoadPath
       m_InlineUsage: 0
     - m_Id: dc362afee9112ee489246a2a832e6005
       m_Name: MechTechMod_BuildPath
