@@ -3,6 +3,9 @@ using Games.Reefscape.Enums;
 using Games.Reefscape.GamePieceSystem;
 using Games.Reefscape.Robots;
 using Games.Reefscape.Scoring.Scorers;
+using MoSimCore.BaseClasses.GameManagement;
+using MoSimCore.Enums;
+using MoSimLib;
 using RobotFramework.Components;
 using RobotFramework.Controllers.GamePieceSystem;
 using RobotFramework.Controllers.PidSystems;
@@ -22,6 +25,9 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
         [SerializeField] private PidConstants hopperPid;
         [SerializeField] private PidConstants climberPid;
         
+        [Header("Roller Group")]
+        [SerializeField] private GenericAnimationJoint[] rollerGroup;
+        
         [Header("Setpoints")]
         [SerializeField] private RoboGymSetpoint stowSetpoint, intakeSetpoint;
         [SerializeField] private RoboGymSetpoint l1, l2, l3, l4;
@@ -36,6 +42,16 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
 
         [Header("Gamepiece Stow States")]
         [SerializeField] private GamePieceState coralStowState;
+        
+        [Header("Audio")]
+        [SerializeField] private AudioSource endEffectorAudioSource;
+        [SerializeField] private AudioClip rollerAudio;
+        
+        [Header("Funnel Close Audio")]
+        [SerializeField] private AudioSource funnelCloseSource;
+        [SerializeField] private AudioClip funnelCloseAudio;
+        [SerializeField] private BoxCollider coralTrigger;
+        private OverlapBoxBounds soundDetector;
 
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _coralController;
 
@@ -46,6 +62,9 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
         private bool _climberDeployed;
         private ClimbScorer _climbScorer;
 
+        private LayerMask coralMask;
+        private bool canClack;
+        
         protected override void Start()
         {
             base.Start();
@@ -68,6 +87,19 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
 
             _climbScorer = GetComponent<ClimbScorer>();
             cageLock.gameObject.SetActive(false);
+            
+            endEffectorAudioSource.clip = rollerAudio;
+            endEffectorAudioSource.loop = true;
+            endEffectorAudioSource.Stop();
+            
+            funnelCloseSource.clip = funnelCloseAudio;
+            funnelCloseSource.loop = false;
+            funnelCloseSource.Stop();
+
+            soundDetector = new OverlapBoxBounds(coralTrigger);
+
+            coralMask = LayerMask.GetMask("Coral");
+            canClack = true;
         }
 
         private void LateUpdate()
@@ -171,6 +203,73 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
                 case ReefscapeSetpoints.L1:
                     SetState(ReefscapeSetpoints.Stow);
                     break;
+            }
+            
+            RunRollers();
+            Audio();
+        }
+
+        private void Audio()
+        {
+            var a = soundDetector.OverlapBox(coralMask);
+            if (a.Length > 0)
+            {
+                if (canClack && !funnelCloseSource.isPlaying)
+                {
+                    funnelCloseSource.Play();
+                    canClack = false;
+                }
+            }
+            else
+            {
+                canClack = true;
+            }
+            
+            if (BaseGameManager.Instance.RobotState == RobotState.Disabled)
+            {
+                if (endEffectorAudioSource.isPlaying)
+                {
+                    endEffectorAudioSource.Stop();
+                }
+
+                return;
+            }
+            
+            if ((IntakeAction.IsPressed() && !_coralController.atTarget) || OuttakeAction.IsPressed())
+            {
+                if (!endEffectorAudioSource.isPlaying)
+                {
+                    endEffectorAudioSource.Play();
+                }
+            }
+            else
+            {
+                if (endEffectorAudioSource.isPlaying)
+                {
+                    endEffectorAudioSource.Stop();
+                }
+            }
+        }
+
+        private void RunRollers()
+        {
+            if (BaseGameManager.Instance.RobotState == RobotState.Disabled)
+            {
+                SetRollerSpeed(0);
+                return;
+            }
+
+            if ((IntakeAction.IsPressed() && !_coralController.atTarget) || OuttakeAction.IsPressed())
+            {
+                SetRollerSpeed(500);
+            }
+        }
+
+        private void SetRollerSpeed(float speed)
+        {
+            foreach (var roller in rollerGroup)
+            {
+                roller.VelocityRoller(speed);
             }
         }
 
