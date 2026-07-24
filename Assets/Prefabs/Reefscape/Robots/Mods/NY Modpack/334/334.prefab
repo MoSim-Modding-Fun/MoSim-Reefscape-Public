@@ -20836,6 +20836,85 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &2213799824258429672
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1814931984935099849}
+  - component: {fileID: 7247721172321403849}
+  - component: {fileID: 8465106459767353674}
+  m_Layer: 6
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1814931984935099849
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2213799824258429672}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8031260150157108121}
+  - {fileID: 3537632706346036774}
+  - {fileID: 4815452298741732271}
+  m_Father: {fileID: 8575615787823871150}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &7247721172321403849
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2213799824258429672}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!138 &8465106459767353674
+FixedJoint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2213799824258429672}
+  serializedVersion: 1
+  m_ConnectedBody: {fileID: 8921164627416285410}
+  m_ConnectedArticulationBody: {fileID: 0}
+  m_BreakForce: Infinity
+  m_BreakTorque: Infinity
+  m_EnableCollision: 0
+  m_EnablePreprocessing: 1
+  m_MassScale: 1
+  m_ConnectedMassScale: 1
 --- !u!1 &2237376385904141402
 GameObject:
   m_ObjectHideFlags: 0
@@ -32408,7 +32487,7 @@ Transform:
   m_LocalScale: {x: 100, y: 100, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8575615787823871150}
+  m_Father: {fileID: 1814931984935099849}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &7123243796533358438
 MeshFilter:
@@ -37215,10 +37294,10 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.59394276, y: 0.38370824, z: 0.5939428, w: -0.38370812}
   m_LocalPosition: {x: 0.36184564, y: 0.33032668, z: -0.177505}
-  m_LocalScale: {x: 100.00002, y: 100.00004, z: 100.000015}
+  m_LocalScale: {x: 100.00003, y: 100.00004, z: 100.000015}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8575615787823871150}
+  m_Father: {fileID: 1814931984935099849}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &153228005234386388
 MeshFilter:
@@ -53730,7 +53809,7 @@ Transform:
   m_LocalScale: {x: 100.00002, y: 100.00003, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8575615787823871150}
+  m_Father: {fileID: 1814931984935099849}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &3799228894004671390
 MeshFilter:
@@ -55801,8 +55880,6 @@ Transform:
   - {fileID: 1788941817511508957}
   - {fileID: 4300702352894400975}
   - {fileID: 8557008257789331789}
-  - {fileID: 8031260150157108121}
-  - {fileID: 3537632706346036774}
   - {fileID: 661039592538106925}
   - {fileID: 5849186628792208920}
   - {fileID: 2287176677848521229}
@@ -55810,7 +55887,7 @@ Transform:
   - {fileID: 5311734650786842827}
   - {fileID: 1867904898509893681}
   - {fileID: 5455950208187355365}
-  - {fileID: 4815452298741732271}
+  - {fileID: 1814931984935099849}
   - {fileID: 1602202586659449237}
   - {fileID: 6616666760967363522}
   - {fileID: 6996551550510387980}
