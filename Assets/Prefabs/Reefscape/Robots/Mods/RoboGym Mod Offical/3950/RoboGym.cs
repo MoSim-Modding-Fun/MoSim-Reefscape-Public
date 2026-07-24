@@ -31,7 +31,7 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
         [Header("Setpoints")]
         [SerializeField] private RoboGymSetpoint stowSetpoint, intakeSetpoint;
         [SerializeField] private RoboGymSetpoint l1, l2, l3, l4;
-        [SerializeField] private Vector3 coralOuttakeForce, coralL1OuttakeForce;
+        [SerializeField] private Vector3 coralOuttakeForce, coralL1OuttakeForce, coralL2OuttakeForce;
         [SerializeField] private float climberStow, climberOut, climberClimb;
         [SerializeField] private float hopperAngle, hopperClimbAngle;
         [SerializeField] private float climberDeployHopperAngle = -30f;
@@ -290,6 +290,12 @@ namespace Prefabs.Reefscape.Robots.Mods.RoboGym._3950
             if (LastSetpoint == ReefscapeSetpoints.L1 || CurrentSetpoint == ReefscapeSetpoints.L1)
             {
                 _coralController.ReleaseGamePieceWithForce(coralL1OuttakeForce);
+                return;
+            }
+            
+            if (LastSetpoint == ReefscapeSetpoints.L2 || CurrentSetpoint == ReefscapeSetpoints.L2)
+            {
+                _coralController.ReleaseGamePieceWithContinuedForce(coralL2OuttakeForce, .4f, .5f);
                 return;
             }
 
