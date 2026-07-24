@@ -23,8 +23,11 @@ MonoBehaviour:
   hasAlternateRobot: 0
   alternateRobotPrefab: {fileID: 0}
   alternateMainMenuPrefab: {fileID: 0}
-  robotImage: {fileID: 0}
-  tutorialCards: []
+  robotImage: {fileID: 21300000, guid: d31b70c376141444eb5b4a2e4d1306b3, type: 3}
+  tutorialCards:
+  - {fileID: 6829736770845459078, guid: dd744ca8ad6560548b33ec0671839632, type: 3}
+  - {fileID: 6829736770845459078, guid: f524eca000c6244459656cc5e6209b1f, type: 3}
+  - {fileID: 6829736770845459078, guid: be826b86f8040d431ae21856318a26d4, type: 3}
   alternateTutorialCards: []
   autoClimbs: 0
   alternateAutoClimbs: 0
