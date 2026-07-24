@@ -18,16 +18,16 @@ MonoBehaviour:
     type: 3}
   robotPreloadGamePiece: {fileID: 2185987706872048638, guid: 970bdf84a203d9a4b8dc602974341a07,
     type: 3}
-  mainMenuPrefab: {fileID: 2534371394911199621, guid: a493ea7ce01da5734addad31fafd35f6,
+  mainMenuPrefab: {fileID: 2534371394911199621, guid: 417a5b560fe99103190087d23bf36278,
     type: 3}
   hasAlternateRobot: 0
   alternateRobotPrefab: {fileID: 0}
   alternateMainMenuPrefab: {fileID: 0}
   robotImage: {fileID: 21300000, guid: 0edae0bad23a5f686a919387a80996eb, type: 3}
   tutorialCards:
-  - {fileID: 6829736770845459078, guid: 6de19e85585ec494aaaed4d3ecef125a, type: 3}
-  - {fileID: 6829736770845459078, guid: ca5ad27d2d0deec4ba32f3c349633dc4, type: 3}
-  - {fileID: 6829736770845459078, guid: a8ecaa0dec9707148bb9d92d60dbcd03, type: 3}
+  - {fileID: 6829736770845459078, guid: ef1a87bb0d2906daba4603ac8b957cfa, type: 3}
+  - {fileID: 6829736770845459078, guid: 335df34aeb50943009fa310ec9b6589f, type: 3}
+  - {fileID: 6829736770845459078, guid: 64cf9e4f8616dc860bb7c4a1ef3528a9, type: 3}
   alternateTutorialCards: []
   autoClimbs: 0
   alternateAutoClimbs: 0

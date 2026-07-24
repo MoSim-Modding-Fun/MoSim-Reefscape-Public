@@ -11,7 +11,7 @@ PrefabInstance:
     - target: {fileID: 1967486601383204409, guid: 4f6390b7332e92b43aee0cf7f4734f72,
         type: 3}
       propertyPath: m_Name
-      value: TutorialCard 1
+      value: TutorialCard 3
       objectReference: {fileID: 0}
     - target: {fileID: 4956299056046692928, guid: 4f6390b7332e92b43aee0cf7f4734f72,
         type: 3}
@@ -21,7 +21,7 @@ PrefabInstance:
     - target: {fileID: 6000603204863370303, guid: 4f6390b7332e92b43aee0cf7f4734f72,
         type: 3}
       propertyPath: m_text
-      value: Descore Algae using arms
+      value: Climb by putting the cage in the bars.
       objectReference: {fileID: 0}
     - target: {fileID: 6000603204863370303, guid: 4f6390b7332e92b43aee0cf7f4734f72,
         type: 3}
@@ -32,7 +32,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: b353b19d844482947a180c215b61aff5,
+      objectReference: {fileID: 21300000, guid: 8e70086c512f61d14b306805bde6c3fd,
         type: 3}
     - target: {fileID: 7647712989278884331, guid: 4f6390b7332e92b43aee0cf7f4734f72,
         type: 3}
