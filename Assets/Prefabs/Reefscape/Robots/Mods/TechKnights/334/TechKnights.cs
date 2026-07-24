@@ -40,7 +40,7 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
         [SerializeField] private TechKnightsSetpoint stow;
         [SerializeField] private TechKnightsSetpoint intake;
         [SerializeField] private TechKnightsSetpoint l1, l2, l3, l4;
-        [SerializeField] private TechKnightsSetpoint lowAlgae, highAlgae, processor;
+        [SerializeField] private TechKnightsSetpoint lowAlgae, highAlgae, processor, intakeWithAlgae;
         
         [Header("Intake Components")]
         [SerializeField] private ReefscapeGamePieceIntake coralIntake;
@@ -55,11 +55,16 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
         [SerializeField] private AudioClip algaeStallAudio;
         
         [Header("Robot Audio")]
-        [SerializeField] private AudioSource rollerSource;
-        [SerializeField] private AudioClip intakeClip;
+        [SerializeField] private AudioSource IntakeSource;
+        [SerializeField] private AudioSource HandoffSource;
+        [SerializeField] private AudioSource EESource;
+        [SerializeField] private AudioClip rollerClip;
         
         [Header("Animation Rollers")]
         [SerializeField] private GenericAnimationJoint[] intakeRollers;
+        [SerializeField] private GenericAnimationJoint[] eeRollers;
+        [SerializeField] private GenericAnimationJoint[] handoffRollers;
+        [SerializeField] private float intakeSpeed, eeSpeed, handoffSpeed;
         
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _coralController;
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _algaeController;
@@ -73,6 +78,7 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
         private bool lastSetpointL4;
 
         private bool placed = false;
+        private bool handoff = false;
         
         protected override void Start()
         {
@@ -102,20 +108,30 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
                 algaeStowState
             };
             _algaeController.intakes.Add(algaeIntake);
-            //
-            // algaeStallSource.clip = algaeStallAudio;
-            // algaeStallSource.loop = true;
-            // algaeStallSource.Stop();
-            //
-            // rollerSource.clip = intakeClip;
-            // rollerSource.loop = true;
-            // rollerSource.Stop();
+            
+            algaeStallSource.clip = algaeStallAudio;
+            algaeStallSource.loop = true;
+            algaeStallSource.Stop();
+            
+            IntakeSource.clip = rollerClip;
+            IntakeSource.loop = true;
+            IntakeSource.Stop();
+            
+            HandoffSource.clip = rollerClip;
+            HandoffSource.loop = true;
+            HandoffSource.Stop();
+            
+            EESource.clip = rollerClip;
+            EESource.loop = true;
+            EESource.Stop();
 
             coralMask = LayerMask.GetMask("Coral");
             canClack = true;
 
             lastSetpointL4 = false;
             placed = false;
+
+            handoff = false;
         }
 
         private void LateUpdate()
@@ -134,6 +150,13 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
 
             AnimateCoral();
             PreventSetpoints();
+
+            if (handoff)
+            {
+                RunRollers(eeRollers, eeSpeed);
+                RunRollers(handoffRollers, handoffSpeed);
+                if (EndEffectorAtSetpoint(processor)) SetState(ReefscapeSetpoints.Stow);
+            }
             
             var endEffectorHasCoral = _coralController.atTarget && _coralController.currentStateNum == coralStowState.stateNum;
             if (endEffectorHasCoral)
@@ -163,22 +186,23 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
                     break;
                 
                 case ReefscapeSetpoints.Intake:
-                    if (CurrentRobotMode == ReefscapeRobotMode.Coral || !hasAlgae)
+                    _coralController.RequestIntake(coralIntake, !_coralController.atTarget);
+                    if (!(_coralController.atTarget && _coralController.currentStateNum == coralStowState.stateNum))
                     {
-                        _coralController.RequestIntake(coralIntake, !_coralController.atTarget);
-                        if (!(_coralController.atTarget && _coralController.currentStateNum == coralStowState.stateNum))
-                        {
-                            RunRollers(intakeRollers, -1000);
-                        }
+                        RunRollers(intakeRollers, intakeSpeed);
+                        RunRollers(handoffRollers, hasAlgae ? (_coralController.currentStateNum == coralHandoffState.stateNum && _coralController.atTarget) ? 0 : handoffSpeed : handoffSpeed);
+                        RunRollers(eeRollers, hasAlgae ? 0 : eeSpeed);
                     }
-                    SetSetpoint(intake);
+                    SetSetpoint(hasAlgae ? intakeWithAlgae : intake);
                     break;
                 
                 case ReefscapeSetpoints.LowAlgae:
                     SetSetpoint(lowAlgae);
+                    if (!hasCoral && !hasAlgae && IntakeAction.IsPressed()) RunRollers(eeRollers, -eeSpeed);
                     break;
                 case ReefscapeSetpoints.HighAlgae:
                     SetSetpoint(highAlgae);
+                    if (!hasCoral && !hasAlgae && IntakeAction.IsPressed()) RunRollers(eeRollers, -eeSpeed);
                     break;
                 
                 case ReefscapeSetpoints.Processor:
@@ -186,15 +210,41 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
                     break;
                 
                 case ReefscapeSetpoints.Place:
-                    PlacePiece();
+                    if (EndEffectorAtSetpoint(l4) || EndEffectorAtSetpoint(l3) || EndEffectorAtSetpoint(l2) ||
+                        EndEffectorAtSetpoint(l1) || EndEffectorAtSetpoint(stow) || EndEffectorAtSetpoint(processor))
+                    {
+                        PlacePiece();
+                    }
                     break;
             }
             
             UpdateSetpoints();
             DealWithAutoAlign();
-            //UpdateAudio();
+            UpdateAudio();
+
+            if (OuttakeAction.IsPressed())
+            {
+                if (EndEffectorAtSetpoint(l4) || EndEffectorAtSetpoint(processor)) RunRollers(eeRollers, -eeSpeed);
+                if (EndEffectorAtSetpoint(l3) || EndEffectorAtSetpoint(l2) || EndEffectorAtSetpoint(l1) || EndEffectorAtSetpoint(stow)) RunRollers(eeRollers, eeSpeed);
+            }
             
             if (CurrentSetpoint != ReefscapeSetpoints.Place) placed = false;
+        }
+
+        private void PlaySource(AudioSource source)
+        {
+            if (!source.isPlaying)
+            {
+                source.Play();
+            }
+        }
+
+        private void StopSource(AudioSource source)
+        {
+            if (source.isPlaying)
+            {
+                source.Stop();
+            }
         }
 
         private void AnimateCoral()
@@ -205,12 +255,13 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
             }
             else if (CoralAtState(coralHandoffState))
             {
-                print(EndEffectorAtSetpoint(intake));
                 _coralController.SetTargetState(EndEffectorAtSetpoint(stow) && !_algaeController.HasPiece() ? coralStowState : coralHandoffState);
+                if (!_algaeController.HasPiece()) handoff = true;
             }
             else if (CoralAtState(coralStowState))
             {
                 _coralController.SetTargetState(coralStowState);
+                handoff = false;
             }
             else
             {
@@ -383,28 +434,15 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
         {
             if (BaseGameManager.Instance.RobotState == RobotState.Disabled)
             {
-                if (rollerSource.isPlaying || algaeStallSource.isPlaying)
+                if (IntakeSource.isPlaying || HandoffSource.isPlaying || EESource.isPlaying || algaeStallSource.isPlaying)
                 {
-                    rollerSource.Stop();
+                    IntakeSource.Stop();
+                    HandoffSource.Stop();
+                    EESource.Stop();
                     algaeStallSource.Stop();
                 }
 
                 return;
-            }
-
-            if (((IntakeAction.IsPressed() && !_coralController.HasPiece() && !_coralController.HasPiece()) ||
-                 OuttakeAction.IsPressed()) &&
-                !rollerSource.isPlaying)
-            {
-                rollerSource.Play();
-            }
-            else if (!IntakeAction.IsPressed() && !OuttakeAction.IsPressed() && rollerSource.isPlaying)
-            {
-                rollerSource.Stop();
-            }
-            else if (IntakeAction.IsPressed() && (_coralController.HasPiece() || _algaeController.HasPiece()))
-            {
-                rollerSource.Stop();
             }
 
             if (_algaeController.HasPiece() && !algaeStallSource.isPlaying)
