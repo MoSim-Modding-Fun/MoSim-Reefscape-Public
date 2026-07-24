@@ -11,7 +11,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/MainMenu.unity
     guid: 6536108c2b57c494bbb276e8586432eb
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Reefscape.unity
     guid: 39adf27395e541e49af44545c6105755
   m_configObjects:
