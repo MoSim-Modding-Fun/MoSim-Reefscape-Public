@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e17db85d7f1847cf8fb7abece56bbf04, type: 3}
-  m_Name: Back
+  m_Name: FrontRightL4
   m_EditorClassIdentifier: 
-  xOffset: -3.86
+  xOffset: 2.32
   yOffset: 0
-  zOffset: 0
+  zOffset: 6.5

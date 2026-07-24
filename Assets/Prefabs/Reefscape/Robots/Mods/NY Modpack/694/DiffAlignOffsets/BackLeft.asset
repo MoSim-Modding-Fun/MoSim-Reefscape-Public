@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e17db85d7f1847cf8fb7abece56bbf04, type: 3}
   m_Name: BackLeft
   m_EditorClassIdentifier: 
-  xOffset: -3.5
+  xOffset: 3.42
   yOffset: 0
-  zOffset: 0
+  zOffset: -1.24
+  Rotation: 0

@@ -17,7 +17,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 {
     /// <summary>
     /// Small surface the sibling StuyPulseAutoAlign component reads instead of holding its own references
-    /// to (and comparing against) the froggy coral stow / shooter algae stow GamePieceStates directly.
+    /// to (and comparing against) the froggy coral stow / shooter algae stow GamePieceStates, or the
+    /// protected LastSetpoint, directly.
     /// </summary>
     public interface IStuyPulseGamePieceStatus
     {
@@ -26,6 +27,52 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         /// <summary>True while an algae is docked in the shooter, ready to score (barge/processor).</summary>
         bool HasShooterAlgae { get; }
+
+        /// <summary>
+        /// True while an algae is docked in froggy instead of the shooter - TryReleaseShooterAlgae's else
+        /// branch scores this straight out of froggy (FroggyState.AlgaeOuttake) rather than through the
+        /// shooter, which needs a different facing at the processor.
+        /// </summary>
+        bool HasFroggyAlgae { get; }
+
+        /// <summary>
+        /// True right after scoring/backing out of L4 if the driver has switched to Algae mode - the arm has
+        /// farther to swing to reposition for algae than for another coral level, so reef align should hold
+        /// a bigger standoff distance for this transition instead of pulling the robot in close as normal.
+        /// </summary>
+        bool WantsExtraReefClearance { get; }
+
+        /// <summary>
+        /// True while the driver is going for algae - either fully in Algae mode, sitting at one of the
+        /// algae grab setpoints, or mid-way through the two-step "grabbed algae off the reef, now seating it
+        /// in the shooter" handoff. Station align should never engage while this is true.
+        /// </summary>
+        bool IsIntakingAlgae { get; }
+
+        /// <summary>
+        /// How far the algae currently held in froggy sits off-center on its slider, in meters, signed the
+        /// same way UpdateFroggySliderVisuals reads it (local X of froggyAlgaeTarger). Zero when froggy isn't
+        /// holding algae. Processor align adds this to its target so the piece - not just the robot's nominal
+        /// center - ends up lined up with the processor opening.
+        /// </summary>
+        float FroggyAlgaeSliderOffsetMeters { get; }
+
+        /// <summary>
+        /// How far the coral currently held in froggy sits off-center on its slider, in meters, signed the
+        /// same way UpdateFroggySliderVisuals reads it (local Z of forggyCoralTarget). Zero when froggy isn't
+        /// holding coral. L1/froggy reef align adds this to its target for the same reason as the algae
+        /// version above.
+        /// </summary>
+        float FroggyCoralSliderOffsetMeters { get; }
+
+        /// <summary>
+        /// True while the superstructure (elevator + arm) has actually reached the front/back Low or High
+        /// algae setpoint matching the current CurrentSetpoint/facing combo - false the rest of the time,
+        /// including while CurrentSetpoint is Low/HighAlgae but the arm is still mid-transition. Lets algae
+        /// align hold a farther-back standoff until the mechanism is actually in position, then pull in to
+        /// the normal close standoff once it's ready.
+        /// </summary>
+        bool IsAtAlgaeSetpoint { get; }
     }
 
     /// <summary>
@@ -145,6 +192,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _coralController;
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _algaeController;
+        private StuyPulseAutoAlign _autoAlign;
+        private float _defaultCoralStationDropDistance;
 
         private float _elevatorTargetHeight;
         private float _eeArmTargetAngle;
@@ -161,14 +210,50 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private float _outtakeAudioUntil;
         private float _froggyOuttakeAudioUntil;
 
+        // Timestamps of when froggy coral / shooter algae were each most recently newly acquired (null while
+        // not held) - lets ResolveStackOrder tell which of the two, if both are currently held, was grabbed
+        // first, per the driver's stack-button request.
+        private float? _froggyCoralAcquiredAt;
+        private float? _shooterAlgaeAcquiredAt;
+
         private float froggyWheelSpeeds;
         private float shooterWheelSpeeds;
 
         private Vector3 _blueReef;
         private Vector3 _redReef;
 
+        // ReefscapeRobotBase.LastSetpoint is meant to hold the setpoint from before the current transition,
+        // but its update logic reassigns it to the new CurrentSetpoint in the same Update() call that changes
+        // CurrentSetpoint, so external readers never actually see the old value - it always just mirrors
+        // CurrentSetpoint. That's shared framework code other mods depend on, so instead of touching it this
+        // tracks the same "previous distinct setpoint" concept locally, correctly delayed by one FixedUpdate.
+        private ReefscapeSetpoints _trackedSetpoint;
+        private ReefscapeSetpoints _priorDistinctSetpoint;
+
         public bool HasFroggyCoral => _coralController.currentStateNum == froggyCoralStowState.stateNum && _coralController.atTarget;
         public bool HasShooterAlgae => _algaeController.currentStateNum == shooterAlgaeStowState.stateNum && _algaeController.atTarget;
+        public bool HasFroggyAlgae => _algaeController.currentStateNum == froggyAlgaeStowState.stateNum && _algaeController.atTarget;
+        public bool WantsExtraReefClearance => _priorDistinctSetpoint == ReefscapeSetpoints.L4 && CurrentRobotMode == ReefscapeRobotMode.Algae;
+
+        public bool IsIntakingAlgae =>
+            CurrentRobotMode == ReefscapeRobotMode.Algae ||
+            CurrentSetpoint is ReefscapeSetpoints.Stack or ReefscapeSetpoints.LowAlgae or ReefscapeSetpoints.HighAlgae ||
+            (CurrentSetpoint == ReefscapeSetpoints.Intake && LastSetpoint is ReefscapeSetpoints.Stack or ReefscapeSetpoints.LowAlgae or ReefscapeSetpoints.HighAlgae);
+
+        // Matches the exact front/back setpoint HandleLowAlgae/HandleHighAlgae drive toward for the current
+        // facing, so this stays in sync with whichever one the arm is actually being commanded to right now.
+        public bool IsAtAlgaeSetpoint =>
+            CurrentSetpoint == ReefscapeSetpoints.LowAlgae && SuperstructureAtSetpoint(IsFacingReef(GetClosestReef()) ? frontLowAlgae : backLowAlgae) ||
+            CurrentSetpoint == ReefscapeSetpoints.HighAlgae && SuperstructureAtSetpoint(IsFacingReef(GetClosestReef()) ? frontHighAlgae : backHighAlgae);
+
+        // Reads the frozen slider-visual transforms rather than the intakes' own GamePiece, since
+        // RequestIntake(..., false) - called by every state handler except the moment a piece is actively
+        // being secured - nulls the intake's GamePiece out (see GamePieceIntake<T,D>.RequestIntake). By the
+        // time the robot is sitting at Processor/L1 with the piece already docked, GamePiece is always null,
+        // but UpdateFroggySliderVisuals() only writes these transforms while GamePiece is non-null, so they
+        // hold the last real reading - exactly the slide position the piece was secured at.
+        public float FroggyAlgaeSliderOffsetMeters => froggyAlgaeSlider.localPosition.x;
+        public float FroggyCoralSliderOffsetMeters => frogyCoralSlid.localPosition.z;
 
         protected override void Start()
         {
@@ -179,6 +264,9 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             froggy.SetPid(froggyPid);
             climbPivot1.SetPid(climbPivotsPid);
             climbPivot2.SetPid(climbPivotsPid);
+
+            _autoAlign = GetComponent<StuyPulseAutoAlign>();
+            _defaultCoralStationDropDistance = CurrentCoralStationMode.DropDistance;
 
             RobotGamePieceController.SetPreload(shooterCoralStowState);
             _coralController = RobotGamePieceController.GetPieceByName(ReefscapeGamePieceType.Coral.ToString());
@@ -211,6 +299,12 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private void FixedUpdate()
         {
+            if (CurrentSetpoint != _trackedSetpoint)
+            {
+                _priorDistinctSetpoint = _trackedSetpoint;
+                _trackedSetpoint = CurrentSetpoint;
+            }
+
             if (BaseGameManager.Instance.RobotState == RobotState.Disabled)
             {
                 funnelAudioSource?.Stop();
@@ -263,6 +357,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             }
 
             CurrentCoralStationMode.DropType = CurrentIntakeMode == ReefscapeIntakeMode.L1 ? DropType.Ground : DropType.Station;
+            CurrentCoralStationMode.DropDistance = hasCoral ? 0f : _defaultCoralStationDropDistance;
 
             if (LastSetpoint == ReefscapeSetpoints.Intake && CurrentIntakeMode == ReefscapeIntakeMode.L1 && !hasCoral && CurrentRobotMode == ReefscapeRobotMode.Coral)
             {
@@ -278,6 +373,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             {
                 foreach (var col in collidersToDisableForFroggyCoralScoring) col.enabled = true;
             }
+
+            ResolveStackOrder();
 
             switch (CurrentSetpoint)
             {
@@ -335,7 +432,10 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             foreach (var col in shooterCollidersForAlgae) col.enabled = true;
             foreach (var col in froggyRollerColliders) col.enabled = true;
 
-            SetRollerSpeeds(0, shooterHasCoral || shooterHasAlgae ? 0 : shooterAnimationWheelSpeeds);
+            // Tied to stowIntaking (same gate as the audio above) rather than just "shooter is empty" -
+            // previously this spun the shooter wheels any time the shooter was empty, even after letting go
+            // of intake without securing a coral, leaving the wheels visibly spinning with no intake sound.
+            SetRollerSpeeds(0, stowIntaking ? shooterAnimationWheelSpeeds : 0);
         }
 
         private void HandleIntake(bool hasCoral, bool hasAlgae, bool shooterHasAlgae)
@@ -390,14 +490,21 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             if (stillInPlaceState) return;
 
             if (shooterHasAlgae && LastSetpoint == ReefscapeSetpoints.Barge) SetSetpoint(bargePlace);
-            else if (shooterHasCoral && LastSetpoint == ReefscapeSetpoints.L4) SetSetpoint(IsFacingReef(GetClosestReef()) ? frontL4 : backL4Scored);
+            else if (shooterHasCoral && LastSetpoint == ReefscapeSetpoints.L4) SetFacingSetpoint(frontL4, backL4Scored);
 
             HandlePlaceScoring();
         }
 
         private void HandleL1(bool shooterHasCoral)
         {
-            if (!shooterHasCoral) SetSetpoint(froggyCoralPlace);
+            if (!shooterHasCoral)
+            {
+                // Same reef-clearance guard as the scoring branch below - without it, going straight from a
+                // just-scored L4 into L1 mode let froggyCoralPlace's intake pose swing in immediately while
+                // still physically close to the reef, clipping it. Wait until the arm's left L4 (or the robot
+                // has backed off far enough) before moving to the froggy intake pose.
+                if (!SuperstructureAtSetpoint(backL4) && !SuperstructureAtSetpoint(frontL4) || DistanceToReef(GetClosestReef()) > 1.8) SetSetpoint(froggyCoralPlace);
+            }
             else if (!SuperstructureAtSetpoint(backL4) && !SuperstructureAtSetpoint(frontL4) || DistanceToReef(GetClosestReef()) > 1.8) SetSetpoint(eeL1);
             frogState = FroggyState.Stow;
 
@@ -406,6 +513,25 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             _coralController.RequestIntake(shooterAlgaeIntake, false);
             _algaeController.RequestIntake(froggyAlgaeIntake, false);
             foreach (var col in shooterCollidersForAlgae) col.enabled = true;
+        }
+
+        // ReefscapeRobotBase.Update() resolves the stack button (L1Action) to Processor whenever any algae is
+        // held, regardless of order - but the driver wants it order-dependent: coral-in-froggy grabbed first
+        // then algae should go Processor, algae grabbed first then coral should go L1. CurrentSetpoint's
+        // setter is private to the base class, so this can't be fixed there; instead it's corrected here,
+        // right before the switch dispatches, via the base's own protected SetState - which the framework
+        // hasn't dispatched to HandleProcessor/HandleL1 yet this frame, so the correction is invisible.
+        private void ResolveStackOrder()
+        {
+            _froggyCoralAcquiredAt = HasFroggyCoral ? _froggyCoralAcquiredAt ?? Time.time : null;
+            _shooterAlgaeAcquiredAt = HasShooterAlgae ? _shooterAlgaeAcquiredAt ?? Time.time : null;
+
+            if (!HasFroggyCoral || !HasShooterAlgae) return;
+            if (CurrentSetpoint != ReefscapeSetpoints.Processor && CurrentSetpoint != ReefscapeSetpoints.L1) return;
+            if (_froggyCoralAcquiredAt is not { } coralAt || _shooterAlgaeAcquiredAt is not { } algaeAt) return;
+
+            var wantedSetpoint = coralAt <= algaeAt ? ReefscapeSetpoints.Processor : ReefscapeSetpoints.L1;
+            if (CurrentSetpoint != wantedSetpoint) SetState(wantedSetpoint);
         }
 
         private void HandleStack(bool hasAlgae, bool shooterHasCoral)
@@ -430,7 +556,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             frogState = FroggyState.Stow;
             if (shooterHasCoral && (!SuperstructureAtSetpoint(backL4) && !SuperstructureAtSetpoint(frontL4) || DistanceToReef(GetClosestReef()) > 1.8))
             {
-                SetSetpoint(IsFacingReef(GetClosestReef()) ? frontL2 : backL2);
+                SetFacingSetpoint(frontL2, backL2);
             }
             _algaeController.RequestIntake(funnelCoralIntake, false);
             _coralController.RequestIntake(froggyCoralIntake, false);
@@ -444,7 +570,11 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             frogState = FroggyState.Stow;
             if (shooterHasCoral || hasAlgae) return;
 
-            if (!SuperstructureAtSetpoint(backL4) && !SuperstructureAtSetpoint(frontL4) || DistanceToReef(GetClosestReef()) > 1.8) SetSetpoint(IsFacingReef(GetClosestReef()) ? frontLowAlgae : backLowAlgae);
+            if (!SuperstructureAtSetpoint(backL4) && !SuperstructureAtSetpoint(frontL4) || DistanceToReef(GetClosestReef()) > 1.8)
+            {
+                if (_autoAlign == null || _autoAlign.AlgaeReadyForSetpoint()) SetFacingSetpoint(frontLowAlgae, backLowAlgae);
+                else SetSetpoint(stow);
+            }
             _algaeController.SetTargetState(shooterAlgaeStowState);
             var lowAlgaeIntaking = IntakeAction.IsPressed() && !hasAlgae;
             _algaeController.RequestIntake(shooterAlgaeIntake, lowAlgaeIntaking);
@@ -462,7 +592,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             frogState = FroggyState.Stow;
             if (shooterHasCoral && (!SuperstructureAtSetpoint(backL4) && !SuperstructureAtSetpoint(frontL4) || DistanceToReef(GetClosestReef()) > 1.8))
             {
-                SetSetpoint(IsFacingReef(GetClosestReef()) ? frontL3 : backL3);
+                SetFacingSetpoint(frontL3, backL3);
             }
             _algaeController.RequestIntake(funnelCoralIntake, false);
             _coralController.RequestIntake(froggyCoralIntake, false);
@@ -475,7 +605,11 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             frogState = FroggyState.Stow;
             if (shooterHasCoral || hasAlgae) return;
 
-            if (!SuperstructureAtSetpoint(backL4) && !SuperstructureAtSetpoint(frontL4) || DistanceToReef(GetClosestReef()) > 1.8) SetSetpoint(IsFacingReef(GetClosestReef()) ? frontHighAlgae : backHighAlgae);
+            if (!SuperstructureAtSetpoint(backL4) && !SuperstructureAtSetpoint(frontL4) || DistanceToReef(GetClosestReef()) > 1.8)
+            {
+                if (_autoAlign == null || _autoAlign.AlgaeReadyForSetpoint()) SetFacingSetpoint(frontHighAlgae, backHighAlgae);
+                else SetSetpoint(stow);
+            }
             _algaeController.SetTargetState(shooterAlgaeStowState);
             var highAlgaeIntaking = IntakeAction.IsPressed() && !hasAlgae;
             _algaeController.RequestIntake(shooterAlgaeIntake, highAlgaeIntaking);
@@ -495,7 +629,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             _coralController.RequestIntake(froggyCoralIntake, false);
             _coralController.RequestIntake(shooterAlgaeIntake, false);
             _algaeController.RequestIntake(froggyAlgaeIntake, false);
-            if (shooterHasCoral) SetSetpoint(IsFacingReef(GetClosestReef()) ? frontL4 : backL4);
+            if (shooterHasCoral) SetFacingSetpoint(frontL4, backL4);
             foreach (var col in shooterCollidersForAlgae) col.enabled = true;
         }
 
@@ -540,13 +674,19 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         {
             StartOuttakeAudio();
 
-            if (TryShootFroggyCoral()) { }
-            else if (TryReleaseShooterAlgae()) { }
-            else if (TryScoreL4Coral()) { }
-            else if (TryScoreL1Coral()) { }
-            else if (TryScoreDefaultCoral()) { }
+            // Each Try* now only reports success once the underlying GamePieceControllerNode is actually
+            // atTarget when it calls Release*(...) - that release silently no-ops and returns false while the
+            // piece is still animating into its stow slot (see RobotGamePieceController.GamePieceControllerNode
+            // .ReleaseGamePieceWithForce/WithContinuedForce, whenAtTarget defaults true). Previously every Try*
+            // reported true unconditionally after calling Release*, so pressing Place in that in-between window
+            // (e.g. immediately after intaking, before the piece settles) silently failed to release, and since
+            // stillInPlaceState latched true regardless, HandlePlaceScoring never ran again for that Place press
+            // - the piece stayed held forever, permanently blocking hasCoral-gated intake from ever firing again.
+            // Only latching stillInPlaceState on an actual success means an early press just retries next
+            // FixedUpdate until the piece is ready, instead of getting stuck.
+            var handled = TryShootFroggyCoral() || TryReleaseShooterAlgae() || TryScoreL4Coral() || TryScoreL1Coral() || TryScoreDefaultCoral();
 
-            stillInPlaceState = true;
+            stillInPlaceState = handled;
         }
 
         private void StartOuttakeAudio()
@@ -567,7 +707,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         {
             if ((CurrentRobotMode != ReefscapeRobotMode.Coral && _algaeController.atTarget) ||
                 LastSetpoint is ReefscapeSetpoints.L2 or ReefscapeSetpoints.L3 or ReefscapeSetpoints.L4 ||
-                !_coralController.HasPiece() ||
+                !_coralController.HasPiece() || !_coralController.atTarget ||
                 _coralController.currentStateNum == shooterCoralStowState.stateNum && _coralController.atTarget)
             {
                 return false;
@@ -579,7 +719,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private bool TryReleaseShooterAlgae()
         {
-            if ((CurrentRobotMode != ReefscapeRobotMode.Algae && _coralController.atTarget) || !_algaeController.HasPiece())
+            if ((CurrentRobotMode != ReefscapeRobotMode.Algae && _coralController.atTarget) || !_algaeController.HasPiece() || !_algaeController.atTarget)
             {
                 return false;
             }
@@ -612,7 +752,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private bool TryScoreL4Coral()
         {
-            if ((CurrentRobotMode != ReefscapeRobotMode.Coral && _algaeController.atTarget) || LastSetpoint != ReefscapeSetpoints.L4)
+            if ((CurrentRobotMode != ReefscapeRobotMode.Coral && _algaeController.atTarget) || LastSetpoint != ReefscapeSetpoints.L4 || !_coralController.atTarget)
             {
                 return false;
             }
@@ -627,7 +767,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private bool TryScoreL1Coral()
         {
             if ((CurrentRobotMode != ReefscapeRobotMode.Coral && !_algaeController.atTarget) ||
-                LastSetpoint != ReefscapeSetpoints.L1 || CurrentIntakeMode != ReefscapeIntakeMode.Normal)
+                LastSetpoint != ReefscapeSetpoints.L1 || CurrentIntakeMode != ReefscapeIntakeMode.Normal || !_coralController.atTarget)
             {
                 return false;
             }
@@ -641,6 +781,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private bool TryScoreDefaultCoral()
         {
             if (CurrentRobotMode != ReefscapeRobotMode.Coral && _algaeController.atTarget) return false;
+            if (!_coralController.atTarget) return false;
 
             frogState = FroggyState.Stow;
             _coralController.ReleaseGamePieceWithForce(new Vector3(0, 0, 5));
@@ -770,15 +911,58 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             return Mathf.Sqrt(Mathf.Pow(transform.position.x - reefPos.x, 2) + Mathf.Pow(transform.position.z - reefPos.z, 2));
         }
 
+        // Near the field midline the two reefs are nearly equidistant, so a raw "which is closer" pick
+        // flips on the same kind of per-frame noise the facing dot product does below - and unlike heading
+        // noise, flipping WHICH reef is closest teleports the reef position IsFacingReef() measures against
+        // to the opposite side of the field, which is a far bigger discontinuity than ordinary noise. A
+        // distance-margin deadband makes the pick sticky the same way: once a reef is chosen, the other one
+        // has to be closer by a clear margin (not just barely) before the pick flips.
+        private const float CLOSEST_REEF_DISTANCE_DEADBAND_METERS = 1f;
+        private bool _cachedClosestReefIsBlue = true;
+
         private Vector3 GetClosestReef()
         {
-            return DistanceToReef(_blueReef) < DistanceToReef(_redReef) ? _blueReef : _redReef;
+            var blueDist = DistanceToReef(_blueReef);
+            var redDist = DistanceToReef(_redReef);
+            if (blueDist < redDist - CLOSEST_REEF_DISTANCE_DEADBAND_METERS) _cachedClosestReefIsBlue = true;
+            else if (redDist < blueDist - CLOSEST_REEF_DISTANCE_DEADBAND_METERS) _cachedClosestReefIsBlue = false;
+            return _cachedClosestReefIsBlue ? _blueReef : _redReef;
+        }
+
+        // Dot product hovers near 0 whenever the robot's heading is close to perpendicular to the reef
+        // direction - true whenever the robot is still driving toward a far-off algae (heading hasn't
+        // settled toward the reef yet) or is mid-sweep around ApplyReefAvoidance's tangent waypoint. Right
+        // at 0 the raw sign flips on every tiny heading wobble, which was flapping the arm/elevator between
+        // front and back setpoints every frame. A deadband around 0 makes it sticky: once facing/not-facing
+        // is decided, it takes a clear swing past the deadband (not just noise) to flip again.
+        private const float FACING_REEF_DOT_DEADBAND = 0.15f;
+        private bool _cachedFacingReef;
+
+        // Physically crossing the midline is a bigger discontinuity than GetClosestReef()'s deadband alone
+        // can smooth over - the robot genuinely does end up on the other reef's side, so the facing pick
+        // has to flip eventually, not just later. Forcing stow while inside this band means that flip lands
+        // while the mechanism is already safely retracted instead of fighting between front/back setpoints
+        // while straddling the midline.
+        private const float MIDLINE_STOW_BAND_METERS = 1f;
+
+        private bool IsNearMidline() => Mathf.Abs(transform.position.x) < MIDLINE_STOW_BAND_METERS;
+
+        // Shared by every Handle* that picks a front/back setpoint off IsFacingReef(GetClosestReef()) - near
+        // the midline, stows instead of computing a front/back pick at all, per the same reasoning as
+        // MIDLINE_STOW_BAND_METERS above. Callers still gate whether to call this at all on their own
+        // existing setpoint logic (e.g. "not already at L4"), same as before this existed.
+        private void SetFacingSetpoint(StuyPulseSetpoint front, StuyPulseSetpoint back)
+        {
+            SetSetpoint(IsNearMidline() ? stow : IsFacingReef(GetClosestReef()) ? front : back);
         }
 
         private bool IsFacingReef(Vector3 reefPos)
         {
             var toReef = (reefPos - transform.position).normalized;
-            return Vector3.Dot(transform.forward.normalized, toReef) > 0.0f;
+            var dot = Vector3.Dot(transform.forward.normalized, toReef);
+            if (dot > FACING_REEF_DOT_DEADBAND) _cachedFacingReef = true;
+            else if (dot < -FACING_REEF_DOT_DEADBAND) _cachedFacingReef = false;
+            return _cachedFacingReef;
         }
 
         private bool ElevatorAtSetpoint(StuyPulseSetpoint targetSetpoint)
