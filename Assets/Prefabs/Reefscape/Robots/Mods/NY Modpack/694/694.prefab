@@ -37942,7 +37942,7 @@ MonoBehaviour:
   bargeTargets: []
   maxBargeAlignDistanceFeet: 100
   bargeSlideSpeed: 2.5
-  bargeSlideMidlineGapMeters: 0.2
+  bargeSlideMidlineGapMeters: 0.5
   bargeStandoffInches: 60.2
   bargeHalfWidthInches: 64.9
   bargeOffsetInches: {x: 0, y: 0, z: 0}
@@ -37957,10 +37957,11 @@ MonoBehaviour:
     yRotation: 180
     froggyAlgaeIntakeYRotation: 90
   maxAlgaeAlignDistanceFeet: 100
-  algaeStandoffInches: -7.4
+  algaeStandoffInches: -9.77
   algaeStandoffNotReadyInches: 15
   algaeFrontOffsetInches: 2.54
-  algaeBackOffsetInches: 3.74
+  algaeBackOffsetInches: 3.92
+  algaeMidlineSliderClearanceMeters: 0.3
   l1SlideRangeInches: 8
   l1SlideSpeed: 15
   l1offset: {fileID: 11400000, guid: 7e4c11949277d46638df57358f31ea0f, type: 2}

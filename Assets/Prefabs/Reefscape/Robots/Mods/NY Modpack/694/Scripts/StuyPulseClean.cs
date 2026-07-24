@@ -440,7 +440,13 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private void HandleIntake(bool hasCoral, bool hasAlgae, bool shooterHasAlgae)
         {
-            if (CurrentIntakeMode == ReefscapeIntakeMode.L1 && !hasCoral && CurrentRobotMode == ReefscapeRobotMode.Coral)
+            // These first two branches use _coralController.atTarget (not the hasCoral param, i.e. HasPiece())
+            // to decide whether to keep the coral-side rollers spinning - HasPiece() flips true as soon as
+            // the piece is secured/attached to the intake, well before it's actually finished animating into
+            // its stow slot (atTarget only flips true once that motion completes, see
+            // RobotGamePieceController.ProcessNode). Gating on hasCoral cut the rollers the instant the piece
+            // attached, before it was actually pulled all the way in.
+            if (CurrentIntakeMode == ReefscapeIntakeMode.L1 && !_coralController.atTarget && CurrentRobotMode == ReefscapeRobotMode.Coral)
             {
                 SetSetpoint(froggyCoral);
                 frogState = FroggyState.CoralIntake;
@@ -451,7 +457,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
                 _isIntaking = true;
                 SetRollerSpeeds(froggyAnimationWheelSpeeds, 0);
             }
-            else if (CurrentRobotMode == ReefscapeRobotMode.Coral && !hasCoral && !shooterHasAlgae && CurrentIntakeMode != ReefscapeIntakeMode.L1)
+            else if (CurrentRobotMode == ReefscapeRobotMode.Coral && !_coralController.atTarget && !shooterHasAlgae && CurrentIntakeMode != ReefscapeIntakeMode.L1)
             {
                 if (!SuperstructureAtSetpoint(backL4) && !SuperstructureAtSetpoint(frontL4) || DistanceToReef(GetClosestReef()) > 1.8) SetSetpoint(intakeFunnel);
                 frogState = FroggyState.Stow;
@@ -482,6 +488,15 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
                 _froggyWheels = 6000f;
                 _isIntaking = true;
                 SetRollerSpeeds(-froggyAnimationWheelSpeeds, 0);
+            }
+            else
+            {
+                // None of the intake branches above matched - most commonly a piece just secured mid-intake
+                // (hasCoral/hasAlgae flipped true) while CurrentSetpoint is still Intake. shooterWheelSpeeds/
+                // froggyWheelSpeeds are persistent fields (see SetRollerSpeeds), not one-shot pulses, so
+                // without this the rollers stay latched at whatever intake speed was set the tick before
+                // securing and keep spinning indefinitely - same bug as HandleLowAlgae/HandleHighAlgae.
+                SetRollerSpeeds(0, 0);
             }
         }
 
@@ -568,7 +583,11 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private void HandleLowAlgae(bool hasAlgae, bool shooterHasCoral)
         {
             frogState = FroggyState.Stow;
-            if (shooterHasCoral || hasAlgae) return;
+            // shooterWheelSpeeds is a persistent field (see SetRollerSpeeds), not implicitly reset - once
+            // an algae is secured, everything below (including the SetRollerSpeeds(0, -shooterSpeed) intake
+            // call) stops running, so without this the wheels stay latched at whatever speed they were
+            // spinning the instant hasAlgae flipped true, spinning forever instead of stopping.
+            if (shooterHasCoral || hasAlgae) { SetRollerSpeeds(0, 0); return; }
 
             if (!SuperstructureAtSetpoint(backL4) && !SuperstructureAtSetpoint(frontL4) || DistanceToReef(GetClosestReef()) > 1.8)
             {
@@ -603,7 +622,9 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private void HandleHighAlgae(bool hasAlgae, bool shooterHasCoral)
         {
             frogState = FroggyState.Stow;
-            if (shooterHasCoral || hasAlgae) return;
+            // See the identical comment in HandleLowAlgae - without stopping the rollers here, they stay
+            // latched at whatever speed was last set the instant hasAlgae flipped true.
+            if (shooterHasCoral || hasAlgae) { SetRollerSpeeds(0, 0); return; }
 
             if (!SuperstructureAtSetpoint(backL4) && !SuperstructureAtSetpoint(frontL4) || DistanceToReef(GetClosestReef()) > 1.8)
             {
@@ -839,7 +860,10 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private void UpdateAudio()
         {
-            var hasCoral = _coralController.HasPiece();
+            // Same fix as HandleIntake's coral branches: gate on _coralController.atTarget, not
+            // HasPiece(), so the intake audio keeps playing through the full seating animation instead
+            // of cutting out the instant the coral attaches to the intake.
+            var coralAtTarget = _coralController.atTarget;
             var hasAlgae = _algaeController.HasPiece();
             var isFroggyMode = CurrentIntakeMode == ReefscapeIntakeMode.L1;
             var isStationMode = !isFroggyMode;
@@ -848,11 +872,11 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             var froggyOuttaking = Time.time < _froggyOuttakeAudioUntil;
             PlayOrStop(froggyAudioSource, (froggyIntaking || froggyOuttaking) && isFroggyMode);
 
-            var funnelIntaking = isStationMode && IntakeAction.IsPressed() && !hasCoral && !hasAlgae;
+            var funnelIntaking = isStationMode && IntakeAction.IsPressed() && !coralAtTarget && !hasAlgae;
             var funnelOuttaking = isStationMode && Time.time < _outtakeAudioUntil;
             PlayOrStop(funnelAudioSource, (funnelIntaking || funnelOuttaking) && isStationMode);
 
-            PlayOrStop(endEffectorAudioSource, _isIntaking && !hasCoral && !hasAlgae);
+            PlayOrStop(endEffectorAudioSource, _isIntaking && !coralAtTarget && !hasAlgae);
         }
 
         private static void PlayOrStop(AudioSource source, bool shouldPlay)

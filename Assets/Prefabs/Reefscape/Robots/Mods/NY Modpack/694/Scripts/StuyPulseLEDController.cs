@@ -64,7 +64,6 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         [SerializeField] private Color froggyModeColor = new Color(1f, 0.5f, 0f); // orange
         [Tooltip("Coral physically secured in the froggy mechanism (HasFroggyCoral), distinct from the plain hasCoralColor below which doesn't otherwise distinguish froggy-held vs. normal/shooter-held coral.")]
         [SerializeField] private Color froggyCoralHeldColor = Color.magenta;
-        [SerializeField] private Color coralStationAlignColor = Color.red;
         [SerializeField] private Color reefAlignLeftColor = Color.yellow;
         [SerializeField] private Color reefAlignRightColor = Color.red;
         [SerializeField] private Color bargeAlignColor = Color.yellow;
@@ -194,14 +193,6 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             else if (_autoAlign != null && _autoAlign.BargeAlignActive())
             {
                 SetAll(bargeAlignColor, blink);
-            }
-            else if (_autoAlign != null && _autoAlign.ProcessorAlignActive())
-            {
-                SetAll(processorColor, blink);
-            }
-            else if (_autoAlign != null && _autoAlign.StationAlignActive())
-            {
-                SetAll(coralStationAlignColor, onIntensity);
             }
             else if (Time.time < _scoreFlashUntil)
             {

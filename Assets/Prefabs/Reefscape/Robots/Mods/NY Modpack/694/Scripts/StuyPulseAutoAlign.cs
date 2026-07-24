@@ -2,39 +2,41 @@ using System;
 using System.Collections.Generic;
 using Games.Reefscape.Enums;
 using Games.Reefscape.FieldScripts;
-using Games.Reefscape.GamePieceSystem;
 using Games.Reefscape.Robots;
 using Games.Reefscape.Scoring.Scorers;
 using MoSimCore.Enums;
 using RobotFramework.Controllers.Drivetrain;
-using RobotFramework.Controllers.GamePieceSystem;
 using UnityEngine;
 
 namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 {
     /// <summary>
-    /// 694's single custom auto align - handles reef branch scoring, the human player station, the barge,
-    /// and the processor, the same way 340's GRRAutoAlign is one self-contained component rather than
-    /// relying on the shared framework AutoAlign. It replaces the framework's ReefscapeAutoAlign component
-    /// for this robot.
+    /// 694's single custom auto align - handles reef branch scoring, the barge, and reef algae pickup, the
+    /// same way 340's GRRAutoAlign is one self-contained component rather than relying on the shared
+    /// framework AutoAlign. It replaces the framework's ReefscapeAutoAlign component for this robot.
     ///
-    /// Station and barge align both work the same way: an AlignZone is a corner-to-corner line (its
-    /// rotation is the heading to face). Rotation and the distance perpendicular to that line are always
-    /// PID-corrected, but the position *along* the line is a slider that starts centered the moment you
-    /// engage and can be nudged toward either corner with the left stick, clamped so you can't slide past
-    /// either end - "aligns to the middle, but lets you slide across it to either corner while it holds you
-    /// at the right distance away," per the corresponding real StuyPulse commands
-    /// (github.com/StuyPulse/Aunt-Mary): SwerveDrivePIDAssistToClosestCoralStation for the station, and
-    /// SwerveDriveDriveAlignedToBarge118Score for the barge (which locks distance-to-line + heading and
-    /// leaves the driver's left stick fully in control of position along the line - this is a clamped,
-    /// centered version of that same idea rather than the real robot's unclamped open-ended slide).
-    /// Processor align is a FixedAlignTarget instead - a single fixed point with no slider, since there's no
-    /// equivalent "slide along a line" concept for lining up with the processor.
+    /// HP station align and processor align were both removed (see the "remove HP station and processor
+    /// align entirely" project history) after a build-only bug ("works in Editor, doesn't work in a
+    /// standalone Player") in that area couldn't be pinned down without Player-side console/debugger access;
+    /// rather than keep guessing at build-only repros, they were dropped rather than fixed. If they're ever
+    /// wanted back, the barge/algae/reef-branch code below (ApplyReefAvoidance, GetClosestZone/
+    /// TryGetZoneTarget, camera-relative flip) is still the pattern to reuse.
     ///
-    /// Barge and processor align both engage automatically while CurrentSetpoint is Barge/Processor and the
-    /// driver is holding algae ready to score, while either AutoAlignLeft or AutoAlignRight is held - MoSim
-    /// has no dedicated button for either, so both reuse the same "hold align" buttons the reef branch align
-    /// uses, just routed to different behavior based on what setpoint you're currently in.
+    /// Barge align works like this: an AlignZone is a corner-to-corner line (its rotation is the heading to
+    /// face). Rotation and the distance perpendicular to that line are always PID-corrected, but the
+    /// position *along* the line is a slider that continuously tracks whichever point on the line is
+    /// closest to the robot as it moves, and can be nudged toward either corner on top of that with the
+    /// left stick, clamped so you can't slide past either end - "aligns to whatever's closest, but lets you
+    /// slide across it to either corner while it holds you at the right distance away," per the
+    /// corresponding real StuyPulse command (github.com/StuyPulse/Aunt-Mary):
+    /// SwerveDriveDriveAlignedToBarge118Score (which locks distance-to-line + heading and leaves the
+    /// driver's left stick fully in control of position along the line - this is a clamped, centered
+    /// version of that same idea rather than the real robot's unclamped open-ended slide).
+    ///
+    /// Barge align engages automatically while CurrentSetpoint is Barge and the driver is holding algae
+    /// ready to score, while either AutoAlignLeft or AutoAlignRight is held - MoSim has no dedicated button
+    /// for it, so it reuses the same "hold align" buttons the reef branch align uses, just routed to
+    /// different behavior based on what setpoint you're currently in.
     ///
     /// Reef branch align keeps the exact same node-finding and offset-application logic the framework's
     /// ReefscapeAutoAlign used (closest ReefFace-tagged AlignNode, perspective-relative left/right,
@@ -42,24 +44,42 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
     /// it's just re-hosted here so the whole thing runs through one PID loop instead of two components
     /// fighting over the drivetrain.
     ///
-    /// None of the three alignment modes use RobotFramework.Controllers.PidSystems.PIDController (the
-    /// shared controller the joints are tuned through) - the translation/rotation PID loops below are
-    /// implemented from scratch so a future change to that shared PID controller cannot change this
-    /// component's behavior.
+    /// None of these alignment modes use RobotFramework.Controllers.PidSystems.PIDController (the shared
+    /// controller the joints are tuned through) - the translation/rotation PID loops below are implemented
+    /// from scratch so a future change to that shared PID controller cannot change this component's
+    /// behavior.
     ///
     /// This script doesn't hold its own references to the froggy coral stow / shooter algae stow
     /// GamePieceStates - it reads whether coral/algae is docked there through the sibling robot script's
     /// IStuyPulseGamePieceStatus instead, so that game-piece-system knowledge lives in one place.
     ///
-    /// Station, barge, and processor align all route around the reef instead of cutting through it when the
+    /// Barge and algae-pickup align both route around the reef instead of cutting through it when the
     /// straight line to the target passes too close to the reef center (see ApplyReefAvoidance) - handles
     /// being on the far side of the reef from wherever you're headed. Each keeps its own independent
     /// routing/hysteresis state so they don't interfere with each other. The corner-to-corner slide on
-    /// station/barge, and the reef branch left/right pick, all account for which way the active camera is
-    /// facing so the stick always matches what's visually left/right on screen - same idea as 340's
-    /// GRRAutoAlign camera-relative flip, just generalized (see ApplyCameraFlip and CameraFacesNode) instead
-    /// of copying its field-axis-specific math.
+    /// barge, and the reef branch left/right pick, all account for which way the active camera is facing so
+    /// the stick always matches what's visually left/right on screen - same idea as 340's GRRAutoAlign
+    /// camera-relative flip, just generalized (see ApplyCameraFlip and CameraFacesNode) instead of copying
+    /// its field-axis-specific math.
+    ///
+    /// Algae align additionally keeps the point where its path crosses the field midline (x=0) at least
+    /// algaeMidlineCrossingZMarginMeters onto the robot's own alliance's side of field-center (see
+    /// ApplyMidlineCrossingGate) whenever it has to cross to reach a face on the far side (nothing left on
+    /// the robot's own side), instead of cutting straight across near mid-field.
+    ///
+    /// DefaultExecutionOrder(-100) below is load-bearing, not decorative: DriveController.RunSwerve() only
+    /// re-reads driver stick input when overideActive is false; while an override is active it just clears
+    /// the flag and reuses whatever fwd/str/rotation this script's DriveManualPid -> overideInput last wrote.
+    /// That means this script's FixedUpdate MUST run before DriveController's FixedUpdate in the same physics
+    /// tick, or DriveController drives on last tick's PID output instead of this tick's - a one-tick lag that
+    /// destabilizes the derivative term into visible bounce. Neither script had an explicit execution order
+    /// before, so Unity fell back to its default (undefined) ordering, which is free to differ between the
+    /// Editor (Mono) and a Player build (IL2Cpp) since it's derived from compiled type order, not declaration
+    /// order - this is the actual explanation for "auto align drive PID is smooth in the Editor but bouncy in
+    /// a build," not a PID or Rigidbody issue (an earlier attempt at this fix incorrectly targeted the
+    /// chassis Rigidbody's interpolation setting and was reverted).
     /// </summary>
+    [DefaultExecutionOrder(-100)]
     public class StuyPulseAutoAlign : MonoBehaviour
     {
         [Serializable]
@@ -75,22 +95,6 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
             [Tooltip("Robot heading (degrees) to face while aligned to this zone")]
             public float yRotation;
-        }
-
-        /// <summary>A single fixed align point - no corner-to-corner slider, unlike AlignZone.</summary>
-        [Serializable]
-        public class FixedAlignTarget
-        {
-            public Alliance alliance;
-
-            [Tooltip("World-space position to align to")]
-            public Vector3 position;
-
-            [Tooltip("Robot heading (degrees) to face while aligned here")]
-            public float yRotation;
-
-            [Tooltip("Robot heading (degrees) to face at this SAME position when scoring an algae that's held in froggy instead of the shooter - froggy releases it in a different direction than the shooter does, so it needs its own heading here.")]
-            public float froggyAlgaeIntakeYRotation;
         }
 
         // A scene "Algae" GameObject matched to whichever reef face it spawned nearest, plus whether it's
@@ -140,22 +144,12 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             }
         }
 
-        [Header("Reef Avoidance (shared by station, barge, and processor align)")]
+        [Header("Reef Avoidance (shared by barge and algae-pickup align)")]
         [Tooltip("If a straight line from the robot to the target would pass this close (meters) to the reef center, route around it instead of cutting through - handles being on the far side of the reef from wherever you're headed.")]
         [SerializeField] private float reefAvoidRadius = 2.5f;
 
         [Tooltip("Once routing around the reef, require the straight path to clear by this multiple of reefAvoidRadius before switching back to a direct line - avoids flickering between routed/direct right at the boundary.")]
         [SerializeField] private float reefAvoidExitMargin = 1.3f;
-
-        [Header("Human Player Station Align")]
-        [Tooltip("One AlignZone (left corner, right corner, facing rotation) per physical coral station slide line on the field - e.g. 4 entries for 2 stations x 2 alliances. No other fallback; a station with nothing here in range simply won't align.")]
-        [SerializeField] private AlignZone[] stationTargets;
-
-        [Tooltip("Only assist toward the station within this distance (feet)")]
-        [SerializeField] private float maxStationAlignDistanceFeet = 12f;
-
-        [Tooltip("How fast (world units/sec at full stick deflection) the slide target moves along the station line")]
-        [SerializeField] private float stationSlideSpeed = 1.5f;
 
         [Header("Barge Align")]
         [Tooltip("One entry per alliance's barge line. Takes priority over the auto-derived BargeScorer fallback below when something here is in range.")]
@@ -182,10 +176,6 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         [Tooltip("Extra heading offset (degrees) added on top of the derived barge facing rotation - use this to fix the approach angle.")]
         [SerializeField] private float bargeRotationOffsetDegrees = 0f;
 
-        [Header("Processor Align")]
-        [Tooltip("One entry per alliance's processor - a single fixed point, no slider (unlike station/barge). Each entry also carries a separate froggyAlgaeIntakeYRotation heading, used instead of yRotation when the held algae is in froggy rather than the shooter.")]
-        [SerializeField] private FixedAlignTarget[] processorTargets;
-
         [Header("Algae Align")]
         [Tooltip("Only assist toward reef algae within this distance (feet)")]
         [SerializeField] private float maxAlgaeAlignDistanceFeet = 12f;
@@ -201,6 +191,9 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         [Tooltip("Same as algaeFrontOffsetInches, but applied when approaching back-first (not facing the reef).")]
         [SerializeField] private float algaeBackOffsetInches = 0f;
+
+        [Tooltip("When algae align picks a face on the far side of the field midline from the robot (nothing left on the robot's own side), keeps the point where the path crosses x=0 at least this many meters onto the robot's own alliance's side of field-center (world z > this for Red, world z < -this for Blue), instead of cutting straight across near mid-field.")]
+        [SerializeField] private float algaeMidlineCrossingZMarginMeters = 1f;
 
         [Header("Reef Branch Align")]
         [Tooltip("Total distance (inches) the driver can slide the L1/froggy scoring target left-right along the reef face with the translate stick, centered on l1offset - e.g. 6 means +/-3in from the default spot. Releasing the stick does not recenter; only a fresh press of the align button (or leaving the reef and coming back) resets to the default offset.")]
@@ -279,7 +272,6 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private ReefscapeRobotBase _stuyBase;
         private DriveController _driveController;
-        private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData> _pieces;
         private IStuyPulseGamePieceStatus _gamePieceStatus;
 
         private readonly List<AlignNode> _reefFaces = new();
@@ -294,14 +286,14 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private Vector3 _redReefPos;
         private bool _hasReefPos;
 
-        private bool _stationEngaged;
-        private float _stationSlide = 0.5f;
-        private bool _stationRoutingAroundReef;
-        private float _stationRoutingSide;
-        private bool _processorRoutingAroundReef;
-        private float _processorRoutingSide;
         private bool _algaeRoutingAroundReef;
         private float _algaeRoutingSide;
+        // Which reef the current avoidance sweep is routed around (true = blue, false = red, null = not
+        // routing). Tracked separately from _algaeRoutingAroundReef so a change in the nearest-reef pick
+        // (as the robot physically crosses the field) can force a fresh engage instead of letting
+        // ApplyCircularAvoidance's locked routingSide/angle math keep applying to the wrong obstacle.
+        private bool? _algaeRoutingObstacleIsBlue;
+        private bool _algaeMidlineGateActive;
         private bool _algaeEngaged;
         private bool _algaeReachedFarStandoff;
         private AlignNode _algaeTargetFace;
@@ -310,13 +302,20 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private bool _algaeBackoffComplete;
 
         private bool _bargeEngaged;
-        private float _bargeSlide = 0.5f;
+
+        // Offset-from-live-closest-point semantics - see TryGetZoneTarget.
+        private float _bargeSlide;
+        // Frozen the instant _bargeSlide becomes nonzero - see TryGetZoneTarget.
+        private float _bargeSlideBaseline;
         private bool _bargeRoutingAroundReef;
         private float _bargeRoutingSide;
+        // Same tracking idiom as _algaeRoutingObstacleIsBlue - barge align now routes around whichever
+        // reef is nearest the robot's own live position (see TryGetBargeAlignTarget), since the robot can
+        // legitimately be on the opposing reef's side when barge align takes over right after an algae
+        // pickup there, and that selection can flip mid-route.
+        private bool? _bargeRoutingObstacleIsBlue;
 
-        private bool _stationAlignActive;
         private bool _bargeAlignActive;
-        private bool _processorAlignActive;
         private bool _algaeAlignActive;
         private bool _reefAlignActive;
         private bool _reefAlignLeft;
@@ -330,7 +329,6 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         {
             _stuyBase = GetComponent<ReefscapeRobotBase>();
             _driveController = GetComponent<DriveController>();
-            _pieces = GetComponent<RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>>();
             _gamePieceStatus = GetComponent<IStuyPulseGamePieceStatus>();
         }
 
@@ -355,6 +353,14 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             var algaePieces = GameObject.FindGameObjectsWithTag("Algae");
             foreach (var piece in algaePieces)
             {
+                // GameObject.FindGameObjectsWithTag("Algae") also picks up the loose "lollipop" algae pieces
+                // nested under Assets/Prefabs/Reefscape/Field/GamePieceWorld.prefab (a floor/ground-intake
+                // stash, not reef-mounted) - those never move, so the drift-based "has it been taken" check
+                // below never excludes them, letting one (e.g. "Algae (3)") permanently read as an available
+                // High algae target on every reef even once the real reef algae is cleared. Skip anything
+                // parented under the GamePieceWorld root so only the genuine reef-mounted pieces are matched.
+                if (piece.transform.parent != null && piece.transform.parent.CompareTag("GamePieceWorld")) continue;
+
                 AlignNode nearestFace = null;
                 var nearestDistance = float.MaxValue;
                 foreach (var face in _reefFaces)
@@ -413,38 +419,23 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private void FixedUpdate()
         {
-            var wasActive = _stationAlignActive || _bargeAlignActive || _processorAlignActive || _algaeAlignActive || _reefAlignActive;
+            var wasActive = _bargeAlignActive || _algaeAlignActive || _reefAlignActive;
 
             if (TryGetBargeAlignTarget(out var bargeTarget, out var bargeYaw))
             {
                 _bargeAlignActive = true;
-                _processorAlignActive = false;
                 _algaeAlignActive = false;
                 _reefAlignActive = false;
-                _stationAlignActive = false;
                 DriveManualPid(bargeTarget, bargeYaw);
                 return;
             }
 
             _bargeAlignActive = false;
 
-            if (TryGetProcessorAlignTarget(out var processorTarget, out var processorYaw))
-            {
-                _processorAlignActive = true;
-                _algaeAlignActive = false;
-                _reefAlignActive = false;
-                _stationAlignActive = false;
-                DriveManualPid(processorTarget, processorYaw);
-                return;
-            }
-
-            _processorAlignActive = false;
-
             if (TryGetAlgaeAlignTarget(out var algaeTarget, out var algaeYaw))
             {
                 _algaeAlignActive = true;
                 _reefAlignActive = false;
-                _stationAlignActive = false;
                 DriveManualPid(algaeTarget, algaeYaw);
                 return;
             }
@@ -454,124 +445,91 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             if (TryGetReefAlignTarget(out var reefTarget, out var reefYaw))
             {
                 _reefAlignActive = true;
-                _stationAlignActive = false;
                 DriveManualPid(reefTarget, reefYaw);
                 return;
             }
 
             _reefAlignActive = false;
 
-            if (TryGetStationAlignTarget(out var stationTarget, out var stationYaw))
-            {
-                _stationAlignActive = true;
-                DriveManualPid(stationTarget, stationYaw);
-                return;
-            }
-
-            _stationAlignActive = false;
-
             if (wasActive) ResetPid();
         }
 
-        // ---- Human player station ----
-
-        private bool TryGetStationAlignTarget(out Vector3 targetPosition, out float targetYaw)
+        // If you're on the far side of an obstacle circle (the reef) from your target, a straight line to it
+        // would cut through/too close to that obstacle - detect that and redirect through a waypoint that
+        // curves around it on whichever side the robot is already leaning toward, instead of cutting the
+        // corner. Generic in obstacle position/radius so any future caller besides ApplyReefAvoidance
+        // (barge/algae vs. the reef) can reuse it too, each keeping its own routing/hysteresis state via
+        // the ref params so simultaneous callers' "currently routed around" state doesn't bleed together.
+        //
+        // A single static tangent point is NOT enough to route around a circle: confirmed via Play-mode
+        // console logs (originally against the reef, both barge and (now-removed) processor align cases) that the robot would
+        // drive to the tangent point exactly (distToWaypoint hit 0.00) and then just sit there for 7+ seconds,
+        // because the line from THAT waypoint to the real target still clipped inside exitThreshold when the
+        // robot and target sit far apart angularly around the obstacle - one tangent point isn't a path
+        // around a circle, it's a dead end. This is a "leading tangent" that sweeps around the obstacle as the
+        // robot moves instead: aim a fixed angular lead ahead of the robot's own current angular position
+        // around obstaclePos, in a locked rotational direction, so the waypoint keeps advancing (never a fixed
+        // point) and the robot genuinely walks around the obstacle instead of parking on its edge. Rotational
+        // direction is locked once at engage (shortest-arc direction from robot's angle to target's angle) so
+        // it can't flip mid-route. This same class of "waypoint recomputed from the current straight line
+        // freezes into a self-consistent dead end" bug reappeared for the midline-slider-clearance case when
+        // it was first written as a simple one-shot perpendicular push instead of going through this shared
+        // sweep - don't reintroduce a non-swept version for a new caller no matter how small avoidRadius is.
+        private Vector3 ApplyCircularAvoidance(Vector3 realTarget, Vector3 obstaclePos, float avoidRadius, float exitMargin, float sameSideSkipAngleDeg, float leadAngleDegMax, ref bool routingAround, ref float routingSide)
         {
-            targetPosition = Vector3.zero;
-            targetYaw = 0f;
-
-            if (_stuyBase == null || _driveController == null) { _stationEngaged = false; _stationRoutingAroundReef = false; _stationRoutingSide = 0f; return false; }
-
-            if (_stuyBase.AutoAlignLeftAction.IsPressed() || _stuyBase.AutoAlignRightAction.IsPressed()) { _stationEngaged = false; _stationRoutingAroundReef = false; _stationRoutingSide = 0f; return false; }
-            if (_stuyBase.CurrentRobotMode != ReefscapeRobotMode.Coral) { _stationEngaged = false; _stationRoutingAroundReef = false; _stationRoutingSide = 0f; return false; }
-            if (_gamePieceStatus != null && _gamePieceStatus.IsIntakingAlgae) { _stationEngaged = false; _stationRoutingAroundReef = false; _stationRoutingSide = 0f; return false; }
-            if (_stuyBase.CurrentIntakeMode != ReefscapeIntakeMode.Normal) { _stationEngaged = false; _stationRoutingAroundReef = false; _stationRoutingSide = 0f; return false; }
-            if (!_stuyBase.IntakeAction.IsPressed()) { _stationEngaged = false; _stationRoutingAroundReef = false; _stationRoutingSide = 0f; return false; }
-
-            var coral = _pieces != null ? _pieces.GetPieceByName(ReefscapeGamePieceType.Coral.ToString()) : null;
-            if (coral != null && coral.HasPiece()) { _stationEngaged = false; _stationRoutingAroundReef = false; _stationRoutingSide = 0f; return false; }
-
-            var zone = GetClosestZone(stationTargets, _stuyBase.Alliance);
-            if (zone == null) { _stationEngaged = false; _stationRoutingAroundReef = false; _stationRoutingSide = 0f; return false; }
-
-            if (!TryGetZoneTarget(zone, maxStationAlignDistanceFeet, stationSlideSpeed, 0f, ref _stationEngaged, ref _stationSlide, out targetPosition, "Station"))
-            {
-                _stationRoutingAroundReef = false;
-                _stationRoutingSide = 0f;
-                return false;
-            }
-
-            targetPosition = ApplyReefAvoidance(targetPosition, ref _stationRoutingAroundReef, ref _stationRoutingSide, "Station");
-            targetYaw = zone.yRotation;
-            return true;
-        }
-
-        // If you're on the far side of the reef from your target, a straight line to it would cut through the
-        // reef structure - detect that and redirect through a waypoint that curves around it on whichever
-        // side the robot is already leaning toward, instead of cutting the corner. Used by station, barge,
-        // and processor align (each keeps its own routing/hysteresis state via the ref params, since only
-        // one of them can be driving at a time but their "are we currently routed around" state shouldn't
-        // bleed together).
-        private Vector3 ApplyReefAvoidance(Vector3 realTarget, ref bool routingAroundReef, ref float routingSide, string debugLabel)
-        {
-            if (!_hasReefPos)
-            {
-                return realTarget;
-            }
-
-            var reefPos = _stuyBase.Alliance == Alliance.Blue ? _blueReefPos : _redReefPos;
             var robotPos = transform.position;
 
             var toTarget = realTarget - robotPos;
             toTarget.y = 0f;
             var distanceToTarget = toTarget.magnitude;
 
-            if (distanceToTarget < reefAvoidRadius)
+            if (distanceToTarget < avoidRadius)
             {
-                routingAroundReef = false;
+                routingAround = false;
                 routingSide = 0f;
                 return realTarget;
             }
 
-            // Robot's and the target's angular position around the reef center - computed here (rather than
-            // only down in the leading-tangent block) since the close-to-reef check right below also needs it.
-            var robotOffset = robotPos - reefPos;
+            // Robot's and the target's angular position around the obstacle center - computed here (rather
+            // than only down in the leading-tangent block) since the close-to-obstacle check right below also
+            // needs it.
+            var robotOffset = robotPos - obstaclePos;
             robotOffset.y = 0f;
-            var targetOffset = realTarget - reefPos;
+            var targetOffset = realTarget - obstaclePos;
             targetOffset.y = 0f;
             var robotAngleDeg = Mathf.Atan2(robotOffset.z, robotOffset.x) * Mathf.Rad2Deg;
             var targetAngleDeg = Mathf.Atan2(targetOffset.z, targetOffset.x) * Mathf.Rad2Deg;
             var angularSeparationDeg = Mathf.Abs(Mathf.DeltaAngle(robotAngleDeg, targetAngleDeg));
 
-            // Targets that are themselves close to the reef (algae/processor scoring spots) will always show
-            // a small clearance on the clamped-projection check below, since the line's closest point to the
-            // reef ends up right near the target - that made avoidance falsely engage for the whole approach
-            // and only let go once the robot got within reefAvoidRadius of the target (line above). BUT being
-            // close to the reef alone doesn't mean the reef isn't in the way - every algae/processor target is
-            // close to the reef by design, including ones on the far side of it from the robot. So this only
-            // skips avoidance when the robot is also roughly on the same angular side as the target (no reef
-            // structure actually between them) - otherwise it falls through to the routing logic below like
-            // any other target.
-            var targetToReef = reefPos - realTarget;
-            targetToReef.y = 0f;
-            if (targetToReef.magnitude < reefAvoidRadius && angularSeparationDeg < REEF_AVOID_SAME_SIDE_ANGLE_DEGREES)
+            // Targets that are themselves close to the obstacle (e.g. algae/processor scoring spots vs. the
+            // reef) will always show a small clearance on the clamped-projection check below, since the
+            // line's closest point to the obstacle ends up right near the target - that made avoidance
+            // falsely engage for the whole approach and only let go once the robot got within avoidRadius of
+            // the target (line above). BUT being close to the obstacle alone doesn't mean it isn't in the way
+            // - such a target is close to the obstacle by design, including when it's on the far side of the
+            // obstacle from the robot. So this only skips avoidance when the robot is also roughly on the
+            // same angular side as the target (no obstacle actually between them) - otherwise it falls
+            // through to the routing logic below like any other target.
+            var targetToObstacle = obstaclePos - realTarget;
+            targetToObstacle.y = 0f;
+            if (targetToObstacle.magnitude < avoidRadius && angularSeparationDeg < sameSideSkipAngleDeg)
             {
-                routingAroundReef = false;
+                routingAround = false;
                 routingSide = 0f;
                 return realTarget;
             }
 
             var lineDir = toTarget / distanceToTarget;
-            var toReef = reefPos - robotPos;
-            toReef.y = 0f;
-            var projection = Mathf.Clamp(Vector3.Dot(toReef, lineDir), 0f, distanceToTarget);
+            var toObstacle = obstaclePos - robotPos;
+            toObstacle.y = 0f;
+            var projection = Mathf.Clamp(Vector3.Dot(toObstacle, lineDir), 0f, distanceToTarget);
             var closestPointOnLine = robotPos + lineDir * projection;
-            var reefClearance = Vector3.Distance(closestPointOnLine, reefPos);
+            var obstacleClearance = Vector3.Distance(closestPointOnLine, obstaclePos);
 
-            var exitThreshold = reefAvoidRadius * reefAvoidExitMargin;
-            var wasRouting = routingAroundReef;
-            var shouldRoute = wasRouting ? reefClearance < exitThreshold : reefClearance < reefAvoidRadius;
-            routingAroundReef = shouldRoute;
+            var exitThreshold = avoidRadius * exitMargin;
+            var wasRouting = routingAround;
+            var shouldRoute = wasRouting ? obstacleClearance < exitThreshold : obstacleClearance < avoidRadius;
+            routingAround = shouldRoute;
 
             if (!shouldRoute)
             {
@@ -579,19 +537,6 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
                 return realTarget;
             }
 
-            // Confirmed via Play-mode console logs (both barge and processor cases) that a single static
-            // waypoint is NOT enough to route around the reef: the robot would drive to the tangent point
-            // exactly (distToWaypoint hit 0.00) and then just sit there for 7+ seconds, because the line
-            // from THAT waypoint to the real target still clipped inside exitThreshold when the robot and
-            // target sit far apart angularly around the reef (~100+ degrees in the reported cases) - one
-            // tangent point isn't a path around a circle that wide, it's a dead end. Replaced with a
-            // "leading tangent" that sweeps around the reef as the robot moves: aim a fixed angular lead
-            // ahead of the robot's own current angular position around reefPos, in a locked rotational
-            // direction, so the waypoint keeps advancing (never a fixed point) and the robot genuinely walks
-            // around the reef instead of parking on its edge. Rotational direction is locked once at engage
-            // (shortest-arc direction from robot's angle to target's angle) so it can't flip mid-route the
-            // same way the old left/right "side" pick could. robotAngleDeg/targetAngleDeg already computed
-            // above for the same-side early-out check.
             var freshEngage = !wasRouting || routingSide == 0f;
             if (freshEngage)
             {
@@ -599,24 +544,86 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
                 routingSide = shortestArcDeg >= 0f ? 1f : -1f;
             }
 
-            // Console logs (station case) caught this overshooting: robotAngle=116.5, targetAngle=128.1 (only
-            // 11.6 degrees apart - target is basically right there), but the unconditional 35-degree lead
-            // put the waypoint at 151.5 degrees - 23.4 degrees PAST the target's own angular position. The
-            // lead is meant to place a point further along the direction of travel than the target so the
-            // path curves around the reef instead of aiming straight at (and through) it, but when the
-            // target is already closer than the lead angle, "further than the target" becomes "sweep past
-            // it and loop back," which reads exactly like "goes all the way around the reef" for a station
-            // that's actually nearby. Clamping the lead to the live angular separation means the waypoint
-            // eases onto the target's own bearing instead of overshooting it once the robot gets that close
-            // angularly - unaffected for the original far-side case this constant was tuned for (100+
-            // degrees apart), where angularSeparationDeg is always well above REEF_AVOID_LEAD_ANGLE_DEGREES.
-            var leadAngleDeg = Mathf.Min(REEF_AVOID_LEAD_ANGLE_DEGREES, angularSeparationDeg);
+            // Console logs (station case, against the reef) caught this overshooting: robotAngle=116.5,
+            // targetAngle=128.1 (only 11.6 degrees apart - target is basically right there), but the
+            // unconditional 35-degree lead put the waypoint at 151.5 degrees - 23.4 degrees PAST the target's
+            // own angular position. The lead is meant to place a point further along the direction of travel
+            // than the target so the path curves around the obstacle instead of aiming straight at (and
+            // through) it, but when the target is already closer than the lead angle, "further than the
+            // target" becomes "sweep past it and loop back," which reads exactly like "goes all the way
+            // around the obstacle" for a target that's actually nearby. Clamping the lead to the live angular
+            // separation means the waypoint eases onto the target's own bearing instead of overshooting it
+            // once the robot gets that close angularly - unaffected for the original far-side reef case this
+            // was tuned for (100+ degrees apart), where angularSeparationDeg is always well above the lead cap.
+            var leadAngleDeg = Mathf.Min(leadAngleDegMax, angularSeparationDeg);
             var waypointAngleDeg = robotAngleDeg + routingSide * leadAngleDeg;
             var waypointAngleRad = waypointAngleDeg * Mathf.Deg2Rad;
-            var waypoint = reefPos + new Vector3(Mathf.Cos(waypointAngleRad), 0f, Mathf.Sin(waypointAngleRad)) * reefAvoidRadius;
+            var waypoint = obstaclePos + new Vector3(Mathf.Cos(waypointAngleRad), 0f, Mathf.Sin(waypointAngleRad)) * avoidRadius;
             waypoint.y = robotPos.y;
 
             return waypoint;
+        }
+
+        // reefPosOverride lets a caller route around whichever reef is actually near the ROBOT right now
+        // instead of always the robot's own alliance reef - needed by both algae align (can legitimately
+        // target a face on the opposing reef) and barge align (can be handed off to right after an algae
+        // pickup on the opposing reef, so the robot may still be sitting on that side). Without this, a
+        // robot crossing to/from the far reef had its avoidance obstacle pinned to its own (often
+        // irrelevant, far-away) reef, so the actual nearby reef structure it was crossing past was never
+        // routed around at all. Both current callers pass NearestReefPos(transform.position) - see their
+        // own comments for why "nearest to the target" was tried first and found to be a no-op for the
+        // common case (target on the robot's own alliance's reef).
+        private Vector3 ApplyReefAvoidance(Vector3 realTarget, ref bool routingAroundReef, ref float routingSide, string debugLabel, Vector3? reefPosOverride = null)
+        {
+            if (!_hasReefPos) return realTarget;
+
+            var reefPos = reefPosOverride ?? (_stuyBase.Alliance == Alliance.Blue ? _blueReefPos : _redReefPos);
+            return ApplyCircularAvoidance(realTarget, reefPos, reefAvoidRadius, reefAvoidExitMargin, REEF_AVOID_SAME_SIDE_ANGLE_DEGREES, REEF_AVOID_LEAD_ANGLE_DEGREES, ref routingAroundReef, ref routingSide);
+        }
+
+        // Called only for an algae approach that crosses the field midline (the picked face is on the
+        // opposite side from the robot). Replaced two prior attempts at this (a plain perpendicular push off
+        // the barge line's near corner, then a leading-tangent sweep around that corner via
+        // ApplyCircularAvoidance) after both produced dead-end/wrap-around-the-reef symptoms - the actual ask
+        // turned out to be much simpler and not about the barge line's geometry at all: keep the crossing
+        // point itself (where the path crosses x=0) at least algaeMidlineCrossingZMarginMeters onto the
+        // robot's own alliance's side of field-center, full stop. Computes where the straight line from the
+        // robot to realTarget would cross x=0 and, if that crossing z violates the alliance's side (z <
+        // margin for Red, z > -margin for Blue), redirects through a waypoint that's still realTarget's own
+        // x/y (only z is overridden) instead. Keeping the real target's x means the PID never has to brake
+        // to zero velocity at a literal x=0 stop - only the earlier version, which zeroed x too, did that,
+        // producing a visible stop-and-resume right as the robot crossed midline. Once redirected, stays
+        // locked onto this gate (_algaeMidlineGateActive) until crossingMidline itself goes false (the robot
+        // has actually reached the target's side) rather than re-deciding every tick - re-deciding from the
+        // live robot->target line each tick is exactly what made both earlier attempts unstable, since the
+        // crossing z it produces isn't monotonic as the robot approaches a waypoint that isn't the real target.
+        private Vector3 ApplyMidlineCrossingGate(Vector3 realTarget, bool crossingMidline)
+        {
+            if (!crossingMidline || _stuyBase == null)
+            {
+                _algaeMidlineGateActive = false;
+                return realTarget;
+            }
+
+            var robotPos = transform.position;
+            var dx = realTarget.x - robotPos.x;
+            if (Mathf.Abs(dx) < MIN_LINE_LENGTH)
+            {
+                _algaeMidlineGateActive = false;
+                return realTarget;
+            }
+
+            var isRed = _stuyBase.Alliance == Alliance.Red;
+            var requiredZ = isRed ? algaeMidlineCrossingZMarginMeters : -algaeMidlineCrossingZMarginMeters;
+
+            var t = Mathf.Clamp01(-robotPos.x / dx);
+            var crossZ = robotPos.z + t * (realTarget.z - robotPos.z);
+            var violated = isRed ? crossZ < requiredZ : crossZ > requiredZ;
+
+            _algaeMidlineGateActive = _algaeMidlineGateActive || violated;
+            if (!_algaeMidlineGateActive) return realTarget;
+
+            return new Vector3(realTarget.x, realTarget.y, requiredZ);
         }
 
         // ---- Barge ----
@@ -626,7 +633,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             targetPosition = Vector3.zero;
             targetYaw = 0f;
 
-            if (_stuyBase == null || _driveController == null) { _bargeEngaged = false; _bargeRoutingAroundReef = false; _bargeRoutingSide = 0f; return false; }
+            if (_stuyBase == null || _driveController == null) { _bargeEngaged = false; _bargeRoutingAroundReef = false; _bargeRoutingSide = 0f; _bargeRoutingObstacleIsBlue = null; return false; }
 
             // No CurrentSetpoint gate here on purpose - holding shooter algae while align is held should
             // always mean "take me to the barge" regardless of whatever setpoint the robot happens to be on
@@ -635,8 +642,9 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             // chain, so this also means it now wins over algae/reef align whenever algae is held and align is
             // pressed, even if CurrentSetpoint isn't Barge - that's the explicit ask, not an oversight. The
             // one exception is Processor: if the driver has deliberately set Processor as the setpoint, that's
-            // an explicit "I want to score at the processor" signal that should override the barge default,
-            // so processor align (checked right after barge) gets a chance to win instead. Same idea for
+            // an explicit "I want to score at the processor" signal, so exclude barge rather than yanking the
+            // robot toward the barge instead (processor align itself was removed - see the class doc comment -
+            // but this exclusion is kept so setting Processor doesn't get overridden by barge). Same idea for
             // LowAlgae/HighAlgae: the instant a held algae secures mid-pickup, HasShooterAlgae flips true and
             // this method would otherwise yank the robot straight toward the barge before algae align's own
             // "back off to the far standoff first" retreat (see TryGetAlgaeAlignTarget) ever gets a chance to
@@ -645,116 +653,48 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             // has backed off to the far standoff, hand off to barge align as normal.
             if (_stuyBase.CurrentSetpoint == ReefscapeSetpoints.Processor ||
                 ((_stuyBase.CurrentSetpoint == ReefscapeSetpoints.LowAlgae || _stuyBase.CurrentSetpoint == ReefscapeSetpoints.HighAlgae) && !_algaeBackoffComplete))
-            { _bargeEngaged = false; _bargeRoutingAroundReef = false; _bargeRoutingSide = 0f; return false; }
-            if (!(_stuyBase.AutoAlignLeftAction.IsPressed() || _stuyBase.AutoAlignRightAction.IsPressed())) { _bargeEngaged = false; _bargeRoutingAroundReef = false; _bargeRoutingSide = 0f; return false; }
-            if (_gamePieceStatus == null || !_gamePieceStatus.HasShooterAlgae) { _bargeEngaged = false; _bargeRoutingAroundReef = false; _bargeRoutingSide = 0f; return false; }
+            { _bargeEngaged = false; _bargeRoutingAroundReef = false; _bargeRoutingSide = 0f; _bargeRoutingObstacleIsBlue = null; return false; }
+            if (!(_stuyBase.AutoAlignLeftAction.IsPressed() || _stuyBase.AutoAlignRightAction.IsPressed())) { _bargeEngaged = false; _bargeRoutingAroundReef = false; _bargeRoutingSide = 0f; _bargeRoutingObstacleIsBlue = null; return false; }
+            if (_gamePieceStatus == null || !_gamePieceStatus.HasShooterAlgae) { _bargeEngaged = false; _bargeRoutingAroundReef = false; _bargeRoutingSide = 0f; _bargeRoutingObstacleIsBlue = null; return false; }
 
             // Hand-placed zones take priority; only fall back to deriving one (from the nearest same-alliance
             // BargeScorer, picking whichever side of it the robot is currently closer to) if nothing
             // hand-placed is in range.
             var zone = GetClosestZone(bargeTargets, _stuyBase.Alliance) ?? DeriveClosestBargeZone();
-            if (zone == null) { _bargeEngaged = false; _bargeRoutingAroundReef = false; _bargeRoutingSide = 0f; return false; }
+            if (zone == null) { _bargeEngaged = false; _bargeRoutingAroundReef = false; _bargeRoutingSide = 0f; _bargeRoutingObstacleIsBlue = null; return false; }
 
-            if (!TryGetZoneTarget(zone, maxBargeAlignDistanceFeet, bargeSlideSpeed, bargeSlideMidlineGapMeters, ref _bargeEngaged, ref _bargeSlide, out targetPosition, "Barge"))
+            if (!TryGetZoneTarget(zone, maxBargeAlignDistanceFeet, bargeSlideSpeed, bargeSlideMidlineGapMeters, ref _bargeEngaged, ref _bargeSlide, ref _bargeSlideBaseline, out targetPosition, "Barge"))
             {
                 _bargeRoutingAroundReef = false;
                 _bargeRoutingSide = 0f;
+                _bargeRoutingObstacleIsBlue = null;
                 return false;
             }
 
-            targetPosition = ApplyReefAvoidance(targetPosition, ref _bargeRoutingAroundReef, ref _bargeRoutingSide, "Barge");
+            // Route around whichever reef is actually near the ROBOT right now, not always the robot's own
+            // alliance reef - barge align takes over right after an algae pickup on the opposing reef (see
+            // the comment above on the LowAlgae/HighAlgae exclusion), so the robot can genuinely be sitting
+            // on the far side when this first engages. Same fix and same fresh-engage-on-change handling as
+            // TryGetAlgaeAlignTarget's identical reef-selection bug - see that method's comments for why the
+            // naive alliance-based pick silently does nothing for the common "grab from your own alliance's
+            // reef" case but matters for this cross-field case.
+            var routingObstaclePos = NearestReefPos(transform.position);
+            var routingObstacleIsBlue = _hasReefPos ? (bool?)(routingObstaclePos == _blueReefPos) : null;
+            if (_bargeRoutingAroundReef && _bargeRoutingObstacleIsBlue.HasValue && routingObstacleIsBlue.HasValue &&
+                _bargeRoutingObstacleIsBlue.Value != routingObstacleIsBlue.Value)
+            {
+                _bargeRoutingAroundReef = false;
+                _bargeRoutingSide = 0f;
+            }
+            _bargeRoutingObstacleIsBlue = routingObstacleIsBlue;
+            targetPosition = ApplyReefAvoidance(targetPosition, ref _bargeRoutingAroundReef, ref _bargeRoutingSide, "Barge", routingObstaclePos);
             targetYaw = zone.yRotation;
             return true;
         }
 
-        // ---- Processor ----
+        // ---- Shared corner-to-corner slide logic used by barge align ----
 
-        private bool TryGetProcessorAlignTarget(out Vector3 targetPosition, out float targetYaw)
-        {
-            targetPosition = Vector3.zero;
-            targetYaw = 0f;
-
-            // Every early-out here also clears the shared reef-avoidance routing state (see the comment on
-            // the same pattern in TryGetStationAlignTarget) - without this, releasing the align button and
-            // pressing it again moments later reuses a stale locked routingSide/routingAroundReef from the
-            // PREVIOUS approach, which can send the robot sweeping the wrong way around the reef on
-            // re-engage instead of freshly recomputing for wherever the robot actually is now.
-            if (_stuyBase == null || _driveController == null || processorTargets == null || processorTargets.Length == 0) { _processorRoutingAroundReef = false; _processorRoutingSide = 0f; return false; }
-            if (_stuyBase.CurrentSetpoint != ReefscapeSetpoints.Processor) { _processorRoutingAroundReef = false; _processorRoutingSide = 0f; return false; }
-            if (!(_stuyBase.AutoAlignLeftAction.IsPressed() || _stuyBase.AutoAlignRightAction.IsPressed())) { _processorRoutingAroundReef = false; _processorRoutingSide = 0f; return false; }
-            if (_gamePieceStatus == null) { _processorRoutingAroundReef = false; _processorRoutingSide = 0f; return false; }
-            if (!_gamePieceStatus.HasShooterAlgae && !_gamePieceStatus.HasFroggyAlgae) { _processorRoutingAroundReef = false; _processorRoutingSide = 0f; return false; }
-
-            // Same physical spot both times, just a different facing depending on which holder the algae is
-            // in: TryReleaseShooterAlgae scores a shooter-held algae by shooting it forward out of the shooter
-            // (face the processor, target.yRotation), but a froggy-held algae gets released straight out of
-            // froggy instead (FroggyState.AlgaeOuttake) - a different direction, target.froggyAlgaeIntakeYRotation.
-            var wantsFroggyIntake = _gamePieceStatus.HasFroggyAlgae;
-
-            // Unlike GetClosestZone (station/barge, unchanged - those aren't what was asked about here), this
-            // ignores alliance entirely so a robot can align to either processor, matching the reef/algae fix
-            // above: each FixedAlignTarget already carries its own explicit heading, so there's no facing
-            // computation that could go wrong the way it did for the reef - picking the nearest regardless of
-            // alliance is all that's needed.
-            var target = GetClosestFixedTarget(processorTargets);
-            if (target == null) { _processorRoutingAroundReef = false; _processorRoutingSide = 0f; return false; }
-
-            // Which side of the field's centerline the robot is on has to match the target processor's own
-            // side - a plain world-X sign comparison instead of a distance cutoff, so align never reaches
-            // across the whole field for the wrong-side processor no matter how close that distance happens
-            // to read from some far-off spot, and never refuses a genuinely close approach on the near side.
-            if ((transform.position.x > 0f) != (target.position.x > 0f)) { _processorRoutingAroundReef = false; _processorRoutingSide = 0f; return false; }
-
-            targetYaw = wantsFroggyIntake ? target.froggyAlgaeIntakeYRotation : target.yRotation;
-
-            var scoringPosition = target.position;
-            if (wantsFroggyIntake)
-            {
-                // The algae isn't necessarily centered in froggy - it rides a slider that can sit left or
-                // right. Shift the robot's target the opposite way so the piece itself, not just the robot's
-                // nominal center, ends up over the true scoring spot once released. Unlike the reef-branch
-                // offsets, this isn't rotated into the target's facing frame - the processor is a single
-                // fixed point with a single fixed heading (not a left/right pick per approach side), and the
-                // slider itself reads along the world/global X axis, not the robot's local right at whatever
-                // yaw froggyAlgaeIntakeYRotation happens to be.
-                var sliderOffset = _gamePieceStatus.FroggyAlgaeSliderOffsetMeters;
-                scoringPosition += new Vector3(sliderOffset, 0f, 0f);
-            }
-
-            // Removing this call entirely (an earlier attempt at fixing a "stuck at a spot away from the
-            // processor" report) turned out to be wrong - without it the robot will drive straight through
-            // the reef whenever it's genuinely on the far side from the processor target. ApplyReefAvoidance
-            // already has a target-close-to-reef early-out (see its own comment) so it won't false-trigger
-            // for a target that's basically at the reef; the processor is far enough from reef center that
-            // this early-out doesn't apply to it, so the real routing logic runs as intended.
-            targetPosition = ApplyReefAvoidance(scoringPosition, ref _processorRoutingAroundReef, ref _processorRoutingSide, "Processor");
-            return true;
-        }
-
-        private FixedAlignTarget GetClosestFixedTarget(FixedAlignTarget[] targets)
-        {
-            FixedAlignTarget closest = null;
-            var closestDistance = float.MaxValue;
-            var robotXZ = new Vector2(transform.position.x, transform.position.z);
-
-            foreach (var target in targets)
-            {
-                if (target == null) continue;
-
-                var distance = Vector2.Distance(robotXZ, new Vector2(target.position.x, target.position.z));
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closest = target;
-                }
-            }
-
-            return closest;
-        }
-
-        // ---- Shared corner-to-corner slide logic used by both station and barge align ----
-
-        private bool TryGetZoneTarget(AlignZone zone, float maxDistanceFeet, float slideSpeed, float midlineGapMeters, ref bool engaged, ref float slide, out Vector3 targetPosition, string debugLabel)
+        private bool TryGetZoneTarget(AlignZone zone, float maxDistanceFeet, float slideSpeed, float midlineGapMeters, ref bool engaged, ref float slide, ref float slideBaseline, out Vector3 targetPosition, string debugLabel)
         {
             targetPosition = Vector3.zero;
 
@@ -801,22 +741,37 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
                 return rawSlide - lower < upper - rawSlide ? lower : upper;
             }
 
-            // Fresh engage (button/context just became true this frame) starts the slide at whichever point
-            // on the line is closest to the robot right now, not the middle - so first pressing the button
-            // never yanks the target sideways before the driver's stick input takes over.
-            if (!engaged)
-            {
-                var lineVector = zone.rightCorner - zone.leftCorner;
-                var t = Vector3.Dot(transform.position - zone.leftCorner, lineVector) / (lineLength * lineLength);
-                slide = ApplyMidlineGap(Mathf.Clamp01(t));
-            }
+            // The point on the line closest to the robot right now - recomputed every frame (not just at
+            // fresh engage) so the baseline keeps tracking the robot as it moves during the approach, instead
+            // of freezing wherever it happened to be when the align button was first pressed.
+            var lineVector = zone.rightCorner - zone.leftCorner;
+            var closestT = Vector3.Dot(transform.position - zone.leftCorner, lineVector) / (lineLength * lineLength);
+
+            // Fresh engage (button/context just became true this frame) resets the stick offset to zero, so
+            // first pressing the button starts exactly on the live closest point, not wherever a stale
+            // offset from a previous engagement would have left it.
+            if (!engaged) slide = 0f;
             engaged = true;
 
-            var rawStick = _stuyBase.TranslateAction.ReadValue<Vector2>().x;
-            var stick = ApplyCameraFlip(rawStick, zone.rightCorner - zone.leftCorner);
-            slide = ApplyMidlineGap(Mathf.Clamp01(slide + stick * slideSpeed * Time.fixedDeltaTime / lineLength));
+            // slideBaseline only re-locks onto the robot's own live closest point while the driver hasn't
+            // nudged the stick yet this engagement (slide == 0f) - the moment any stick input accumulates a
+            // nonzero offset, the baseline freezes for the rest of this engagement instead of continuing to
+            // chase closestT. This used to just add `slide` on top of a live `closestT` every frame - but the
+            // robot's own position moves TOWARD whatever target that produces, so closestT (the robot's own
+            // projection) converges toward (baseline + slide), and re-adding the same slide on top of that
+            // already-shifted baseline pushed the target further in the same direction every tick - a single
+            // stick tap never settled, it ran all the way to whichever end of the slider the tap faced
+            // (reported: "if i tap left or right itll keep going left or right til the end of the slider").
+            // Freezing the baseline once sliding starts breaks that feedback loop while still preserving the
+            // "track the robot on approach" behavior for as long as the driver leaves the stick alone.
+            if (slide == 0f) slideBaseline = closestT;
 
-            targetPosition = Vector3.Lerp(zone.leftCorner, zone.rightCorner, slide);
+            var rawStick = _stuyBase.TranslateAction.ReadValue<Vector2>().x;
+            var stick = ApplyCameraFlip(rawStick, lineVector);
+            slide += stick * slideSpeed * Time.fixedDeltaTime / lineLength;
+
+            var finalT = ApplyMidlineGap(Mathf.Clamp01(slideBaseline + slide));
+            targetPosition = Vector3.Lerp(zone.leftCorner, zone.rightCorner, finalT);
             return true;
         }
 
@@ -945,14 +900,14 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             targetYaw = 0f;
 
             // Every early-out here also clears the shared reef-avoidance routing state (same reasoning as
-            // TryGetStationAlignTarget/TryGetProcessorAlignTarget) so re-engaging fresh always recomputes
+            // TryGetBargeAlignTarget) so re-engaging fresh always recomputes
             // routingSide instead of reusing a stale locked value from the previous approach - and also
             // clears _algaeEngaged/_algaeReachedFarStandoff, so a fresh press always starts back at the
             // far "not ready" standoff instead of possibly remembering having reached it last time.
-            if (_stuyBase == null || _driveController == null) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
-            if (_stuyBase.CurrentSetpoint != ReefscapeSetpoints.LowAlgae && _stuyBase.CurrentSetpoint != ReefscapeSetpoints.HighAlgae) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
-            if (!(_stuyBase.AutoAlignLeftAction.IsPressed() || _stuyBase.AutoAlignRightAction.IsPressed())) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
-            if (_gamePieceStatus == null || !_gamePieceStatus.IsIntakingAlgae) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
+            if (_stuyBase == null || _driveController == null) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeRoutingObstacleIsBlue = null; _algaeMidlineGateActive = false; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
+            if (_stuyBase.CurrentSetpoint != ReefscapeSetpoints.LowAlgae && _stuyBase.CurrentSetpoint != ReefscapeSetpoints.HighAlgae) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeRoutingObstacleIsBlue = null; _algaeMidlineGateActive = false; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
+            if (!(_stuyBase.AutoAlignLeftAction.IsPressed() || _stuyBase.AutoAlignRightAction.IsPressed())) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeRoutingObstacleIsBlue = null; _algaeMidlineGateActive = false; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
+            if (_gamePieceStatus == null || !_gamePieceStatus.IsIntakingAlgae) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeRoutingObstacleIsBlue = null; _algaeMidlineGateActive = false; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
 
             var wantsHigh = _stuyBase.CurrentSetpoint == ReefscapeSetpoints.HighAlgae;
 
@@ -1014,8 +969,13 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
                 }
             }
 
-            if (closestFace == null) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
-            if (closestDistance > maxAlgaeAlignDistanceFeet * FEET_TO_METERS) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
+            if (closestFace == null) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeRoutingObstacleIsBlue = null; _algaeMidlineGateActive = false; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
+            if (closestDistance > maxAlgaeAlignDistanceFeet * FEET_TO_METERS) { _algaeRoutingAroundReef = false; _algaeRoutingSide = 0f; _algaeRoutingObstacleIsBlue = null; _algaeMidlineGateActive = false; _algaeEngaged = false; _algaeReachedFarStandoff = false; _algaeTargetFace = null; _algaeSecuredSince = null; _algaeBackoffApplied = false; _algaeBackoffComplete = false; return false; }
+
+            // Used below (after ApplyReefAvoidance) to gate ApplyMidlineCrossingGate - only relevant when
+            // this approach is actually crossing from the robot's own side of the field to the picked face's
+            // side, i.e. exactly the closestFaceAnySide fallback case above.
+            var crossingMidline = (closestFace.transform.position.x >= 0f) != (transform.position.x >= 0f);
 
             // If the picked face changed since last frame (e.g. this one's algae just got taken, or the
             // robot drifted enough that a different face is now closest), treat it like a fresh engage for
@@ -1104,7 +1064,35 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             _algaeEngaged = true;
             var rawTarget = center + closestFace.transform.forward * (standoffInches * INCHES_TO_METERS) +
                              targetRotation * new Vector3(lateralOffsetInches * INCHES_TO_METERS, 0f, 0f);
-            targetPosition = ApplyReefAvoidance(rawTarget, ref _algaeRoutingAroundReef, ref _algaeRoutingSide, "Algae");
+            // Midline gate has to run BEFORE reef avoidance, against rawTarget (the actual destination), not
+            // after - ApplyReefAvoidance's leading-tangent waypoints (see ApplyCircularAvoidance) are, by
+            // design, always close to the robot's own current position while actively routing, so feeding
+            // those into the gate made its dx (waypoint.x - robotPos.x) frequently fall under MIN_LINE_LENGTH,
+            // silently skipping the z-margin check entirely for most of an active reef-avoidance sweep. Gating
+            // the real destination first, then routing avoidance toward the (already alliance-safe) result,
+            // means the constraint can't be bypassed by the avoidance sweep's own intermediate waypoints.
+            var gatedTarget = ApplyMidlineCrossingGate(rawTarget, crossingMidline);
+            // Route around whichever reef is actually near the ROBOT right now, not the reef the target
+            // face happens to be mounted on - NearestReefPos(closestFace...) coincidentally reproduces the
+            // old alliance-based obstacle whenever the target sits on the robot's own alliance's reef
+            // (e.g. crossing back from the opposing side to collect more of your own algae), which is the
+            // common case, so that version of the fix never actually changed anything for it. The reef
+            // that's physically in the way during a crossing is the one nearest the robot's own live
+            // position, which does correctly differ from the alliance-based pick while mid-crossing.
+            var routingObstaclePos = NearestReefPos(transform.position);
+            var routingObstacleIsBlue = _hasReefPos ? (bool?)(routingObstaclePos == _blueReefPos) : null;
+            if (_algaeRoutingAroundReef && _algaeRoutingObstacleIsBlue.HasValue && routingObstacleIsBlue.HasValue &&
+                _algaeRoutingObstacleIsBlue.Value != routingObstacleIsBlue.Value)
+            {
+                // The nearest reef flipped out from under an in-progress avoidance sweep (the robot crossed
+                // the field's midpoint mid-route) - force a fresh engage so ApplyCircularAvoidance's locked
+                // routingSide/angle math doesn't keep applying to the reef we were routing around a moment
+                // ago instead of the one actually in front of the robot now.
+                _algaeRoutingAroundReef = false;
+                _algaeRoutingSide = 0f;
+            }
+            _algaeRoutingObstacleIsBlue = routingObstacleIsBlue;
+            targetPosition = ApplyReefAvoidance(gatedTarget, ref _algaeRoutingAroundReef, ref _algaeRoutingSide, "Algae", routingObstaclePos);
             targetYaw = targetRotation.eulerAngles.y;
             return true;
         }
@@ -1200,9 +1188,9 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
                 _l1Slide = Mathf.Clamp(_l1Slide + stick * l1SlideSpeed * Time.fixedDeltaTime, -halfRangeInches, halfRangeInches);
 
                 // The coral isn't necessarily centered in froggy either - it rides its own slider. Compensate
-                // the same way processor align does for the froggy algae slider (StuyPulseAutoAlign's
-                // TryGetProcessorAlignTarget), so the piece itself - not just the robot's nominal center -
-                // ends up over the true scoring line.
+                // the same "add the live slider offset" idiom the now-removed processor align used for the
+                // froggy algae slider, so the piece itself - not just the robot's nominal center - ends up
+                // over the true scoring line.
                 var coralSliderOffsetInches = _gamePieceStatus.FroggyCoralSliderOffsetMeters / INCHES_TO_METERS;
                 xOffsetInches += _l1Slide + coralSliderOffsetInches;
             }
@@ -1358,14 +1346,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             return -Mathf.Deg2Rad * (unityYawDegrees - 90f);
         }
 
-        /// <summary>True while this component is actively driving the robot toward a human player station.</summary>
-        public bool StationAlignActive() => _stationAlignActive;
-
         /// <summary>True while this component is actively driving the robot toward the barge.</summary>
         public bool BargeAlignActive() => _bargeAlignActive;
-
-        /// <summary>True while this component is actively driving the robot toward the processor.</summary>
-        public bool ProcessorAlignActive() => _processorAlignActive;
 
         /// <summary>True while this component is actively driving the robot toward a reef algae spot.</summary>
         public bool AlgaeAlignActive() => _algaeAlignActive;
