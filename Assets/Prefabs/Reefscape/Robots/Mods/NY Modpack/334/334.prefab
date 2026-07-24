@@ -24247,9 +24247,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   alliance: 0
-  bumperMeshes: []
-  blueBumperMaterial: {fileID: 0}
-  redBumperMaterial: {fileID: 0}
+  bumperMeshes:
+  - {fileID: 4014844176211868555}
+  blueBumperMaterial: {fileID: 2652637775116539167, guid: 48b6fde5ce00e124b8be147dfcc30acf,
+    type: 3}
+  redBumperMaterial: {fileID: 2100000, guid: eaf120bdda55a6a4e90f1df203487d45, type: 2}
   <CurrentSetpoint>k__BackingField: 0
   <CurrentCoralStationMode>k__BackingField:
     <DropType>k__BackingField: 0
