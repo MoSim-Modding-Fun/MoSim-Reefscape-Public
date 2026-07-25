@@ -26,6 +26,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             [SerializeField] private float algaeRollerRpm;
             [SerializeField] private LanternClimb climber;
             [SerializeField] private ClimbScorer scorer;
+            [SerializeField] private BoxCollider coralBlocker;
         
         [Header("PIDS")]        
         [SerializeField] private PidConstants armPid;
@@ -124,6 +125,8 @@ namespace Prefabs.Reefscape.Robots.Mods.Lanternfly._9999
             // {
             //     roller.gameObject.transform.localScale = _coralController.atTarget && _coralController.HasPiece() ? new Vector3(0.8f, 0.8f, 0.8f) : new Vector3(1f, 1f, 1f);
             // }
+            
+            coralBlocker.gameObject.SetActive(!_coralController.atTarget);
             
             if (CurrentRobotMode == ReefscapeRobotMode.Algae)
             {

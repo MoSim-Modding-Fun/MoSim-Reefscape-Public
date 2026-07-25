@@ -181,6 +181,9 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             CurrentSetpoint == ReefscapeSetpoints.LowAlgae && SuperstructureAtSetpoint(IsFacingReef(GetClosestReef()) ? frontLowAlgae : backLowAlgae) ||
             CurrentSetpoint == ReefscapeSetpoints.HighAlgae && SuperstructureAtSetpoint(IsFacingReef(GetClosestReef()) ? frontHighAlgae : backHighAlgae);
 
+        public bool IsAtL4Setpoint =>
+            CurrentSetpoint == ReefscapeSetpoints.L4 && SuperstructureAtSetpoint(IsFacingReef(GetClosestReef()) ? frontL4 : backL4);
+
         // Reads the frozen slider-visual transforms rather than the intakes' own GamePiece, since
         // RequestIntake(..., false) - called by every state handler except the moment a piece is actively
         // being secured - nulls the intake's GamePiece out (see GamePieceIntake<T,D>.RequestIntake). By the

@@ -75,9 +75,24 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
     /// destabilizes the derivative term into visible bounce. Neither script had an explicit execution order
     /// before, so Unity fell back to its default (undefined) ordering, which is free to differ between the
     /// Editor (Mono) and a Player build (IL2Cpp) since it's derived from compiled type order, not declaration
-    /// order - this is the actual explanation for "auto align drive PID is smooth in the Editor but bouncy in
-    /// a build," not a PID or Rigidbody issue (an earlier attempt at this fix incorrectly targeted the
-    /// chassis Rigidbody's interpolation setting and was reverted).
+    /// order - this was believed to be the full explanation for "auto align drive PID is smooth in the Editor
+    /// but bouncy in a build" (an earlier attempt at this fix incorrectly targeted the chassis Rigidbody's
+    /// interpolation setting and was reverted). Kept since it's a real, principled fix for a real one-tick-lag
+    /// risk, but it did NOT fully resolve the build-only bounce on its own - see ManualPidAxis's own comment
+    /// for the second contributor found afterward (raw, unfiltered derivative sampled at this project's ~222Hz
+    /// physics rate, which amplifies tiny Mono-vs-IL2CPP floating-point noise differences into visible bounce),
+    /// and its isAngular comment for a third, distinct contributor specific to the rotate axis: an unwrapped
+    /// derivative delta that spikes for one tick whenever the wrapped angle error crosses +-180 degrees.
+    /// DriveManualPid additionally has an opt-in (defaults off) minTranslateOutput/minRotateOutput floor plus
+    /// a translateLockOnToleranceMeters/rotateLockOnToleranceDegrees lock-on latch, ported from 1678's own
+    /// auto align (CitrusCircuitsMod/1678/_1678AutoAlign.cs) - see DriveManualPid's own comment for why the
+    /// two have to ship together.
+    ///
+    /// TryAlignToReefNode also holds the robot at the algae standoff point (see GetFaceStandoffTarget) instead
+    /// of the normal, much closer L4 scoring offset whenever L4 is selected but IStuyPulseGamePieceStatus.
+    /// IsAtL4Setpoint is still false - mirrors TryGetAlgaeAlignTarget's own far-standoff-until-ready pattern,
+    /// since L4's elevator extension and arm swing sweep through space the robot would otherwise already be
+    /// sitting in.
     /// </summary>
     [DefaultExecutionOrder(-100)]
     public class StuyPulseAutoAlign : MonoBehaviour
@@ -116,31 +131,77 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         [Serializable]
         public class ManualPidAxis
         {
+            // Project physics runs at ~222Hz (ProjectSettings/TimeManager.asset's Fixed Timestep is
+            // 635039/141120000s ~= 0.0045s, not Unity's 0.02s/50Hz default), and this Update() is called once
+            // per FixedUpdate (dt = Time.fixedDeltaTime). A raw two-sample derivative ((error-lastError)/dt) at
+            // that dt turns even sub-millimeter per-tick position noise into a large output swing (1mm /
+            // 0.0045s = 0.22 units/s before kD) - reads as bounce/oscillation ("D too low") even though kD
+            // itself never changed. Mono (Editor) and IL2CPP (Build) can produce slightly different
+            // floating-point/physics results tick-to-tick, so the same unfiltered derivative can look fine in
+            // one and bounce in the other purely from noise amplification, without the PID logic differing at
+            // all - this is a more direct explanation than execution order for a build-only bounce that
+            // persisted after DefaultExecutionOrder(-100) was already applied (see this file's header comment).
+            // Filtered with a simple one-pole low-pass (RC-style, alpha = dt / (tau + dt)) instead of the raw
+            // sample - standard practice for any derivative term sampled this fast. Not user-tunable per this
+            // mod's own workflow rule (see feedback-694-mod-workflow) - flip to 0 here to disable and get the
+            // old raw-derivative behavior back if this turns out not to be it.
+            private const float DERIVATIVE_FILTER_SECONDS = 0.05f;
+
             public float kP = 3f;
             public float kI = 0f;
             public float kD = 0f;
             [Tooltip("Clamps the accumulated integral term to prevent windup")]
             public float integralLimit = 0.5f;
 
+            // Set true only for the rotate axis (see its field initializer below). error there is a wrapped
+            // angle in degrees, so a plain (error - _lastError) can jump ~360 degrees whenever the wrapped
+            // error crosses the +-180 boundary between ticks (e.g. 179 -> -179 is really a 2 degree change),
+            // spiking the derivative for one tick even though nothing actually moved fast. The shared
+            // framework PIDController.UpdateAngle avoids this by re-wrapping the delta itself via
+            // AngleDifference(error, errorLast) before dividing by dt - this never got ported over when
+            // rotate's PID was pulled out into this self-contained ManualPidAxis. Not user-tunable, same as
+            // DERIVATIVE_FILTER_SECONDS above. internal (not private) so the enclosing class's rotate field
+            // initializer below can set it - C# does not grant an outer class access to a nested class's
+            // private members (only the reverse), unlike Java. Still invisible to the Inspector either way,
+            // since Unity only serializes public fields or ones explicitly marked [SerializeField].
+            internal bool isAngular;
+
             private float _integral;
             private float _lastError;
             private bool _hasLastError;
+            private float _filteredDerivative;
 
             public float Update(float error, float dt)
             {
                 _integral = Mathf.Clamp(_integral + error * dt, -integralLimit, integralLimit);
-                var derivative = _hasLastError && dt > 0f ? (error - _lastError) / dt : 0f;
+                var errorDelta = error - _lastError;
+                if (isAngular)
+                {
+                    errorDelta = Mathf.Repeat(errorDelta + 180f, 360f) - 180f;
+                }
+                var rawDerivative = _hasLastError && dt > 0f ? errorDelta / dt : 0f;
+
+                if (_hasLastError && dt > 0f && DERIVATIVE_FILTER_SECONDS > 0f)
+                {
+                    var alpha = dt / (DERIVATIVE_FILTER_SECONDS + dt);
+                    _filteredDerivative = Mathf.Lerp(_filteredDerivative, rawDerivative, alpha);
+                }
+                else
+                {
+                    _filteredDerivative = rawDerivative;
+                }
 
                 _lastError = error;
                 _hasLastError = true;
 
-                return kP * error + kI * _integral + kD * derivative;
+                return kP * error + kI * _integral + kD * _filteredDerivative;
             }
 
             public void Reset()
             {
                 _integral = 0f;
                 _hasLastError = false;
+                _filteredDerivative = 0f;
             }
         }
 
@@ -224,13 +285,31 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         [SerializeField] private ManualPidAxis translateZ = new ManualPidAxis { kP = 30f, kI = 0.1f, kD = 1.65f, integralLimit = 1f };
 
         [Tooltip("Defaults are carried over from the old ReefscapeAutoAlign component's tuned rotatePID (kP 0.1, kI 0, kD 0.003, Isaturation 1)")]
-        [SerializeField] private ManualPidAxis rotate = new ManualPidAxis { kP = 0.1f, kI = 0f, kD = 0.003f, integralLimit = 1f };
+        [SerializeField] private ManualPidAxis rotate = new ManualPidAxis { kP = 0.1f, kI = 0f, kD = 0.003f, integralLimit = 1f, isAngular = true };
 
         [Tooltip("Clamps the combined X/Z drive output to the same -1..1 range the joystick drive input uses (old drivePID.Max was 1)")]
         [SerializeField] private float maxTranslateOutput = 1f;
 
         [Tooltip("Clamps the rotate output (old rotatePID.Max was 0.75)")]
         [SerializeField] private float maxRotateOutput = 0.75f;
+
+        [Tooltip("Floors the combined translate output's magnitude to at least this value while actively correcting (see translateLockOnToleranceMeters below for why this doesn't just buzz forever) - ported from 1678's own auto align (CitrusCircuitsMod/1678/_1678AutoAlign.cs), which uses this to let its own translationKp run lower than it otherwise could, since a low-gain command that would round down to near-zero (and stall against real static friction/motor deadband) gets boosted up to a magnitude that actually moves the robot. 0 disables (old behavior - output can be arbitrarily small).")]
+        [SerializeField] private float minTranslateOutput = 0f;
+
+        [Tooltip("Same idea as minTranslateOutput, for the rotate output.")]
+        [SerializeField] private float minRotateOutput = 0f;
+
+        [Tooltip("Once within this distance (meters) of the translate target AND rotateLockOnToleranceDegrees of the yaw target, locks on and commands zero output instead of continuing to fight residual error with minTranslateOutput/minRotateOutput's floor - without this, a nonzero min output would never let the PID settle to zero, since it'd keep commanding at least the floor even at genuinely-converged (just noisy) error. Re-engages (unlocks) if it drifts back out past tolerance + a small hysteresis margin, same idea 1678 uses, so it doesn't chatter right at the boundary. 0 (default) makes 'within tolerance' impossible to satisfy, which disables locking entirely and preserves the old always-on PID behavior.")]
+        [SerializeField] private float translateLockOnToleranceMeters = 0f;
+
+        [Tooltip("Same idea as translateLockOnToleranceMeters, for the rotate axis.")]
+        [SerializeField] private float rotateLockOnToleranceDegrees = 0f;
+
+        // Hysteresis margin added on top of translateLockOnToleranceMeters/rotateLockOnToleranceDegrees
+        // before DriveManualPid re-engages correction after locking on - values taken directly from
+        // 1678's own auto align (_1678AutoAlign.cs's hardcoded "+ 0.03f" / "+ 0.5f"), not a guess.
+        private const float LOCK_ON_HYSTERESIS_METERS = 0.03f;
+        private const float LOCK_ON_HYSTERESIS_DEGREES = 0.5f;
 
         private const float FEET_TO_METERS = 0.3048f;
         private const float INCHES_TO_METERS = 0.0254f;
@@ -1097,6 +1176,23 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             return true;
         }
 
+        // Computes the same "middle between the face's 2 pipes, standing off along the face's own
+        // outward-facing axis" point TryGetAlgaeAlignTarget uses above, parameterized by which face/distance
+        // so TryAlignToReefNode can send the robot to this exact point (the "algae standoff align point")
+        // while L4 is still climbing to setpoint - see its isL4 branch below for why. Left as its own helper
+        // rather than folding into TryGetAlgaeAlignTarget itself, since that method also has to handle far-
+        // standoff/backoff/routing state this L4 use case doesn't need.
+        private void GetFaceStandoffTarget(AlignNode face, float standoffInches, bool facingReef, out Vector3 targetPosition, out float targetYaw)
+        {
+            var center = (face.LeftNode.transform.position + face.RightNode.transform.position) * 0.5f;
+            var targetRotation = face.transform.rotation * Quaternion.Euler(0, 180, 0);
+            if (!facingReef) targetRotation *= Quaternion.Euler(0, 180, 0);
+            var lateralOffsetInches = facingReef ? algaeFrontOffsetInches : algaeBackOffsetInches;
+            targetPosition = center + face.transform.forward * (standoffInches * INCHES_TO_METERS) +
+                              targetRotation * new Vector3(lateralOffsetInches * INCHES_TO_METERS, 0f, 0f);
+            targetYaw = targetRotation.eulerAngles.y;
+        }
+
         // ---- Reef branch ----
 
         private bool TryGetReefAlignTarget(out Vector3 targetPosition, out float targetYaw)
@@ -1158,6 +1254,24 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             // robot targets the opposing alliance's reef - that mismatch is what caused the align rotation to
             // flip 180 degrees when aligning to the opposing reef.
             var facingReef = IsFacingReefPos(NearestReefPos(parent.transform.position));
+
+            // While L4 is selected but the elevator/arm haven't actually reached the L4 setpoint yet, hold at
+            // the same standoff point algae align uses instead of pulling in to the normal (much closer) L4
+            // scoring offset below - L4's elevator extension and arm swing sweep through space the robot
+            // would otherwise already be sitting in, so parking close to the reef mid-transition risked
+            // clipping it. Once IStuyPulseGamePieceStatus.IsAtL4Setpoint flips true, this falls through to
+            // the ordinary offset-based targeting the same as every other level. Only applies to the real L4
+            // branch offsets, not holdingFroggyCoral's l1offset (L1 has no such transition concern).
+            var isL4NotReady = !holdingFroggyCoral && _stuyBase.CurrentSetpoint == ReefscapeSetpoints.L4 &&
+                                _gamePieceStatus != null && !_gamePieceStatus.IsAtL4Setpoint;
+            if (isL4NotReady)
+            {
+                GetFaceStandoffTarget(parent, algaeStandoffInches, facingReef, out targetPosition, out targetYaw);
+                _reefAlignLeft = wantsLeftSide;
+                _reefAlignTargetPosition = targetPosition;
+                _reefAlignTargetYaw = targetYaw;
+                return true;
+            }
 
             var offset = holdingFroggyCoral ? l1offset : GetScoringOffset(wantsLeftSide, facingReef);
             if (offset == null) return false;
@@ -1303,21 +1417,18 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         // ---- Shared PID drive ----
 
+        // True once DriveManualPid has latched onto a converged target and switched to commanding zero
+        // output instead of running the PID - see DriveManualPid's own comment. Shared across barge/algae/
+        // reef the same way translateX/translateZ/rotate already are, since only one of those three is ever
+        // actively driving through DriveManualPid at a time.
+        private bool _isLockedOn;
+
         private void DriveManualPid(Vector3 targetPosition, float targetYawDegrees)
         {
             var dt = Time.fixedDeltaTime;
 
             var errorX = targetPosition.x - transform.position.x;
             var errorZ = targetPosition.z - transform.position.z;
-
-            var outputX = translateX.Update(errorX, dt);
-            var outputZ = translateZ.Update(errorZ, dt);
-
-            var translateOutput = new Vector2(outputX, outputZ);
-            if (translateOutput.magnitude > maxTranslateOutput)
-            {
-                translateOutput = translateOutput.normalized * maxTranslateOutput;
-            }
 
             var currentYaw = ToMathYaw(transform.eulerAngles.y);
             var targetYaw = ToMathYaw(targetYawDegrees);
@@ -1326,7 +1437,64 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             // but angleError above is in radians (ToMathYaw's convention) - convert before feeding the PID or the
             // proportional term ends up ~57x (1/Rad2Deg) too weak, which is why turning was so slow.
             var angleErrorDegrees = angleError * Mathf.Rad2Deg;
-            var rotateOutput = Mathf.Clamp(rotate.Update(angleErrorDegrees, dt), -maxRotateOutput, maxRotateOutput);
+
+            // Always run all three PID axes, even while locked on below and about to discard their output -
+            // this keeps translateX/translateZ/rotate's internal derivative/integral state (_lastError,
+            // _filteredDerivative, _integral) fresh, so re-engaging after a lock compares against a recent
+            // error instead of one from many ticks ago (which would spike the derivative on unlock, the same
+            // class of bug ManualPidAxis's own isAngular fix addressed for angle wraparound). Matches how
+            // 1678's own auto align keeps sampling position/angle for its velocity terms every tick regardless
+            // of lock state (_1678AutoAlign.cs's "2. Calculate Velocity" step runs before its own lock check).
+            var outputX = translateX.Update(errorX, dt);
+            var outputZ = translateZ.Update(errorZ, dt);
+            var rotateOutputRaw = rotate.Update(angleErrorDegrees, dt);
+
+            var translateError = new Vector2(errorX, errorZ).magnitude;
+            var rotateError = Mathf.Abs(angleErrorDegrees);
+
+            // Lock-on/hysteresis latch, ported from 1678's own auto align (_1678AutoAlign.cs) - once within
+            // tolerance on both axes, command zero instead of continuing to fight residual (mostly noise)
+            // error with minTranslateOutput/minRotateOutput's floor, which would otherwise never let the
+            // output settle to zero. Re-engages only once it drifts back out past tolerance plus a small
+            // hysteresis margin, so it doesn't chatter right at the boundary. Both tolerances default to 0,
+            // which this check can never satisfy, preserving the old always-on PID behavior until set.
+            if (_isLockedOn)
+            {
+                if (translateError > translateLockOnToleranceMeters + LOCK_ON_HYSTERESIS_METERS ||
+                    rotateError > rotateLockOnToleranceDegrees + LOCK_ON_HYSTERESIS_DEGREES)
+                {
+                    _isLockedOn = false;
+                }
+                else
+                {
+                    _driveController.overideInput(Vector2.zero, 0f, DriveController.DriveMode.FieldOriented);
+                    return;
+                }
+            }
+            else if (translateError <= translateLockOnToleranceMeters && rotateError <= rotateLockOnToleranceDegrees)
+            {
+                _isLockedOn = true;
+                _driveController.overideInput(Vector2.zero, 0f, DriveController.DriveMode.FieldOriented);
+                return;
+            }
+
+            var translateOutput = new Vector2(outputX, outputZ);
+            if (translateOutput.magnitude > maxTranslateOutput)
+            {
+                translateOutput = translateOutput.normalized * maxTranslateOutput;
+            }
+            else if (minTranslateOutput > 0f && translateOutput.magnitude > 1e-4f && translateOutput.magnitude < minTranslateOutput)
+            {
+                // Floors the output magnitude without changing its direction - same idea as 1678's own
+                // "translationCommand.normalized * minPower" (_1678AutoAlign.cs line ~150).
+                translateOutput = translateOutput.normalized * minTranslateOutput;
+            }
+
+            var rotateOutput = Mathf.Clamp(rotateOutputRaw, -maxRotateOutput, maxRotateOutput);
+            if (minRotateOutput > 0f && Mathf.Abs(rotateOutput) > 1e-4f && Mathf.Abs(rotateOutput) < minRotateOutput)
+            {
+                rotateOutput = Mathf.Sign(rotateOutput) * minRotateOutput;
+            }
 
             _driveController.overideInput(translateOutput, rotateOutput, DriveController.DriveMode.FieldOriented);
         }
@@ -1336,6 +1504,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             translateX.Reset();
             translateZ.Reset();
             rotate.Reset();
+            _isLockedOn = false;
         }
 
         // Matches the yaw convention used by 340's proven GRRAutoAlign: converts Unity's left-handed Y euler

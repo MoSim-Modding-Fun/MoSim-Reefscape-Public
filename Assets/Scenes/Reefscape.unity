@@ -8148,7 +8148,7 @@ MonoBehaviour:
   redSpawnPoints:
   - {fileID: 1686937160}
   - {fileID: 693219865}
-  robotOverride: {fileID: 11400000, guid: 984eb4ce89b8cc844984606b9f83100b, type: 2}
+  robotOverride: {fileID: 11400000, guid: 0cad3cfaf1a6d9b49bce4dbca07e609c, type: 2}
   alliance: 1
 --- !u!81 &1142033755
 AudioListener:

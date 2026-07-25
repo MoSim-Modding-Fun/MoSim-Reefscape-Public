@@ -73,6 +73,16 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         /// the normal close standoff once it's ready.
         /// </summary>
         bool IsAtAlgaeSetpoint { get; }
+
+        /// <summary>
+        /// True while the superstructure (elevator + arm) has actually reached the front/back L4 setpoint
+        /// matching the current facing - false the rest of the time, including while CurrentSetpoint is L4
+        /// but the arm is still mid-transition. Lets reef branch align hold the algae standoff point until
+        /// the mechanism is actually in position for L4, then pull in to the normal (much closer) L4 scoring
+        /// offset once it's ready - L4's elevator extension and arm swing sweep through space the robot would
+        /// otherwise already be sitting in.
+        /// </summary>
+        bool IsAtL4Setpoint { get; }
     }
 
     /// <summary>
@@ -245,6 +255,9 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         public bool IsAtAlgaeSetpoint =>
             CurrentSetpoint == ReefscapeSetpoints.LowAlgae && SuperstructureAtSetpoint(IsFacingReef(GetClosestReef()) ? frontLowAlgae : backLowAlgae) ||
             CurrentSetpoint == ReefscapeSetpoints.HighAlgae && SuperstructureAtSetpoint(IsFacingReef(GetClosestReef()) ? frontHighAlgae : backHighAlgae);
+
+        public bool IsAtL4Setpoint =>
+            CurrentSetpoint == ReefscapeSetpoints.L4 && SuperstructureAtSetpoint(IsFacingReef(GetClosestReef()) ? frontL4 : backL4);
 
         // Reads the frozen slider-visual transforms rather than the intakes' own GamePiece, since
         // RequestIntake(..., false) - called by every state handler except the moment a piece is actively
