@@ -91,10 +91,10 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
     /// history for ManualPidAxis's implementation).
     ///
     /// TryAlignToReefNode also holds the robot at the algae standoff point (see GetFaceStandoffTarget) instead
-    /// of the normal, much closer L4 scoring offset whenever L4 is selected but IStuyPulseGamePieceStatus.
-    /// IsAtL4Setpoint is still false - mirrors TryGetAlgaeAlignTarget's own far-standoff-until-ready pattern,
-    /// since L4's elevator extension and arm swing sweep through space the robot would otherwise already be
-    /// sitting in.
+    /// of the normal, much closer L4 scoring offset whenever L4 is selected and the robot is currently closer
+    /// than the standoff distance from the align node - purely distance-based, mirrors TryGetAlgaeAlignTarget's
+    /// own far-standoff-until-ready pattern, since L4's elevator extension and arm swing sweep through space
+    /// the robot would otherwise already be sitting in.
     /// </summary>
     [DefaultExecutionOrder(-100)]
     public class StuyPulseAutoAlign : MonoBehaviour
@@ -194,7 +194,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         [SerializeField] private AutoAlignOffset backLeftL4Offset;
         [SerializeField] private AutoAlignOffset backRightL4Offset;
 
-        [Tooltip("Standoff distance (inches) straight out from the align node (the reef branch face being scored), separate from algaeStandoffInches, held while L4 is selected but IStuyPulseGamePieceStatus.IsAtL4Setpoint is still false (see TryAlignToReefNode's isL4NotReady branch). L4ReadyForSetpoint() also uses this same distance: the superstructure is allowed to raise to L4 once the robot is at least this far from the align node, not closer. Best-guess default - tune this in Play mode.")]
+        [Tooltip("Standoff distance (inches) straight out from the align node (the reef branch face being scored), separate from algaeStandoffInches, held while L4 is selected and the robot is currently closer than this distance from the align node (see TryAlignToReefNode's isL4NotReady branch) - purely distance-based, not tied to whether the superstructure has reached L4 yet. L4ReadyForSetpoint() also uses this same distance: the superstructure is allowed to raise to L4 once the robot is at least this far from the align node, not closer. Best-guess default - tune this in Play mode.")]
         [SerializeField] private float l4StandoffInches = 24f;
 
         [Tooltip("Only assist toward the reef within this distance (feet)")]
@@ -1173,29 +1173,34 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             // flip 180 degrees when aligning to the opposing reef.
             var facingReef = IsFacingReefPos(NearestReefPos(parent.transform.position));
 
-            // While L4 is selected but the elevator/arm haven't actually reached the L4 setpoint yet, hold at
-            // the same standoff point algae align uses instead of pulling in to the normal (much closer) L4
-            // scoring offset below - L4's elevator extension and arm swing sweep through space the robot
-            // would otherwise already be sitting in, so parking close to the reef mid-transition risked
-            // clipping it. Once IStuyPulseGamePieceStatus.IsAtL4Setpoint flips true, this falls through to
-            // the ordinary offset-based targeting the same as every other level. Only applies to the real L4
-            // branch offsets, not holdingFroggyCoral's l1offset (L1 has no such transition concern).
+            // While L4 is selected, hold at the same standoff point algae align uses instead of pulling in to
+            // the normal (much closer) L4 scoring offset below, until the robot has reached the standoff
+            // distance from the align node at least once - L4's elevator extension and arm swing sweep
+            // through space the robot would otherwise already be sitting in, so parking close to the reef
+            // risks clipping it. This is purely distance-based, not tied to whether the superstructure has
+            // actually reached L4 yet (IStuyPulseGamePieceStatus.IsAtL4Setpoint). _l4ReachedStandoff is a
+            // one-way latch rather than a live per-frame distance check: the ordinary scoring offset sits
+            // closer to the node than the standoff distance, so re-checking "am I closer than standoff"
+            // every frame would flip back and forth right at the boundary - the moment the robot drives
+            // past the standoff toward the closer offset, it re-qualifies as "closer than standoff" and
+            // gets redirected straight back out, forever oscillating in place instead of ever reaching the
+            // real target. Latching means once the robot has reached the standoff distance, it commits to
+            // driving all the way in to the normal offset-based target the same as every other level. Only
+            // applies to the real L4 branch offsets, not holdingFroggyCoral's l1offset (L1 has no such
+            // transition concern).
+            var isCloserThanL4Standoff = Vector3.Distance(transform.position, node.position) <
+                                          l4StandoffInches * INCHES_TO_METERS;
+            if (!holdingFroggyCoral && _stuyBase.CurrentSetpoint == ReefscapeSetpoints.L4)
+            {
+                _l4Engaged = true;
+                if (!isCloserThanL4Standoff) _l4ReachedStandoff = true;
+            }
+
             var isL4NotReady = !holdingFroggyCoral && _stuyBase.CurrentSetpoint == ReefscapeSetpoints.L4 &&
-                                _gamePieceStatus != null && !_gamePieceStatus.IsAtL4Setpoint;
+                                !_l4ReachedStandoff;
             if (isL4NotReady)
             {
                 GetFaceStandoffTarget(parent, l4StandoffInches, facingReef, out targetPosition, out targetYaw);
-
-                _l4Engaged = true;
-                // Distance to the align node (node, the specific pipe being scored) - not the separate reef
-                // algae node/spot algae align tracks, which can sit far apart on the same face. Ready as
-                // soon as the robot is at least l4StandoffInches away, same direction as approaching from
-                // farther out, so the superstructure can start raising early instead of waiting to arrive
-                // at an exact point; only blocks raising while the robot is already closer than the standoff.
-                if (Vector3.Distance(transform.position, node.position) >= l4StandoffInches * INCHES_TO_METERS)
-                {
-                    _l4ReachedStandoff = true;
-                }
 
                 _reefAlignLeft = wantsLeftSide;
                 _reefAlignTargetPosition = targetPosition;

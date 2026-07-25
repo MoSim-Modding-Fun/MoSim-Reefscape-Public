@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 9162ef73a8b7ff14a81079bd59987bc0
   m_currentHash:
     serializedVersion: 2
-    Hash: 00000000000000000000000000000000
+    Hash: b1276a13efdf70e181db87f509de5027
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_BundleLocalCatalog: 0
@@ -42,15 +42,15 @@ MonoBehaviour:
   m_BundleRetryCount: 0
   m_BundleRedirectLimit: -1
   m_SharedBundleSettings: 1
-  m_SharedBundleSettingsCustomGroupIndex: 5
+  m_SharedBundleSettingsCustomGroupIndex: 4
   m_ContiguousBundles: 1
   m_StripUnityVersionFromBundleBuild: 0
   m_DisableVisibleSubAssetRepresentations: 0
   m_BuiltInBundleNaming: 2
-  mBuiltInBundleCustomNaming: lanternfly
+  mBuiltInBundleCustomNaming: nymodpack
   m_MonoScriptBundleNaming: 2
   m_CheckForContentUpdateRestrictionsOption: 0
-  m_MonoScriptBundleCustomNaming: lanternfly
+  m_MonoScriptBundleCustomNaming: nymodpack
   m_RemoteCatalogBuildPath:
     m_Id: 
   m_RemoteCatalogLoadPath:

@@ -75,7 +75,7 @@ GameObject:
   - component: {fileID: 8672540751890259864}
   - component: {fileID: 7274641429850187422}
   - component: {fileID: 858293906822555559}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Bearing Spacer.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -310,7 +310,7 @@ GameObject:
   - component: {fileID: 2763050146074152122}
   - component: {fileID: 6715362952991850162}
   - component: {fileID: 5528189702270247803}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Algae Shaft.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -533,7 +533,7 @@ GameObject:
   - component: {fileID: 8405814444156457820}
   - component: {fileID: 4879959530025798439}
   - component: {fileID: 1065083969760105935}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 12T x 9mm Wide Aluminum Pulley (HTD 5mm, 8mm SplineXS Bore) (WCP-1017)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -616,7 +616,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3038586036291302389}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of am-3946 3IN 500Hex Molded Compliant Wheel VER 2.007
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -756,7 +756,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1362896829016257645}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 30
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1199,7 +1199,7 @@ GameObject:
   - component: {fileID: 6810130235990026974}
   - component: {fileID: 4626179278693461749}
   - component: {fileID: 2583333404228187137}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: REV-21-2581
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1431,7 +1431,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 207980693868826851}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Algae Shaft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1556,7 +1556,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2075033944169007512}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Flanged 1/2" ID - 1 1/8" OD ThunderHex Bearing.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2106,7 +2106,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7959541562829051984}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 13
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2963,7 +2963,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8654500393584424890}
   - component: {fileID: 987075211284029182}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of am-3946 3IN 500Hex Molded Compliant Wheel VER 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3453,7 +3453,7 @@ GameObject:
   - component: {fileID: 2700363602907298368}
   - component: {fileID: 3314867502739753493}
   - component: {fileID: 2782348836327260988}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Hex machine screw nut #10-32.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4093,7 +4093,7 @@ GameObject:
   - component: {fileID: 7303132115312643371}
   - component: {fileID: 653641731374616837}
   - component: {fileID: 9093014958923416759}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 31
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4294,7 +4294,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 274546310025084885}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Main Plate.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4530,7 +4530,7 @@ GameObject:
   - component: {fileID: 4367330965470908187}
   - component: {fileID: 3778011006317090370}
   - component: {fileID: 3959048506993902006}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: .5" Hex ID 1.125" OD Flanged Bearing (217-2734)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4986,7 +4986,7 @@ GameObject:
   - component: {fileID: 2155047747901025538}
   - component: {fileID: 8188739452042969907}
   - component: {fileID: 732979817186963576}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: .5" Hex ID 1.125" OD Flanged Bearing (217-2734).003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5421,7 +5421,7 @@ GameObject:
   - component: {fileID: 7284322364054554168}
   - component: {fileID: 1298823630349924548}
   - component: {fileID: 5092450397672948570}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 220t 5mm Belt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6122,7 +6122,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8576070725393012537}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 02 - 00 - Bearing plate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6154,7 +6154,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 427058100523556736}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of REV-21-2581.006
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6700,7 +6700,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4397668211592804664}
   - component: {fileID: 866007059681517059}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 36t HTD Pulley 11mm Wide
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7806,7 +7806,7 @@ GameObject:
   - component: {fileID: 1641656113503293842}
   - component: {fileID: 6497324775196058571}
   - component: {fileID: 1956620635427594633}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 42t 20dp Aluminum 1/2" Hex Bore Gear (217-3216)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7977,7 +7977,7 @@ GameObject:
   - component: {fileID: 4984383202108728627}
   - component: {fileID: 9001668588428816596}
   - component: {fileID: 4171403823806696930}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: .5" Hex ID 1.125" OD Flanged Bearing (217-2734).001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8881,7 +8881,7 @@ GameObject:
   - component: {fileID: 5096545761678768254}
   - component: {fileID: 7648237021532417005}
   - component: {fileID: 8586243575973562685}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 29
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9166,7 +9166,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2414083299583232078}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Hex machine screw nut #10-32.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9200,7 +9200,7 @@ GameObject:
   - component: {fileID: 1619161178100603065}
   - component: {fileID: 9057803863167568880}
   - component: {fileID: 1527228616762866583}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10384,7 +10384,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4357634427868874291}
   - component: {fileID: 6973351398851899512}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 1/16" 1/2" Spacer.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12811,7 +12811,7 @@ GameObject:
   - component: {fileID: 6731464864417613036}
   - component: {fileID: 1487282835594228887}
   - component: {fileID: 2994046828357465882}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 6.006
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13284,7 +13284,7 @@ GameObject:
   - component: {fileID: 2249313472013917764}
   - component: {fileID: 1052235044133555065}
   - component: {fileID: 6963739182981099482}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: am-3946 3IN 500Hex Molded Compliant Wheel VER 2.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13539,7 +13539,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1038230349282474204}
   - component: {fileID: 6008216082685781817}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Algae Roller <1>
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13925,7 +13925,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2580642480751939317}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 1/16" 3/8" Spacer.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13957,7 +13957,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 438671914965889327}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 18t HTD Pulley 11mm Wide
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13991,7 +13991,7 @@ GameObject:
   - component: {fileID: 8814980076259191933}
   - component: {fileID: 4506263364886698744}
   - component: {fileID: 7341610037069488560}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Flanged 1/2" ID - 1 1/8" OD ThunderHex Bearing.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14074,7 +14074,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7847651778934679843}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1.195 in).002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14341,7 +14341,7 @@ GameObject:
   - component: {fileID: 8330930179118625620}
   - component: {fileID: 100996666719601722}
   - component: {fileID: 8291533987604383710}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 1/16" 1/2" Spacer.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14659,7 +14659,7 @@ GameObject:
   - component: {fileID: 8603864245570267970}
   - component: {fileID: 4529614805261077912}
   - component: {fileID: 962372239149420065}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 53
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14877,7 +14877,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8768723736585126227}
   - component: {fileID: 3728057248892864898}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 1/16" 1/2" Spacer.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14934,7 +14934,7 @@ GameObject:
   - component: {fileID: 2256072130341612055}
   - component: {fileID: 5783205331633353467}
   - component: {fileID: 5863268812680173157}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: am-3946 3IN 500Hex Molded Compliant Wheel VER 2.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16326,7 +16326,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3540236502306644979}
   - component: {fileID: 6147412143476687519}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 1/16" 1/2" Spacer.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16466,7 +16466,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8046443773357672777}
   - component: {fileID: 2333007138214612952}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of am-3946 3IN 500Hex Molded Compliant Wheel VER 2.006
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16554,7 +16554,7 @@ GameObject:
   - component: {fileID: 8944716866681255844}
   - component: {fileID: 1835944708741479557}
   - component: {fileID: 5990334139199437566}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Algae Shaft.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16958,7 +16958,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6001023883371112523}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1 in).006
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17077,7 +17077,7 @@ GameObject:
   - component: {fileID: 1614838760617337349}
   - component: {fileID: 4284982852233696482}
   - component: {fileID: 2907472402018700500}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 02 - 00 - erm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17191,7 +17191,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6244021649759886128}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Main Plate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17223,7 +17223,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 741334082074641286}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 12T x 9mm Wide Aluminum Pulley (HTD 5mm, 8mm SplineXS Bore)
     (WCP-1017)
   m_TagString: Untagged
@@ -17372,7 +17372,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5232488983000202439}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 11
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17660,7 +17660,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1078052487399093589}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of REV-21-2581.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17778,7 +17778,7 @@ GameObject:
   - component: {fileID: 6242889862091604546}
   - component: {fileID: 5387110847966305418}
   - component: {fileID: 6164536156183454041}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17863,7 +17863,7 @@ GameObject:
   - component: {fileID: 3396589265282245604}
   - component: {fileID: 2997726533464594116}
   - component: {fileID: 3130232208884162989}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 51t 5mm Belt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18129,7 +18129,7 @@ GameObject:
   - component: {fileID: 3078851202881994133}
   - component: {fileID: 5140007180240136143}
   - component: {fileID: 5625739685959277087}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: WCP-0940
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18415,7 +18415,7 @@ GameObject:
   - component: {fileID: 2060048477792424806}
   - component: {fileID: 2220970714933542012}
   - component: {fileID: 4153328725144500023}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Hex machine screw nut #10-32.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18679,7 +18679,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3318936123147627391}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Hex machine screw nut #10-32.006
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18745,7 +18745,7 @@ GameObject:
   - component: {fileID: 6352310661390536099}
   - component: {fileID: 3124060893035070668}
   - component: {fileID: 3504300837069205092}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 3/8" ThunderHex (0.673 in).002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20028,7 +20028,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2731346068547524121}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1.195 in)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20563,7 +20563,7 @@ GameObject:
   - component: {fileID: 9063587639327534768}
   - component: {fileID: 223659620564555311}
   - component: {fileID: 5208941917881837041}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Hex machine screw nut #10-32.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20945,7 +20945,7 @@ GameObject:
   - component: {fileID: 8459049852270117094}
   - component: {fileID: 2046137028617214606}
   - component: {fileID: 1636582425821369308}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 18t HTD Pulley 9.53mm Wide
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21353,7 +21353,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2637139214937799836}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 29
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23131,7 +23131,7 @@ GameObject:
   - component: {fileID: 5358608998331956877}
   - component: {fileID: 9107977644121092509}
   - component: {fileID: 8818498173157637329}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Algae Spacer.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24001,7 +24001,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8955945169095137817}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 1/16" 1/2" Spacer.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24462,7 +24462,7 @@ GameObject:
   - component: {fileID: 5216615201754835374}
   - component: {fileID: 1749579030167458688}
   - component: {fileID: 2183159561450376255}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Hex machine screw nut #10-32
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24900,7 +24900,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1985061688769771885}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 11.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24932,7 +24932,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3997831366759239763}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1 in).012
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25404,7 +25404,7 @@ GameObject:
   - component: {fileID: 6125420938018328651}
   - component: {fileID: 4087898219220521548}
   - component: {fileID: 3074959716086739805}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Tube 2"x1"x8.5"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26530,7 +26530,7 @@ GameObject:
   - component: {fileID: 8415215444811642922}
   - component: {fileID: 5120749227735838583}
   - component: {fileID: 2105649923945848662}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: .5" Hex ID 1.125" OD Flanged Bearing (217-2734).002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26767,7 +26767,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1058880781481236430}
   - component: {fileID: 1671375497211343646}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Assembly 3 <1>.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27062,7 +27062,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8816463643836369977}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (0.673 in).001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27732,7 +27732,7 @@ GameObject:
   - component: {fileID: 4160550242041848219}
   - component: {fileID: 6337754621039324545}
   - component: {fileID: 7874189830551614206}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 12t 1/2" Rounded Hex Bore Hub 25 Chain Sprocket (WCP-0576)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27849,7 +27849,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1853361163319263734}
   - component: {fileID: 5128725802096140172}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 36t HTD Pulley 11mm Wide.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27966,7 +27966,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3754751867821904314}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of REV-21-2581.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28147,7 +28147,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6356913674492085531}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Flanged 1/2" ID - 1 1/8" OD ThunderHex Bearing.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28476,7 +28476,7 @@ GameObject:
   - component: {fileID: 1889183813943673050}
   - component: {fileID: 172910942958733856}
   - component: {fileID: 2090281880548427752}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 2.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29931,7 +29931,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2577525887614537711}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Algae Spacer.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30289,7 +30289,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5173838570054534170}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (0.673 in)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30759,7 +30759,7 @@ GameObject:
   - component: {fileID: 2880826376756781461}
   - component: {fileID: 6438194488973119171}
   - component: {fileID: 3250409621252109449}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: structure gusset 1.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31630,7 +31630,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4079797696103080940}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Hex machine screw nut #10-32.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31662,7 +31662,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5302419315825297282}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Bearing Spacer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32157,7 +32157,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2382164238081146983}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Tube 2"x1"x15"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32189,7 +32189,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4838695445493857580}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1 in)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32539,7 +32539,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4788814476126491420}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of .5" Hex ID 1.125" OD Flanged Bearing (217-2734).002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33616,7 +33616,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5967909321093871713}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LEDs (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33987,7 +33987,7 @@ GameObject:
   - component: {fileID: 7607339302182554110}
   - component: {fileID: 8994089078319242073}
   - component: {fileID: 4896023552234001614}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: am-3946 3IN 500Hex Molded Compliant Wheel VER 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34094,7 +34094,7 @@ GameObject:
   - component: {fileID: 3737183858687275906}
   - component: {fileID: 5517358607139036133}
   - component: {fileID: 2222462560084023639}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 36t HTD Pulley 11mm Wide.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34947,7 +34947,7 @@ GameObject:
   - component: {fileID: 8390621033282388695}
   - component: {fileID: 7662739482952553899}
   - component: {fileID: 8431469791025577944}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Back Shaft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35400,7 +35400,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5585341272617885180}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of .375 ThunderHex ID .875 OD Flanged Bearing (217-5829).009
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36194,7 +36194,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2215563040754821762}
   - component: {fileID: 1114341299190527224}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of am-3946 3IN 500Hex Molded Compliant Wheel VER 2.007
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36663,7 +36663,7 @@ GameObject:
   - component: {fileID: 7848931728231170601}
   - component: {fileID: 6321571868783273431}
   - component: {fileID: 8031988562890439458}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: WCP ThroughBore Powered by CANcoder (1/2" Hex)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36834,7 +36834,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7070668234122459468}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 11.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -37301,7 +37301,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7774917299616362383}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 3.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -37335,7 +37335,7 @@ GameObject:
   - component: {fileID: 7569670137044267064}
   - component: {fileID: 8310962777896287534}
   - component: {fileID: 3882175920919900749}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Flanged 0.25" ID - 0.5" OD Custom Bearing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -37737,7 +37737,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2087995309386447743}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Tube 2"x1"x8.5"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38321,7 +38321,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9086248359262537505}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 60t 20dp Aluminum 1/2" Hex Bore Gear (217-3574)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38493,7 +38493,7 @@ GameObject:
   - component: {fileID: 4871726070018488382}
   - component: {fileID: 6584881461444124112}
   - component: {fileID: 2968870375683279145}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 3/8" ThunderHex (1 in)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39061,7 +39061,7 @@ GameObject:
   - component: {fileID: 2372390920479834330}
   - component: {fileID: 8623482951895170122}
   - component: {fileID: 5766692452812176373}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Main Plate.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39148,7 +39148,7 @@ MeshCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -39373,7 +39373,7 @@ GameObject:
   - component: {fileID: 2208987216722418895}
   - component: {fileID: 7818225672837624959}
   - component: {fileID: 8907603904252545966}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 3/8" ThunderHex (1 in).002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39717,7 +39717,7 @@ MonoBehaviour:
     _encryptedValue: 1153213715
   falloffPercent: 0.075
   falloffExponent: 10
-  steerMultiplier: 1
+  steerMultiplier: 1.3
   speedDebug: 0
   swerveAudioMixerGroup: {fileID: 4093094553572483033, guid: ed4b10d8b69fb1240aaf15a3cba9d0bd,
     type: 2}
@@ -40437,7 +40437,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3738533378530432646}
   - component: {fileID: 2962695565056691418}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 1/16" 1/2" Spacer.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40897,7 +40897,7 @@ GameObject:
   - component: {fileID: 1347507462357091988}
   - component: {fileID: 4675704342758025141}
   - component: {fileID: 2313530986543033757}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 1/16" 1/2" Spacer.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40971,6 +40971,59 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &2587358293568140839
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3217356858911560231}
+  - component: {fileID: 3582808708667196055}
+  m_Layer: 6
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3217356858911560231
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2587358293568140839}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.000508, y: -0.000949, z: 0.001202}
+  m_LocalScale: {x: 0.06, y: 0.017359002, z: 0.01}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4202601257454421867}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &3582808708667196055
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2587358293568140839}
+  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  m_LayerOverridePriority: 100
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.06, y: 0.03, z: 0.03}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2592122508265689071
 GameObject:
   m_ObjectHideFlags: 0
@@ -41690,6 +41743,59 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &2646078789902494265
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4257518702107664188}
+  - component: {fileID: 2736764376263086743}
+  m_Layer: 6
+  m_Name: GameObject (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4257518702107664188
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2646078789902494265}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.4541985, y: -0, z: -0, w: 0.8909005}
+  m_LocalPosition: {x: -0.000508, y: -0.001224, z: 0.001393}
+  m_LocalScale: {x: 0.06, y: 0.017359002, z: 0.01}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4202601257454421867}
+  m_LocalEulerAnglesHint: {x: -54.027, y: 0, z: 0}
+--- !u!65 &2736764376263086743
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2646078789902494265}
+  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  m_LayerOverridePriority: 100
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.06, y: 0.03, z: 0.03}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2649940619230410505
 GameObject:
   m_ObjectHideFlags: 0
@@ -42776,7 +42882,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5552198853619522167}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: GameObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43326,7 +43432,7 @@ GameObject:
   - component: {fileID: 8912861475745036379}
   - component: {fileID: 5666449249898864841}
   - component: {fileID: 7714623053210795217}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: am-3946 3IN 500Hex Molded Compliant Wheel VER 2.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43442,7 +43548,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2482954652495238904}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1.195 in).001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43909,7 +44015,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 499360049523374574}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 1/16" 1/2" Spacer.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43941,7 +44047,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1197295070355908664}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Bearing Spacer.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44822,7 +44928,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6523047112860904053}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 18t HTD Pulley 9.53mm Wide
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45227,7 +45333,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7662154972421371797}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1.195 in).004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45830,7 +45936,7 @@ GameObject:
   - component: {fileID: 6380739954095607065}
   - component: {fileID: 496901975194485639}
   - component: {fileID: 8149345054237777713}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 13
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46193,7 +46299,7 @@ GameObject:
   - component: {fileID: 5227313434853678972}
   - component: {fileID: 3832656826050676221}
   - component: {fileID: 3587744345095243614}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: .375 ThunderHex ID .875 OD Flanged Bearing (217-5829)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46763,7 +46869,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4276707333509731377}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1 in).007
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46922,7 +47028,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4797597028253227186}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 2.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47017,7 +47123,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3199631366856546112}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of .375 ThunderHex ID .875 OD Flanged Bearing (217-5829)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47050,7 +47156,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7158976914520962875}
   - component: {fileID: 2811900919294778551}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of .5" Hex ID 1.125" OD Flanged Bearing (217-2734).003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47656,7 +47762,7 @@ GameObject:
   - component: {fileID: 8093196234781651996}
   - component: {fileID: 2359743936800510254}
   - component: {fileID: 907027971179893081}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 60T HTD Belt.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47855,7 +47961,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 910496398327123837}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 2.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48421,7 +48527,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2419284689820067822}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Algae Shaft.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48680,7 +48786,7 @@ GameObject:
   - component: {fileID: 4192082674739078743}
   - component: {fileID: 1483238128537190098}
   - component: {fileID: 5166298385244854571}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Bearing Spacer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48765,7 +48871,7 @@ GameObject:
   - component: {fileID: 6171784893172637606}
   - component: {fileID: 304492212494357687}
   - component: {fileID: 1132435424759647799}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 2.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48882,7 +48988,7 @@ GameObject:
   - component: {fileID: 6340577344457711783}
   - component: {fileID: 4575416292569504458}
   - component: {fileID: 5148851666875951774}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Algae Spacer.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -49131,7 +49237,7 @@ GameObject:
   - component: {fileID: 3238418488609378226}
   - component: {fileID: 6881892733982292633}
   - component: {fileID: 3725781367547976634}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: am-3946 3IN 500Hex Molded Compliant Wheel VER 2.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -50341,7 +50447,7 @@ GameObject:
   - component: {fileID: 7633267310767644107}
   - component: {fileID: 1291798789981738245}
   - component: {fileID: 1631291419497523810}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Algae Roller <2> (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -50888,7 +50994,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5548642280874349868}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of REV-21-2581.007
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51317,7 +51423,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4327492693407076710}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 53
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51636,7 +51742,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6894746823289908449}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 60T HTD Belt.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51670,7 +51776,7 @@ GameObject:
   - component: {fileID: 398698169115319085}
   - component: {fileID: 8975454316542787759}
   - component: {fileID: 3351539547431430222}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 3/8" ThunderHex (1 in).003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51785,7 +51891,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5725037645430129007}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 3.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51817,7 +51923,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 707579415348666107}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51880,7 +51986,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6874816772015054720}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 2.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52432,7 +52538,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 166119222852490927}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of am-3946 3IN 500Hex Molded Compliant Wheel VER 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53627,7 +53733,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8941427808914292072}
   - component: {fileID: 5611332366570177992}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Algae Roller <2>
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53777,7 +53883,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 269604579516974823}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 42t 20dp Aluminum 1/2" Hex Bore Gear (217-3216)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -54034,7 +54140,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8273054755718238170}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 02 - 00 - idk the naming convention
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -54218,7 +54324,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6716888092493812414}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 239T 5M Belt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -54337,7 +54443,7 @@ GameObject:
   - component: {fileID: 905005413584374827}
   - component: {fileID: 7188486504958183859}
   - component: {fileID: 5598433156990194139}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 3.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -55218,7 +55324,7 @@ GameObject:
   - component: {fileID: 9061087695470828491}
   - component: {fileID: 8010035336215283759}
   - component: {fileID: 1008550015284473484}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Tube 2"x1"x3"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -55333,7 +55439,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1830365684874739998}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Flanged 1/2" ID - 1 1/8" OD ThunderHex Bearing.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -55538,7 +55644,7 @@ GameObject:
   - component: {fileID: 2253933489985711962}
   - component: {fileID: 3355744438448590570}
   - component: {fileID: 5144322513120798165}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 3/8" ThunderHex (0.673 in).001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -55720,7 +55826,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8480902701140105736}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 36t HTD Pulley 11mm Wide.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56096,7 +56202,7 @@ GameObject:
   - component: {fileID: 1702047888156346358}
   - component: {fileID: 9165296966628162911}
   - component: {fileID: 4155296382322010902}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: .375 ThunderHex ID .875 OD Flanged Bearing (217-5829).007
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56182,7 +56288,7 @@ GameObject:
   - component: {fileID: 1695375827700508231}
   - component: {fileID: 9051379650561154826}
   - component: {fileID: 321769413414487034}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 3/8" ThunderHex (1 in).007
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56414,7 +56520,7 @@ GameObject:
   - component: {fileID: 8399752367371222419}
   - component: {fileID: 2737160999459129227}
   - component: {fileID: 7976088070970950995}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 3/8" ThunderHex (1 in).008
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56590,7 +56696,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3459414629164823085}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Funnel Flap 2 (Bent)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56974,7 +57080,7 @@ GameObject:
   - component: {fileID: 4008541369714906372}
   - component: {fileID: 8106798561837207888}
   - component: {fileID: 1145978626800310327}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Flanged 1/2" ID - 1 1/8" OD ThunderHex Bearing.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57722,7 +57828,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3160883546790490674}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Hex machine screw nut #10-32.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57839,7 +57945,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6358628319921711923}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Flanged 35mm x 47mm Ball Bearing (TTB-0065)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57904,7 +58010,7 @@ GameObject:
   - component: {fileID: 6855606368188496170}
   - component: {fileID: 5174407338279526422}
   - component: {fileID: 7387332541652641949}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: am-3946 3IN 500Hex Molded Compliant Wheel VER 2.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58021,7 +58127,7 @@ GameObject:
   - component: {fileID: 294519017604509078}
   - component: {fileID: 1778950857858198932}
   - component: {fileID: 3241948693350807860}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: .375 ThunderHex ID .875 OD Flanged Bearing (217-5829).009
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58458,7 +58564,7 @@ GameObject:
   - component: {fileID: 60303303404601793}
   - component: {fileID: 8444734411700157909}
   - component: {fileID: 8566838577454407753}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 1/16" 1/2" Spacer.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58566,7 +58672,7 @@ GameObject:
   - component: {fileID: 8542179500472946433}
   - component: {fileID: 3848884399683099884}
   - component: {fileID: 2788916555214309302}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 1/16" 1/2" Spacer.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58673,7 +58779,7 @@ GameObject:
   - component: {fileID: 6657738050212706237}
   - component: {fileID: 4715201848566730667}
   - component: {fileID: 3432480144533790645}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 1/2" ThunderHex - 1.8760000000000001"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58961,7 +59067,7 @@ GameObject:
   - component: {fileID: 2655025973094557083}
   - component: {fileID: 5683562035419887763}
   - component: {fileID: 4164883557198335082}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Flanged 1/2" ID - 1 1/8" OD ThunderHex Bearing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -59246,7 +59352,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4664390994469513468}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Flanged 0.25" ID - 0.5" OD Custom Bearing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -59428,7 +59534,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2906516418950254117}
   - component: {fileID: 4566774151711767248}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of .5" Hex ID 1.125" OD Flanged Bearing (217-2734).001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -60671,7 +60777,7 @@ GameObject:
   - component: {fileID: 4061492759803320630}
   - component: {fileID: 6797846063860243617}
   - component: {fileID: 5779238428101359074}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 1/16" 1/2" Spacer.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61085,7 +61191,7 @@ GameObject:
   - component: {fileID: 5328332903048841586}
   - component: {fileID: 1413776582523855434}
   - component: {fileID: 9000677981816283298}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: .375 ThunderHex ID .875 OD Flanged Bearing (217-5829).008
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61965,7 +62071,7 @@ GameObject:
   - component: {fileID: 3488306419503273436}
   - component: {fileID: 2440030660276797309}
   - component: {fileID: 965305321477543680}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 3/8" ThunderHex (1 in).009
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -64063,7 +64169,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3165928204133293601}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1 in).008
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -64297,7 +64403,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7037423160945429704}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of REV-21-2581.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -64426,7 +64532,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3190868783459560881}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of WCP ThroughBore Powered by CANcoder (1/2" Hex)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -64543,7 +64649,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4955251856077300572}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1 in).005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -65040,7 +65146,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8417773957844699093}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Hub Sprocket (16T, #25 Chain, 1/2" Hex Bore)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -65223,7 +65329,7 @@ GameObject:
   - component: {fileID: 5079221851869105683}
   - component: {fileID: 1868604514395316454}
   - component: {fileID: 1873367587567210907}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 1/16" 1/2" Spacer.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -67527,7 +67633,7 @@ GameObject:
   - component: {fileID: 5083863183286120857}
   - component: {fileID: 441365375621646183}
   - component: {fileID: 5798849549303969467}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 36t HTD Pulley 11mm Wide
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -67844,7 +67950,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1967591311388117961}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 3.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -68075,7 +68181,7 @@ Transform:
   m_LocalScale: {x: 1, y: 0.99999994, z: 0.99999994}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7589258822749285154}
+  - {fileID: 2229636462293547349}
   m_Father: {fileID: 5814021097629218970}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4470006529584593807
@@ -68428,7 +68534,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 104910700674276982}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1 in).009
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -68451,6 +68557,117 @@ Transform:
   - {fileID: 3488306419503273436}
   m_Father: {fileID: 1546186260254637783}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4506024179906884200
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4202601257454421867}
+  - component: {fileID: 3581579401293307857}
+  - component: {fileID: 7138455992181519857}
+  - component: {fileID: 5260321325482732422}
+  m_Layer: 6
+  m_Name: ELevator  cover
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4202601257454421867
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4506024179906884200}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1915154300182607167}
+  - {fileID: 3217356858911560231}
+  - {fileID: 4257518702107664188}
+  m_Father: {fileID: 2229636462293547349}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &3581579401293307857
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4506024179906884200}
+  m_Mesh: {fileID: -2113976074835753981, guid: 92559ea18a6f71d49892adbc66f07411, type: 3}
+--- !u!23 &7138455992181519857
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4506024179906884200}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 87dd183e31f248d43a8ea9fcd0c10919, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &5260321325482732422
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4506024179906884200}
+  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  m_LayerOverridePriority: 100
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -2113976074835753981, guid: 92559ea18a6f71d49892adbc66f07411, type: 3}
 --- !u!1 &4508248609232524916
 GameObject:
   m_ObjectHideFlags: 0
@@ -68462,7 +68679,7 @@ GameObject:
   - component: {fileID: 7390513053349321394}
   - component: {fileID: 7102238578215105627}
   - component: {fileID: 7655488915222991688}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 1/16" 3/8" Spacer.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -68577,7 +68794,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7975914808263382976}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of .5" Hex ID 1.125" OD Flanged Bearing (217-2734)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -68640,7 +68857,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1321259569362554399}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 02-02-dudeidkthenamingconvention
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -68789,7 +69006,7 @@ GameObject:
   m_Component:
   - component: {fileID: 184915275809550308}
   - component: {fileID: 5179179191262559535}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Algae Shaft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -68843,7 +69060,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 691192530758938650}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 12t 1/2" Rounded Hex Bore Hub 25 Chain Sprocket (WCP-0576)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -69194,7 +69411,7 @@ GameObject:
   m_Component:
   - component: {fileID: 749739113813089910}
   - component: {fileID: 6470480557978710280}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of am-3946 3IN 500Hex Molded Compliant Wheel VER 2.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -69250,7 +69467,7 @@ GameObject:
   - component: {fileID: 321593918447196382}
   - component: {fileID: 5243808699921754706}
   - component: {fileID: 5983920458912954987}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Flanged 1/2" ID - 1 1/8" OD ThunderHex Bearing.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -69506,7 +69723,7 @@ GameObject:
   - component: {fileID: 5939760650216102510}
   - component: {fileID: 386057617406427729}
   - component: {fileID: 253498010676558771}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: am-3946 3IN 500Hex Molded Compliant Wheel VER 2.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -69729,7 +69946,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6386998871599519853}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of am-3946 3IN 500Hex Molded Compliant Wheel VER 2.006
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -69887,7 +70104,7 @@ GameObject:
   - component: {fileID: 8115871296295164775}
   - component: {fileID: 4421968377502623498}
   - component: {fileID: 6667445832261550103}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 3/8" ThunderHex (1 in).004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -70057,7 +70274,7 @@ GameObject:
   - component: {fileID: 8747595401169130412}
   - component: {fileID: 4589299700007213761}
   - component: {fileID: 5084717732101896987}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Algae Shaft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -70743,7 +70960,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1446202574096694309}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 6.006
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -71122,7 +71339,7 @@ GameObject:
   - component: {fileID: 2904728741101279633}
   - component: {fileID: 3965961948578377650}
   - component: {fileID: 7276522291326911079}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: stuy new bumpers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -71494,7 +71711,7 @@ GameObject:
   - component: {fileID: 8024516662051060124}
   - component: {fileID: 3370084480470097634}
   - component: {fileID: 2579091862329454795}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 3.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -71780,7 +71997,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2693917617202919372}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (0.673 in).002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -71876,7 +72093,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2118571471149989679}
   - component: {fileID: 67542763400183486}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 1/16" 1/2" Spacer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -72175,7 +72392,7 @@ GameObject:
   - component: {fileID: 6512822370856410909}
   - component: {fileID: 3419884160622159661}
   - component: {fileID: 5713146793709901700}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 3/8" ThunderHex (1 in).006
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -72527,7 +72744,7 @@ GameObject:
   - component: {fileID: 1334098513679017497}
   - component: {fileID: 8627467447823118279}
   - component: {fileID: 5339015164936144706}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Funnel Flap 1 (Bent)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -72632,7 +72849,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2398153826211242814}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 54
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -73177,7 +73394,7 @@ GameObject:
   - component: {fileID: 3747119039080846666}
   - component: {fileID: 3660980470806271854}
   - component: {fileID: 37064212825497593}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 02-02-dudeidkthenamingconvention
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -74780,7 +74997,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6426382661289364696}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of structure gusset 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -74814,7 +75031,7 @@ GameObject:
   - component: {fileID: 3231796114736127465}
   - component: {fileID: 853964582286708176}
   - component: {fileID: 489324189078139244}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 54
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75093,7 +75310,7 @@ GameObject:
   - component: {fileID: 1358709182669385179}
   - component: {fileID: 1564500565109569728}
   - component: {fileID: 8623655767817936910}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 11
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75413,7 +75630,7 @@ GameObject:
   - component: {fileID: 8389099004611971439}
   - component: {fileID: 8776079617222634479}
   - component: {fileID: 563556666218905623}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: am-3946 3IN 500Hex Molded Compliant Wheel VER 2.007
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75720,7 +75937,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1190618806927580567}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of .375 ThunderHex ID .875 OD Flanged Bearing (217-5829).008
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75754,7 +75971,7 @@ GameObject:
   - component: {fileID: 3208145963633494276}
   - component: {fileID: 3700066781120224230}
   - component: {fileID: 2005012620935230316}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 3/8" ThunderHex (1 in).005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -76041,7 +76258,7 @@ GameObject:
   - component: {fileID: 9009409605410325290}
   - component: {fileID: 1401952896285770583}
   - component: {fileID: 3647880563494393950}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: WCP Cam (217-3431)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -76128,7 +76345,7 @@ GameObject:
   - component: {fileID: 2484597237479338492}
   - component: {fileID: 322498249201084542}
   - component: {fileID: 981682850920713987}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Main Plate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -76265,7 +76482,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1635563438953518942}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 51t 5mm Belt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -76383,83 +76600,6 @@ Transform:
   - {fileID: 6576639836335486850}
   m_Father: {fileID: 5985978090524618172}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &5065209135840695076
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7589258822749285154}
-  - component: {fileID: 1281858991476208344}
-  - component: {fileID: 8433380065037067908}
-  m_Layer: 6
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7589258822749285154
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5065209135840695076}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 4788891028519594388}
-  m_Father: {fileID: 6066848782934016174}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &1281858991476208344
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5065209135840695076}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 64
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
---- !u!138 &8433380065037067908
-FixedJoint:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5065209135840695076}
-  serializedVersion: 1
-  m_ConnectedBody: {fileID: 8921164627416285410}
-  m_ConnectedArticulationBody: {fileID: 0}
-  m_BreakForce: Infinity
-  m_BreakTorque: Infinity
-  m_EnableCollision: 0
-  m_EnablePreprocessing: 1
-  m_MassScale: 1
-  m_ConnectedMassScale: 1
 --- !u!1 &5066440896171867008
 GameObject:
   m_ObjectHideFlags: 0
@@ -76886,7 +77026,7 @@ GameObject:
   - component: {fileID: 8078783140028789452}
   - component: {fileID: 5273674679784219377}
   - component: {fileID: 94651586434422057}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: am-3946 3IN 500Hex Molded Compliant Wheel VER 2.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -76969,7 +77109,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2190631357328974061}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of am-3946 3IN 500Hex Molded Compliant Wheel VER 2.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -77086,7 +77226,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8535188389461363884}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1 in).002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -77235,7 +77375,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5462621147561686262}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 3.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -77740,7 +77880,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2267619828874210711}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 41
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -78390,7 +78530,7 @@ GameObject:
   - component: {fileID: 6399698693792497906}
   - component: {fileID: 1185735481375817649}
   - component: {fileID: 9132238144501388499}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: am-3946 3IN 500Hex Molded Compliant Wheel VER 2.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -78615,7 +78755,7 @@ GameObject:
   - component: {fileID: 7026288985613527998}
   - component: {fileID: 8294270953133993411}
   - component: {fileID: 4579792392846553352}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 2.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -78819,7 +78959,7 @@ GameObject:
   - component: {fileID: 8149998494476484383}
   - component: {fileID: 7059955140489938874}
   - component: {fileID: 3507171182843150623}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Driver Pulley
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -79437,7 +79577,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6960874900746772153}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of REV-21-2581.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -79619,7 +79759,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3432513956463348768}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Assembly 3 <1>.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -79929,6 +80069,84 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &5387458554435723934
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2229636462293547349}
+  - component: {fileID: 5414989720883736734}
+  - component: {fileID: 241916497141476778}
+  m_Layer: 6
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2229636462293547349
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5387458554435723934}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4877198431815642624}
+  - {fileID: 4202601257454421867}
+  m_Father: {fileID: 6066848782934016174}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &5414989720883736734
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5387458554435723934}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!138 &241916497141476778
+FixedJoint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5387458554435723934}
+  serializedVersion: 1
+  m_ConnectedBody: {fileID: 8921164627416285410}
+  m_ConnectedArticulationBody: {fileID: 0}
+  m_BreakForce: Infinity
+  m_BreakTorque: Infinity
+  m_EnableCollision: 0
+  m_EnablePreprocessing: 1
+  m_MassScale: 1
+  m_ConnectedMassScale: 1
 --- !u!1 &5391830199807249564
 GameObject:
   m_ObjectHideFlags: 0
@@ -80091,7 +80309,7 @@ GameObject:
   - component: {fileID: 1610699505953256620}
   - component: {fileID: 6789383358080347143}
   - component: {fileID: 150977711984688470}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: am-3946 3IN 500Hex Molded Compliant Wheel VER 2.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -80649,7 +80867,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3309230676674071794}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -81052,7 +81270,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8036614134090904162}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Hex machine screw nut #10-32.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -81601,7 +81819,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5350865179248420775}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1 in).004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -82381,7 +82599,7 @@ GameObject:
   - component: {fileID: 2484162369148093063}
   - component: {fileID: 4103229649263826490}
   - component: {fileID: 8065215949848335636}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 1/2" ThunderHex - 2.25"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -82750,7 +82968,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7572610580905457376}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of WCP-0940
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -83420,7 +83638,7 @@ GameObject:
   - component: {fileID: 912978397312741553}
   - component: {fileID: 4535099356173621946}
   - component: {fileID: 8706361658853292999}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 11.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -83503,7 +83721,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 953468784264245601}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 1/16" 1/2" Spacer.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -84500,7 +84718,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4663843714025249290}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Funnel Flap 1 (Bent)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -84760,7 +84978,7 @@ GameObject:
   - component: {fileID: 739309488914859681}
   - component: {fileID: 3445280376274794872}
   - component: {fileID: 1487912530386785457}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Tube 2"x1"x15"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -85160,7 +85378,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4619166522897946557}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Assembly 3 <1>
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -86034,7 +86252,7 @@ GameObject:
   - component: {fileID: 215951283470958866}
   - component: {fileID: 8117676103493583044}
   - component: {fileID: 8772772598547880777}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 28
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -86726,7 +86944,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1444855839104631939}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of SplineXL-6.385"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -86952,7 +87170,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5676221970154179210}
   - component: {fileID: 3988565679707805001}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Algae Spacer.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -87208,7 +87426,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5817880283297329209}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of am-3946 3IN 500Hex Molded Compliant Wheel VER 2.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -87504,7 +87722,7 @@ GameObject:
   - component: {fileID: 6742920486581890932}
   - component: {fileID: 7822213686434912406}
   - component: {fileID: 1995703554097366073}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Hub Sprocket (16T, #25 Chain, 1/2" Hex Bore)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -87983,7 +88201,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3486593514390024594}
   - component: {fileID: 1850645823233161015}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of am-3946 3IN 500Hex Molded Compliant Wheel VER 2.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -88274,7 +88492,7 @@ GameObject:
   - component: {fileID: 9109926560397215760}
   - component: {fileID: 1123207344942883163}
   - component: {fileID: 4306411694205164653}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 1/16" 1/2" Spacer.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -88720,7 +88938,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5486026113327793045}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of REV-21-2581
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -88931,7 +89149,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7417281414002966246}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Flanged 1/2" ID - 1 1/8" OD ThunderHex Bearing.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -88996,7 +89214,7 @@ GameObject:
   - component: {fileID: 5757366630208133759}
   - component: {fileID: 406400247935217489}
   - component: {fileID: 819577104971200294}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 02 - 00 - Bearing plate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -89207,7 +89425,7 @@ GameObject:
   - component: {fileID: 3950912128146623513}
   - component: {fileID: 379434391075387438}
   - component: {fileID: 6980178599067793451}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 11.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -89494,7 +89712,7 @@ GameObject:
   - component: {fileID: 803902514522852642}
   - component: {fileID: 4329558407792548838}
   - component: {fileID: 3349853018493029052}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Algae Roller <1> (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -89582,7 +89800,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4733839217943064606}
   - component: {fileID: 3276668811041353542}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of .5" Hex ID 1.125" OD Flanged Bearing (217-2734)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -89669,7 +89887,7 @@ GameObject:
   - component: {fileID: 402820472364382778}
   - component: {fileID: 9021857383247199338}
   - component: {fileID: 4890292480384889906}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: am-3946 3IN 500Hex Molded Compliant Wheel VER 2.006
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -90019,7 +90237,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 468301719820959570}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 69 links #25 chain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -90051,7 +90269,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4868370444975713371}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 42t Aluminum Spur Gear (20 DP, SplineXL Bore)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -90361,7 +90579,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3287204791236798543}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 32
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -90394,7 +90612,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8342075269714003139}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Back Shaft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -90426,7 +90644,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7965914192147238849}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 2.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -90460,7 +90678,7 @@ GameObject:
   - component: {fileID: 2270181843454036204}
   - component: {fileID: 7301050219790736307}
   - component: {fileID: 7599756119802523029}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Hex machine screw nut #10-32.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -90662,7 +90880,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7764074395097653366}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Driver Pulley
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -91651,7 +91869,7 @@ GameObject:
   - component: {fileID: 7945136273327869337}
   - component: {fileID: 5899801145893785812}
   - component: {fileID: 1593802440572407838}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 69 links #25 chain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -92248,7 +92466,7 @@ GameObject:
   - component: {fileID: 552672192869594086}
   - component: {fileID: 159146456765950690}
   - component: {fileID: 836607959733686998}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Funnel Flap 2 (Bent)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -92548,7 +92766,7 @@ GameObject:
   - component: {fileID: 6680017051542864369}
   - component: {fileID: 6096911056643588043}
   - component: {fileID: 7370353676741380376}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 3.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -92795,7 +93013,7 @@ GameObject:
   - component: {fileID: 6694831330565461310}
   - component: {fileID: 7446821281568787641}
   - component: {fileID: 8236840027203217488}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 239T 5M Belt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -92881,7 +93099,7 @@ GameObject:
   - component: {fileID: 7362633395319353362}
   - component: {fileID: 1890417372806290867}
   - component: {fileID: 8210463931426887081}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 1/16" 1/2" Spacer.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93188,7 +93406,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 793334413041831453}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 1/2" ThunderHex - 1.8760000000000001"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93390,7 +93608,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1509863895357843638}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of WCP Cam (217-3431)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94025,7 +94243,7 @@ GameObject:
   - component: {fileID: 6158692073840761276}
   - component: {fileID: 3699071392851564845}
   - component: {fileID: 6654560314931874176}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 02 - 00 - idk the naming convention
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94303,7 +94521,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1937803306249952554}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of am-3946 3IN 500Hex Molded Compliant Wheel VER 2.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94366,7 +94584,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1546186260254637783}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: can use gear between plates to gear to encoder <1>
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94948,7 +95166,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 768545074883306214}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 220t 5mm Belt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95490,7 +95708,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8714012022252353359}
   - component: {fileID: 1531182547782862324}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of am-3946 3IN 500Hex Molded Compliant Wheel VER 2.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95961,7 +96179,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5352554101521552872}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of .5" Hex ID 1.125" OD Flanged Bearing (217-2734).003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96047,6 +96265,91 @@ Transform:
   - {fileID: 5871778185399287787}
   m_Father: {fileID: 5373134394111106948}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6480262225922810314
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4877198431815642624}
+  - component: {fileID: 3932960287599400226}
+  - component: {fileID: 239594682659344092}
+  m_Layer: 6
+  m_Name: 694 - 06 - 02 - 04 -WCP Tube
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4877198431815642624
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6480262225922810314}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2229636462293547349}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &3932960287599400226
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6480262225922810314}
+  m_Mesh: {fileID: -4622158418243473274, guid: 92559ea18a6f71d49892adbc66f07411, type: 3}
+--- !u!23 &239594682659344092
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6480262225922810314}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: b0b17ad1d910dfb40b8d5fa8e04eb9e4, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &6480271800721213071
 GameObject:
   m_ObjectHideFlags: 0
@@ -96243,7 +96546,7 @@ GameObject:
   - component: {fileID: 5837875358423308852}
   - component: {fileID: 3508916515238083623}
   - component: {fileID: 2806884531797270132}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 55
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96414,6 +96717,7 @@ GameObject:
   - component: {fileID: 4365380394363679475}
   - component: {fileID: 419752014735314285}
   - component: {fileID: 6886243460962529050}
+  - component: {fileID: 8292702291754834578}
   m_Layer: 6
   m_Name: 06-02-696 bendable dinosaur plate
   m_TagString: Untagged
@@ -96488,6 +96792,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &8292702291754834578
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6501946468182405180}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 8126087937112347145, guid: 92559ea18a6f71d49892adbc66f07411, type: 3}
 --- !u!1 &6505578204747616461
 GameObject:
   m_ObjectHideFlags: 0
@@ -96728,7 +97054,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8494072734550357926}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Tube 2"x1"x3"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96845,7 +97171,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3511670118084836362}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of structure gusset 1.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96965,7 +97291,7 @@ GameObject:
   - component: {fileID: 5671650158638074476}
   - component: {fileID: 9178600259755926150}
   - component: {fileID: 5526924963525615459}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 3/8" ThunderHex (1 in).001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97080,7 +97406,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6202569618234363776}
   - component: {fileID: 5578078270644693477}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Algae Spacer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97136,7 +97462,7 @@ GameObject:
   - component: {fileID: 6009034955067390478}
   - component: {fileID: 9215249832687103152}
   - component: {fileID: 2083099525151544991}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: REV-21-2581.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97220,7 +97546,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4888024035271485285}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Hex machine screw nut #10-32
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97517,7 +97843,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7912642626446597245}
   - component: {fileID: 1738295331087278566}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: NewArm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97868,7 +98194,7 @@ GameObject:
   - component: {fileID: 3769382824546261460}
   - component: {fileID: 5714499336152488178}
   - component: {fileID: 1140292523037401094}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Hex machine screw nut #10-32.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97953,7 +98279,7 @@ GameObject:
   - component: {fileID: 5629356720299504661}
   - component: {fileID: 1167709755536733555}
   - component: {fileID: 5400127991310698242}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Flanged 1/2" ID - 1 1/8" OD ThunderHex Bearing.006
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -98820,7 +99146,7 @@ GameObject:
   - component: {fileID: 9165567414560763850}
   - component: {fileID: 1676591943259600469}
   - component: {fileID: 3180081703450504611}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -99783,7 +100109,7 @@ GameObject:
   - component: {fileID: 4238842556032056620}
   - component: {fileID: 6193326530023592049}
   - component: {fileID: 7593672125439812690}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: .5" Hex ID 1.125" OD Flanged Bearing (217-2734).003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -99974,7 +100300,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 826167722164268080}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Flanged 0.25" ID - 0.5" OD Custom Bearing.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -100654,7 +100980,7 @@ GameObject:
   - component: {fileID: 274205997686991160}
   - component: {fileID: 1077493421530326012}
   - component: {fileID: 7692668022560168088}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 59
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -100737,7 +101063,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5543814826968826393}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Flanged 1/2" ID - 1 1/8" OD ThunderHex Bearing.006
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -100771,7 +101097,7 @@ GameObject:
   - component: {fileID: 3254307675575175749}
   - component: {fileID: 6114587477396567695}
   - component: {fileID: 9088880226904355800}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 41
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101142,7 +101468,7 @@ GameObject:
   - component: {fileID: 2961168193055653290}
   - component: {fileID: 7002288415665319595}
   - component: {fileID: 3897432129495627674}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: am-3946 3IN 500Hex Molded Compliant Wheel VER 2.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101419,7 +101745,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1362435732413531927}
   - component: {fileID: 7882429202567513472}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Assembly 3 <1>
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102471,7 +102797,7 @@ GameObject:
   - component: {fileID: 3526385262108572665}
   - component: {fileID: 8972199128876080395}
   - component: {fileID: 8581372016024003598}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 42t Aluminum Spur Gear (20 DP, SplineXL Bore)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102813,7 +103139,7 @@ GameObject:
   - component: {fileID: 5807526591495413105}
   - component: {fileID: 3740004304388548771}
   - component: {fileID: 6133910088662277596}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 3/8" ThunderHex (0.673 in)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102896,7 +103222,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2079375457537955485}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1.195 in).003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -104034,7 +104360,7 @@ GameObject:
   - component: {fileID: 2074316602004244412}
   - component: {fileID: 6725616539959526398}
   - component: {fileID: 4344113301832011486}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: am-3946 3IN 500Hex Molded Compliant Wheel VER 2.006
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -104341,7 +104667,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6175071124551263030}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Algae Spacer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -104439,7 +104765,7 @@ GameObject:
   - component: {fileID: 2214749761745102040}
   - component: {fileID: 5566402907586446377}
   - component: {fileID: 8676897844868279824}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Kraken X60 powered by Talon FX (WCP-0940)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -104770,7 +105096,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4467309110961126219}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 55
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -105690,7 +106016,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5339323781709239287}
   - component: {fileID: 5880436192954638568}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of am-3946 3IN 500Hex Molded Compliant Wheel VER 2.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -105861,7 +106187,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5317899053093101256}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1 in).001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -105895,7 +106221,7 @@ GameObject:
   - component: {fileID: 5871394255209947390}
   - component: {fileID: 1872012339714320669}
   - component: {fileID: 7498084597700285583}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 18t HTD Pulley 11mm Wide
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -106065,7 +106391,7 @@ GameObject:
   - component: {fileID: 7509391453101519105}
   - component: {fileID: 8994709267361296828}
   - component: {fileID: 7941233319226144714}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Flanged 0.25" ID - 0.5" OD Custom Bearing.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -106148,7 +106474,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4942843025750053175}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -106351,7 +106677,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4905787805643414209}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 1/16" 1/2" Spacer.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -107660,7 +107986,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 785094818335026877}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1.195 in).005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -108427,7 +108753,7 @@ GameObject:
   - component: {fileID: 979596718459479323}
   - component: {fileID: 7331128401361878263}
   - component: {fileID: 2988123258108025037}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: am-3946 3IN 500Hex Molded Compliant Wheel VER 2.007
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -108545,7 +108871,7 @@ GameObject:
   - component: {fileID: 7246036402397154933}
   - component: {fileID: 2487709922254196957}
   - component: {fileID: 8071435971807720723}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 1/16" 1/2" Spacer.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -109069,7 +109395,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8444805787206003145}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Hex machine screw nut #10-32.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -110185,7 +110511,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5897380004175309923}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of .5" Hex ID 1.125" OD Flanged Bearing (217-2734).001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -110220,7 +110546,7 @@ GameObject:
   - component: {fileID: 1596132858508829683}
   - component: {fileID: 61752658923598178}
   - component: {fileID: 3642073209078644881}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: structure gusset 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -110794,7 +111120,7 @@ GameObject:
   - component: {fileID: 7302744655900187551}
   - component: {fileID: 6849672106459295566}
   - component: {fileID: 1485407946811516355}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 60t 20dp Aluminum 1/2" Hex Bore Gear (217-3574)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -112079,7 +112405,7 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ImplicitCom: 1
   m_ImplicitTensor: 0
   m_UseGravity: 1
@@ -113100,7 +113426,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8293197470954292186}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Flanged 1/2" ID - 1 1/8" OD ThunderHex Bearing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -113396,7 +113722,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8990453756185076801}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1 in).003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -113509,7 +113835,7 @@ GameObject:
   - component: {fileID: 1359397715529281388}
   - component: {fileID: 7347187257228319866}
   - component: {fileID: 6446793929222256035}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Algae Shaft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -114574,7 +114900,7 @@ GameObject:
   - component: {fileID: 969215353791651187}
   - component: {fileID: 187971515527010061}
   - component: {fileID: 4641903795400349741}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 3/8" ThunderHex (1 in).010
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -115224,7 +115550,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6167334450600321496}
   - component: {fileID: 7416628839344601783}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of am-3946 3IN 500Hex Molded Compliant Wheel VER 2.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116162,7 +116488,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1622871768707179356}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Assembly 1 <1>
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116251,7 +116577,7 @@ GameObject:
   - component: {fileID: 6108508970639800444}
   - component: {fileID: 4214780769277168234}
   - component: {fileID: 7555831056080511052}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Flanged 35mm x 47mm Ball Bearing (TTB-0065)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116582,7 +116908,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8321790589584122328}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of am-3946 3IN 500Hex Molded Compliant Wheel VER 2.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116935,7 +117261,7 @@ GameObject:
   - component: {fileID: 364661872369511914}
   - component: {fileID: 2086827956745949645}
   - component: {fileID: 2599948882977619758}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: am-3946 3IN 500Hex Molded Compliant Wheel VER 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -117537,7 +117863,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6941160240721984656}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 1/2" ThunderHex - 2.424"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -118355,7 +118681,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6897887612395304827}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1 in).011
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -118549,6 +118875,59 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &7900649119655058875
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1915154300182607167}
+  - component: {fileID: 2335905944825440423}
+  m_Layer: 6
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1915154300182607167
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7900649119655058875}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.000508, y: -0.001009, z: 0.001902}
+  m_LocalScale: {x: 0.06, y: 0.0254422, z: 0.04}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4202601257454421867}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &2335905944825440423
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7900649119655058875}
+  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  m_LayerOverridePriority: 100
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.06, y: 0.03, z: 0.03}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7908504509620324432
 GameObject:
   m_ObjectHideFlags: 0
@@ -118815,7 +119194,7 @@ GameObject:
   - component: {fileID: 4702097684379652126}
   - component: {fileID: 1514458701794447101}
   - component: {fileID: 2520217486116515700}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 32
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -119290,7 +119669,7 @@ GameObject:
   - component: {fileID: 8652147630489706853}
   - component: {fileID: 5780509500238883568}
   - component: {fileID: 3492474867634601722}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 60T HTD Belt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -119706,7 +120085,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1481389637439465769}
   - component: {fileID: 4781043588073481335}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of .5" Hex ID 1.125" OD Flanged Bearing (217-2734).002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -119791,7 +120170,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5829604257785969622}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Drive Shaft <1>
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -119828,7 +120207,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 280981876816201507}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 1/16" 1/2" Spacer.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -120065,7 +120444,7 @@ GameObject:
   - component: {fileID: 4936942663478286367}
   - component: {fileID: 5791694643482107429}
   - component: {fileID: 7065436380466689780}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Thrifty CAM (TTB-0060)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -120985,7 +121364,7 @@ GameObject:
   - component: {fileID: 3006137115993137693}
   - component: {fileID: 7707201789720050212}
   - component: {fileID: 4081044137811559948}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 36t HTD Pulley 11mm Wide.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -121325,7 +121704,7 @@ GameObject:
   - component: {fileID: 3738525088351756365}
   - component: {fileID: 2677444218511446835}
   - component: {fileID: 9110578183582348821}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Algae Spacer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -121430,7 +121809,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7143923048203647587}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 60T HTD Belt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -121463,7 +121842,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6217783311438797972}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 3/8" ThunderHex (1 in).010
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -121759,7 +122138,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1500396368297713195}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Thrifty CAM (TTB-0060)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -122214,7 +122593,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3604969960864123735}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of REV-21-2581.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -122386,7 +122765,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2090519662848700650}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 1/16" 1/2" Spacer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -123290,7 +123669,7 @@ GameObject:
   - component: {fileID: 7614247953388276057}
   - component: {fileID: 3571386776002049997}
   - component: {fileID: 893939370223807709}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Hex machine screw nut #10-32.006
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -123375,7 +123754,7 @@ GameObject:
   - component: {fileID: 8262237154061060852}
   - component: {fileID: 4321131898741032993}
   - component: {fileID: 8423916332045695111}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 1/16" 1/2" Spacer.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -124037,7 +124416,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 737352366558829960}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Kraken X60 powered by Talon FX (WCP-0940)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -124312,135 +124691,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2324624743413396083}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &8291898833834132876
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4788891028519594388}
-  - component: {fileID: 7526381986121361581}
-  - component: {fileID: 6397940322877715927}
-  - component: {fileID: 5440402547141181904}
-  - component: {fileID: 4845914776128108316}
-  m_Layer: 6
-  m_Name: 694 - 06 - 02 - 04 -WCP Tube
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4788891028519594388
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8291898833834132876}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7589258822749285154}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &7526381986121361581
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8291898833834132876}
-  m_Mesh: {fileID: -4622158418243473274, guid: 92559ea18a6f71d49892adbc66f07411, type: 3}
---- !u!23 &6397940322877715927
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8291898833834132876}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: b0b17ad1d910dfb40b8d5fa8e04eb9e4, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &5440402547141181904
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8291898833834132876}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 64
-  m_LayerOverridePriority: 20
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.0063573937, y: 0.0013046928, z: 0.00025400188}
-  m_Center: {x: 0.00025030778, y: -0.0010968522, z: 0.0011430006}
---- !u!65 &4845914776128108316
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8291898833834132876}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 64
-  m_LayerOverridePriority: 20
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.00041063625, y: 0.001093279, z: 0.0009685226}
-  m_Center: {x: -0.0032237023, y: -0.0009911403, z: 0.0015002573}
 --- !u!1 &8300199964599653876
 GameObject:
   m_ObjectHideFlags: 0
@@ -124452,7 +124702,7 @@ GameObject:
   - component: {fileID: 3750436462653448723}
   - component: {fileID: 4451842881649586900}
   - component: {fileID: 8216270392740994400}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Flanged 1/2" ID - 1 1/8" OD ThunderHex Bearing.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -124570,7 +124820,7 @@ GameObject:
   - component: {fileID: 7432784900951272929}
   - component: {fileID: 6624461203476125784}
   - component: {fileID: 3797827258864961516}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 1/16" 1/2" Spacer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -124876,7 +125126,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 413144601760302706}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 02 - 00 - erm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -125034,7 +125284,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8361645987056553711}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 31
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -126935,7 +127185,7 @@ GameObject:
   - component: {fileID: 5388909354456646351}
   - component: {fileID: 5489688341596151796}
   - component: {fileID: 629548694614498705}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: .5" Hex ID 1.125" OD Flanged Bearing (217-2734).001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -128329,7 +128579,7 @@ GameObject:
   - component: {fileID: 177073803018412206}
   - component: {fileID: 4372214069681424368}
   - component: {fileID: 1968463766153872837}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Part 30
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -129151,7 +129401,7 @@ GameObject:
   - component: {fileID: 6142499309503558878}
   - component: {fileID: 7550422550569553890}
   - component: {fileID: 92317353202249994}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: REV-21-2581.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -129898,7 +130148,7 @@ GameObject:
   - component: {fileID: 2961709871048980677}
   - component: {fileID: 8269032978669972237}
   - component: {fileID: 1143749031147282388}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 1/2" ThunderHex - 2.424"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -130619,7 +130869,7 @@ GameObject:
   - component: {fileID: 4240688486486002048}
   - component: {fileID: 492085650409190882}
   - component: {fileID: 3001675956330433646}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 3/8" ThunderHex (1 in).012
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -130991,7 +131241,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2754550538435376156}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of .375 ThunderHex ID .875 OD Flanged Bearing (217-5829).007
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -131320,7 +131570,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6095895637620225714}
   - component: {fileID: 2425808085975010940}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 1/16" 1/2" Spacer.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -131862,7 +132112,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4743619974657323736}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Flanged 1/2" ID - 1 1/8" OD ThunderHex Bearing.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -131896,7 +132146,7 @@ GameObject:
   - component: {fileID: 6876484318259792133}
   - component: {fileID: 7105823244593899932}
   - component: {fileID: 1480530340674516597}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Algae Spacer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -131981,7 +132231,7 @@ GameObject:
   - component: {fileID: 1311977677195591521}
   - component: {fileID: 133030956045434971}
   - component: {fileID: 7009974902066838537}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 3/8" ThunderHex (1 in).011
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -132384,7 +132634,7 @@ GameObject:
   - component: {fileID: 4682802184808546265}
   - component: {fileID: 8855094955335719978}
   - component: {fileID: 7328622890605882495}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Flanged 1/2" ID - 1 1/8" OD ThunderHex Bearing.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -132498,7 +132748,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2004619168025664248}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 02-00- Main Arm/Shooter Assembly
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -132683,7 +132933,7 @@ GameObject:
   - component: {fileID: 3812094462695896863}
   - component: {fileID: 7708870314765173636}
   - component: {fileID: 5578769778622592310}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: .5" Hex ID 1.125" OD Flanged Bearing (217-2734)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -134231,7 +134481,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7179234611246309653}
   - component: {fileID: 7253506841532766039}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Algae Shaft.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -134733,7 +134983,7 @@ GameObject:
   - component: {fileID: 6205790990751735093}
   - component: {fileID: 6501423368397497759}
   - component: {fileID: 6632527685887002593}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: .5" Hex ID 1.125" OD Flanged Bearing (217-2734).002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -134838,7 +135088,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8808119405660243511}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of 1/2" ThunderHex - 2.25"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -135478,7 +135728,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8574566236716403172}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of am-3946 3IN 500Hex Molded Compliant Wheel VER 2.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -135714,7 +135964,7 @@ GameObject:
   - component: {fileID: 2227394582395800356}
   - component: {fileID: 1265044017781868347}
   - component: {fileID: 7368185874442325649}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: REV-21-2581.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -135830,7 +136080,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6945511622950648342}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 28
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -135979,7 +136229,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8259511592120368893}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: occurrence of Part 59
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -137652,7 +137902,7 @@ GameObject:
   - component: {fileID: 6356461813727136795}
   - component: {fileID: 5224972098193857023}
   - component: {fileID: 6878601804032509508}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 1/16" 1/2" Spacer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
