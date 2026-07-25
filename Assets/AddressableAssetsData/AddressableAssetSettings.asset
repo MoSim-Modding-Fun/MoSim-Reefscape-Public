@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 9162ef73a8b7ff14a81079bd59987bc0
   m_currentHash:
     serializedVersion: 2
-    Hash: ae04ae04dfe04cc8d88ef6e3ac2c3543
+    Hash: b1276a13efdf70e181db87f509de5027
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_BundleLocalCatalog: 0
@@ -41,14 +41,14 @@ MonoBehaviour:
   m_BundleTimeout: 0
   m_BundleRetryCount: 0
   m_BundleRedirectLimit: -1
-  m_SharedBundleSettings: 1
-  m_SharedBundleSettingsCustomGroupIndex: 3
+  m_SharedBundleSettings: 0
+  m_SharedBundleSettingsCustomGroupIndex: 4
   m_ContiguousBundles: 1
   m_StripUnityVersionFromBundleBuild: 0
   m_DisableVisibleSubAssetRepresentations: 0
-  m_BuiltInBundleNaming: 2
+  m_BuiltInBundleNaming: 0
   mBuiltInBundleCustomNaming: nymodpack
-  m_MonoScriptBundleNaming: 2
+  m_MonoScriptBundleNaming: 0
   m_CheckForContentUpdateRestrictionsOption: 0
   m_MonoScriptBundleCustomNaming: nymodpack
   m_RemoteCatalogBuildPath:
@@ -61,6 +61,7 @@ MonoBehaviour:
   m_BuildAddressablesWithPlayerBuild: 0
   m_overridePlayerVersion: '[UnityEditor.PlayerSettings.bundleVersion]'
   m_GroupAssets:
+  - {fileID: 11400000, guid: 45db4e95da68a15cb868567aa5e3d1c8, type: 2}
   - {fileID: 11400000, guid: e02197fdf4254934fa6b0ab1762bb000, type: 2}
   - {fileID: 11400000, guid: 6f95bbb880c7bd049a2f66a4b58bc150, type: 2}
   - {fileID: 11400000, guid: 9cd31e1fc2fdeb84fbde0fabd689577f, type: 2}
