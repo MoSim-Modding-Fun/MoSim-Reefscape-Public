@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   modpackName: NY Modpack
   modpackVersion: 2.0.0
-  authorName: Trent (340), Bryce (340), Seb(694), Bryce (3950), Liam (2403), Amridin
-    (334)
+  authorName: Trent (340), Bryce (340), Seb (694), Bryce (3950), Liam (2403), Amridin
+    (334), Claude Code
   description: newyorkbest
   robots:
   - {fileID: 11400000, guid: 984eb4ce89b8cc844984606b9f83100b, type: 2}

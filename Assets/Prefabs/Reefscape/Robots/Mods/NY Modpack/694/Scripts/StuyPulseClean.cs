@@ -220,6 +220,11 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         private float _outtakeAudioUntil;
         private float _froggyOuttakeAudioUntil;
 
+        // Temporary diagnostic logging for the "funnel coral intake sometimes stops" report - remove once
+        // the root cause is confirmed. Only logs on state changes, not every FixedUpdate, to avoid spam.
+        private string _intakeDebugBranch = "";
+        private bool? _lastShooterExclusionDebug;
+
         // Timestamps of when froggy coral / shooter algae were each most recently newly acquired (null while
         // not held) - lets ResolveStackOrder tell which of the two, if both are currently held, was grabbed
         // first, per the driver's stack-button request.
@@ -362,6 +367,20 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             if (shooterHasCoral) _algaeController.RequestIntake(shooterAlgaeIntake, false);
             else if (shooterHasAlgae) _coralController.RequestIntake(funnelCoralIntake, false);
 
+            // Diagnostic: this exclusion runs every frame regardless of CurrentSetpoint, so if shooterHasAlgae
+            // ever gets stuck true after an algae is actually gone (stale currentStateNum/atTarget), it would
+            // silently block ALL future funnel coral intake with no other symptom - log only on change.
+            if (_lastShooterExclusionDebug != shooterHasAlgae)
+            {
+                Debug.Log($"[IntakeDebug] shooterHasAlgae {_lastShooterExclusionDebug} -> {shooterHasAlgae} | " +
+                    $"shooterHasCoral={shooterHasCoral} algaeStateNum={_algaeController.currentStateNum} " +
+                    $"algaeAtTarget={_algaeController.atTarget} algaeWasMovingTo={_algaeController.wasMovingTo} " +
+                    $"shooterAlgaeStowStateNum={shooterAlgaeStowState.stateNum} coralStateNum={_coralController.currentStateNum} " +
+                    $"coralAtTarget={_coralController.atTarget} coralWasMovingTo={_coralController.wasMovingTo} " +
+                    $"robotMode={CurrentRobotMode} setpoint={CurrentSetpoint}");
+                _lastShooterExclusionDebug = shooterHasAlgae;
+            }
+
             UpdateFroggySliderVisuals();
 
             if (CurrentSetpoint != ReefscapeSetpoints.Place || RobotModeToggleAction.IsPressed())
@@ -459,8 +478,10 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             // its stow slot (atTarget only flips true once that motion completes, see
             // RobotGamePieceController.ProcessNode). Gating on hasCoral cut the rollers the instant the piece
             // attached, before it was actually pulled all the way in.
+            string branch;
             if (CurrentIntakeMode == ReefscapeIntakeMode.L1 && !_coralController.atTarget && CurrentRobotMode == ReefscapeRobotMode.Coral)
             {
+                branch = "FroggyCoral";
                 SetSetpoint(froggyCoral);
                 frogState = FroggyState.CoralIntake;
                 _froggyWheels = 2000f;
@@ -472,6 +493,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             }
             else if (CurrentRobotMode == ReefscapeRobotMode.Coral && !_coralController.atTarget && !shooterHasAlgae && CurrentIntakeMode != ReefscapeIntakeMode.L1)
             {
+                branch = "FunnelCoral";
                 if (!SuperstructureAtSetpoint(backL4) && !SuperstructureAtSetpoint(frontL4) || DistanceToReef(GetClosestReef()) > 1.8) SetSetpoint(intakeFunnel);
                 frogState = FroggyState.Stow;
                 _coralController.SetTargetState(shooterCoralStowState);
@@ -483,6 +505,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             else if (!hasCoral && (!hasAlgae || hasAlgae && !shooterHasAlgae) &&
                      (LastSetpoint == ReefscapeSetpoints.HighAlgae || LastSetpoint == ReefscapeSetpoints.LowAlgae || LastSetpoint == ReefscapeSetpoints.Stack))
             {
+                branch = "AlgaeAfterStackOrAlgaeSetpoint";
                 frogState = FroggyState.Stow;
                 _algaeController.SetTargetState(shooterAlgaeStowState);
                 _algaeController.RequestIntake(shooterAlgaeIntake);
@@ -492,6 +515,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             }
             else if (CurrentRobotMode == ReefscapeRobotMode.Algae && !hasAlgae)
             {
+                branch = "FroggyAlgae";
                 frogState = FroggyState.AlgaeIntake;
                 UpdateFroggyRollers();
                 SetSetpoint(froggyLolli ? froggyLollipop : froggyAlgae);
@@ -509,7 +533,22 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
                 // froggyWheelSpeeds are persistent fields (see SetRollerSpeeds), not one-shot pulses, so
                 // without this the rollers stay latched at whatever intake speed was set the tick before
                 // securing and keep spinning indefinitely - same bug as HandleLowAlgae/HandleHighAlgae.
+                branch = "None";
                 SetRollerSpeeds(0, 0);
+            }
+
+            // Diagnostic: log every time HandleIntake's matched branch changes, with the full state that
+            // decided it - lets us see exactly which condition flipped false right when intake "stops."
+            if (branch != _intakeDebugBranch)
+            {
+                Debug.Log($"[IntakeDebug] HandleIntake branch {_intakeDebugBranch} -> {branch} | " +
+                    $"hasCoral={hasCoral} hasAlgae={hasAlgae} shooterHasAlgae={shooterHasAlgae} " +
+                    $"coralStateNum={_coralController.currentStateNum} coralAtTarget={_coralController.atTarget} coralWasMovingTo={_coralController.wasMovingTo} " +
+                    $"algaeStateNum={_algaeController.currentStateNum} algaeAtTarget={_algaeController.atTarget} algaeWasMovingTo={_algaeController.wasMovingTo} " +
+                    $"robotMode={CurrentRobotMode} intakeMode={CurrentIntakeMode} lastSetpoint={LastSetpoint} " +
+                    $"atFunnelPose={SuperstructureAtSetpoint(intakeFunnel)} atBackL4={SuperstructureAtSetpoint(backL4)} atFrontL4={SuperstructureAtSetpoint(frontL4)} " +
+                    $"distToReef={DistanceToReef(GetClosestReef())} intakePressed={IntakeAction.IsPressed()}");
+                _intakeDebugBranch = branch;
             }
         }
 
@@ -663,7 +702,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             _coralController.RequestIntake(froggyCoralIntake, false);
             _coralController.RequestIntake(shooterAlgaeIntake, false);
             _algaeController.RequestIntake(froggyAlgaeIntake, false);
-            if (shooterHasCoral) SetFacingSetpoint(frontL4, backL4);
+            if (shooterHasCoral && (_autoAlign == null || _autoAlign.L4ReadyForSetpoint())) SetFacingSetpoint(frontL4, backL4);
             foreach (var col in shooterCollidersForAlgae) col.enabled = true;
         }
 
