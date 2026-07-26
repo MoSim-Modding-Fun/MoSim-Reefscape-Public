@@ -159,27 +159,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             _coralController.RequestIntake(hpCoralIntake, IntakeAction.IsPressed() && (SuperstructureAtSetpoint(hpIntakeFront) || SuperstructureAtSetpoint(hpIntakeBack)));
             _coralController.RequestIntake(groundCoralIntake, IntakeAction.IsPressed() && SuperstructureAtSetpoint(groundIntake3));
             _algaeController.RequestIntake(algaeIntake, IntakeAction.IsPressed() && IsAlgaeSetpoint());
-/*
-            if (SuperstructureAtSetpoint(groundIntake3))
-            {
-                if (!hasCoral)
-                {
-                    _coralController.SetTargetState(groundIntakeState);
-                }
-                else
-                {
-                    if (SuperstructureAtSetpoint(groundIntake3) && _coralController.atTarget &&
-                        _coralController.currentStateNum == groundIntakeState.stateNum)
-                    {
-                        _coralController.SetTargetState(endEffectorState);
-                    }
-                }
-            }
-            else
-            {
-                _coralController.SetTargetState(endEffectorState);
-            }
-*/
             _algaeController.SetTargetState(algaeStowState);
             _coralController.SetTargetState(endEffectorState);
             
@@ -282,8 +261,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
                 .useCustomStartingOffset(0);
             intakeFlap.SetTargetAngle(_intakeFlapTargetAngle).withAxis(JointAxis.X)
                 .useCustomStartingOffset(0);
-            
-            print("Flap target at " + _intakeFlapTargetAngle + " Current Angle " + intakeFlap.GetSingleAxisAngle(JointAxis.X));
         }
 
         private void GoToGround()
@@ -328,7 +305,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             
             bool armAtSetpoint = Utils.InAngularRange(arm.GetSingleAxisAngle(JointAxis.X) - 283, setpoint.armAngle, 2f);
             bool wristAtSetpoint = Utils.InAngularRange(wrist.GetSingleAxisAngle(JointAxis.X) - 355, setpoint.wristAngle - 90, 2f);
-            bool intakeAtSetpoint = Utils.InAngularRange(intake.GetSingleAxisAngle(JointAxis.Y) + (float)71.4, setpoint.intakeAngle, 2f);
+            bool intakeAtSetpoint = Utils.InAngularRange(intake.GetSingleAxisAngle(JointAxis.Y) + 71.4f, setpoint.intakeAngle, 2f);
             
             return elevatorAtSetpoint && intakeAtSetpoint && wristAtSetpoint && armAtSetpoint;
         }
@@ -391,7 +368,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
     
         private Vector3 GetClosestReef()
         {
-            print("Facing " + (DistanceTo(_blueReef) < DistanceTo(_redReef) ? _blueReef : _redReef) + " with distance of " + DistanceTo(DistanceTo(_blueReef) < DistanceTo(_redReef) ? _blueReef : _redReef));
+            //print("Facing " + (DistanceTo(_blueReef) < DistanceTo(_redReef) ? _blueReef : _redReef) + " with distance of " + DistanceTo(DistanceTo(_blueReef) < DistanceTo(_redReef) ? _blueReef : _redReef));
             return DistanceTo(_blueReef) < DistanceTo(_redReef) ? _blueReef : _redReef;
         }
 
