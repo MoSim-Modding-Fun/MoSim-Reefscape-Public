@@ -39717,7 +39717,7 @@ MonoBehaviour:
     _encryptedValue: 1153213715
   falloffPercent: 0.075
   falloffExponent: 10
-  steerMultiplier: 1.3
+  steerMultiplier: 1
   speedDebug: 0
   swerveAudioMixerGroup: {fileID: 4093094553572483033, guid: ed4b10d8b69fb1240aaf15a3cba9d0bd,
     type: 2}
