@@ -323,7 +323,12 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
                 case ReefscapeSetpoints.L4: HandleL4(shooterHasCoral); break;
                 case ReefscapeSetpoints.Processor: HandleProcessor(shooterHasAlgae); break;
                 case ReefscapeSetpoints.Barge: HandleBarge(shooterHasAlgae); break;
-                case ReefscapeSetpoints.RobotSpecial: froggyLolli = !froggyLolli; break;
+                case ReefscapeSetpoints.RobotSpecial:
+                {
+                    froggyLolli = !froggyLolli;
+                    SetState(ReefscapeSetpoints.Stow);
+                    break;
+                }
                 case ReefscapeSetpoints.Climb: HandleClimb(); break;
                 case ReefscapeSetpoints.Climbed: HandleClimbed(); break;
             }
@@ -353,7 +358,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         private void HandleStow(bool hasCoral, bool shooterHasCoral, bool shooterHasAlgae)
         {
-            if (!SuperstructureAtSetpoint(backL4) && !SuperstructureAtSetpoint(frontL4) || DistanceToReef(GetClosestReef()) > 1.8) SetSetpoint(stow);
+            if (!SuperstructureAtSetpoint(backL4) && !SuperstructureAtSetpoint(frontL4) || DistanceToReef(GetClosestReef()) > 1.8) SetSetpoint(shooterHasAlgae ? stowWithAlgae : stow);
             frogState = FroggyState.Stow;
 
             var stowIntaking = CurrentIntakeMode != ReefscapeIntakeMode.L1 && IntakeAction.IsPressed() && !shooterHasCoral && !shooterHasAlgae;

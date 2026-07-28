@@ -403,7 +403,12 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
                 case ReefscapeSetpoints.L4: HandleL4(shooterHasCoral); break;
                 case ReefscapeSetpoints.Processor: HandleProcessor(shooterHasAlgae); break;
                 case ReefscapeSetpoints.Barge: HandleBarge(shooterHasAlgae); break;
-                case ReefscapeSetpoints.RobotSpecial: froggyLolli = !froggyLolli; break;
+                case ReefscapeSetpoints.RobotSpecial:
+                {
+                    froggyLolli = !froggyLolli;
+                    SetState(ReefscapeSetpoints.Stow);
+                    break;
+                }
                 case ReefscapeSetpoints.Climb: HandleClimb(); break;
                 case ReefscapeSetpoints.Climbed: HandleClimbed(); break;
             }
