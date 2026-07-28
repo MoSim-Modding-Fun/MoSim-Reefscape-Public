@@ -746,9 +746,9 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
             
             elevator.SetTarget(_elevatorTargetHeight);
 
-            groundIntake.SetTargetAngle(_intakeTargetAngle).withAxis(JointAxis.X).noWrap(-90);
+            groundIntake.SetTargetAngle(_intakeTargetAngle).withAxis(JointAxis.X);//.noWrap(90);
 
-            climber.SetTargetAngle(_climberTargetAngle).withAxis(JointAxis.Z).useAutomaticStartingOffset()
+            climber.SetTargetAngle(_climberTargetAngle).withAxis(JointAxis.X).useAutomaticStartingOffset()
                 .noWrap(180f);
         }
     }
