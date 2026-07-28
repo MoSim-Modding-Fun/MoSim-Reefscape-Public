@@ -26,7 +26,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
         [SerializeField] private GenericJoint climber;
         [SerializeField] private GenericRoller[] intakeRollers;
         [SerializeField] private ReefscapeAutoAlign autoAlign;
-        //[SerializeField] private ClimbScorer scorer;
+        [SerializeField] private StuyV3Climber climberObject;
+        [SerializeField] private ClimbScorer scorer;
         
         
         [Header("PIDS")]
@@ -494,9 +495,15 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
                     break;
                 case ReefscapeSetpoints.Climb:
                     SetSetpoint(climbPrep);
+                    climberObject.Climb();
+                    if (scorer.AutoClimbTriggered)
+                    {
+                        SetState(ReefscapeSetpoints.Climbed);
+                    }
                     break;
                 case ReefscapeSetpoints.Climbed:
                     SetSetpoint(climbed);
+                    climberObject.Climb();
                     break;
                 case ReefscapeSetpoints.Processor:
                     SetSetpoint(processor);
@@ -509,7 +516,11 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
             
             SetSetpoints();
             
-
+            // If not climbing or climbed, set climber to not climbing
+            if (CurrentSetpoint != ReefscapeSetpoints.Climbed && CurrentSetpoint != ReefscapeSetpoints.Climb)
+            {
+                climberObject.NotClimbing();
+            }
 
         }
         private IEnumerator PlaceCoral()

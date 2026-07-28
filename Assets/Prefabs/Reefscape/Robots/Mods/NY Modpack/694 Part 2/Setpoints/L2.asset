@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: L2
   m_EditorClassIdentifier: 
   armAngle: 115
-  elevatorHeight: 6
+  elevatorHeight: 5.37
   intakeAngle: 0
   climberAngle: 0
