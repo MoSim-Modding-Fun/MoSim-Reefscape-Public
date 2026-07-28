@@ -25,7 +25,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
         [SerializeField] private GenericJoint groundIntake;
         [SerializeField] private GenericJoint climber;
         [SerializeField] private GenericRoller[] intakeRollers;
-        [SerializeField] private ReefscapeAutoAlign autoAlign;
+        [SerializeField] private OffseasonAutoAlign autoAlign;
         [SerializeField] private StuyV3Climber climberObject;
         [SerializeField] private ClimbScorer scorer;
         
@@ -78,13 +78,14 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
         [SerializeField] private GamePieceState algaeStowState;
         [SerializeField] private GamePieceState algaeIntakeState;
         
-        [Header("Auto Align Offsets")] 
+        [Header("Auto Align Offsets")]
         [SerializeField] private Vector3 initialAutoAlignOffset;
         [SerializeField] private Vector3 algaeAutoAlignOffset;
         [SerializeField] private Vector3 algaeAutoAlignOffsetAlt;  // Add this line
         [SerializeField] private Vector3 l4AutoAlignOffset;
         [SerializeField] private Vector3 l3AutoAlignOffset;
         [SerializeField] private Vector3 l2AutoAlignOffset;
+        [SerializeField] private Vector3 bargeAutoAlignOffset;
         
         [Header("Intake Wheels")] [SerializeField]
         private GenericAnimationJoint[] intakeWheels;
@@ -390,26 +391,23 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
                     SetSetpoint(L2);
                     break;
                 case ReefscapeSetpoints.LowAlgae:
-                    // Check which auto align action is pressed to select offset
+                {
+                    bool flip = ComputeAlignFlip();
                     if (AutoAlignLeftAction.IsPressed())
-                    {
-                        autoAlign.offset = algaeAutoAlignOffset;
-                    }
+                        autoAlign.offset = !flip ? algaeAutoAlignOffset : algaeAutoAlignOffsetAlt;
                     else if (AutoAlignRightAction.IsPressed())
-                    {
-                        autoAlign.offset = algaeAutoAlignOffsetAlt;
-                    }
-                    // If neither is pressed, keep current offset
-    
+                        autoAlign.offset = !flip ? algaeAutoAlignOffsetAlt : algaeAutoAlignOffset;
+
                     SetSetpoint(lowAlgae);
                     _algaeController.RequestIntake(algaeIntake, IntakeAction.IsPressed() && !coralAtEE);
                     _algaeController.SetTargetState(algaeStowState);
                     if (IntakeAction.IsPressed())
                     {
-                        foreach (var wheel in eEWheels) 
+                        foreach (var wheel in eEWheels)
                             wheel.VelocityRoller(eEWheelSpeed).useAxis(JointAxis.Y);
                     }
                     break;
+                }
                 case ReefscapeSetpoints.L3:
                     autoAlign.offset = FacingReef
                         ? Utils.InAngularRange(arm.GetSingleAxisAngle(JointAxis.X), L3.armAngle, 20)
@@ -419,25 +417,23 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
                     SetSetpoint(L3);
                     break;
                 case ReefscapeSetpoints.HighAlgae:
-                    // Check which auto align action is pressed to select offset
+                {
+                    bool flip = ComputeAlignFlip();
                     if (AutoAlignLeftAction.IsPressed())
-                    {
-                        autoAlign.offset = algaeAutoAlignOffset;
-                    }
+                        autoAlign.offset = !flip ? algaeAutoAlignOffset : algaeAutoAlignOffsetAlt;
                     else if (AutoAlignRightAction.IsPressed())
-                    {
-                        autoAlign.offset = algaeAutoAlignOffsetAlt;
-                    }
-                    // If neither is pressed, keep current offset
+                        autoAlign.offset = !flip ? algaeAutoAlignOffsetAlt : algaeAutoAlignOffset;
+
                     if (IntakeAction.IsPressed())
                     {
-                        foreach (var wheel in eEWheels) 
+                        foreach (var wheel in eEWheels)
                             wheel.VelocityRoller(eEWheelSpeed).useAxis(JointAxis.Y);
                     }
                     SetSetpoint(highAlgae);
                     _algaeController.RequestIntake(algaeIntake, IntakeAction.IsPressed() && !coralAtEE);
                     _algaeController.SetTargetState(algaeStowState);
                     break;
+                }
                 case ReefscapeSetpoints.L4:
                     autoAlign.offset = FacingReef
                         ? Utils.InAngularRange(arm.GetSingleAxisAngle(JointAxis.X), L4.armAngle, 20)
@@ -463,6 +459,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
                     }
                     break;
                 case ReefscapeSetpoints.Barge:
+                    autoAlign.bargeOffset = bargeAutoAlignOffset;
                     CheckFacingBarge();
     
                     StuyPulsev3Setpoint targetBargeSetpoint = _facingBarge ? bargeFront : bargeBack;
@@ -556,6 +553,15 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
             }
         }
         
+        private bool ComputeAlignFlip()
+        {
+            var flip = false;
+            if (GetActiveCamera().transform.eulerAngles.y < 180) flip = !flip;
+            if (Mathf.Abs(transform.position.x) > 4.489323f && PlayerPrefs.GetInt("PerspectiveAutoAlign", 1) == 1) flip = !flip;
+            if (transform.position.x > 0) flip = !flip;
+            return flip;
+        }
+
         private void CheckFacingBarge()
         {
             var toZAxisXY = new Vector3(-transform.position.x, -transform.position.y, 0f).normalized;

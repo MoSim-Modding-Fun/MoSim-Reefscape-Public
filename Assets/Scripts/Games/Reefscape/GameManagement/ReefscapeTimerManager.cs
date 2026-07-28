@@ -7,9 +7,9 @@ namespace Games.Reefscape.GameManagement
 {
     public class ReefscapeTimerManager : BaseTimerManager
     {
-        protected override float MatchDuration => 150f;
-        protected override float TeleopStartTime => 135f;
-        protected override float EndgameStartTime => 20f;
+        protected override float MatchDuration => 15f; // 150
+        protected override float TeleopStartTime => 10f; // 135
+        protected override float EndgameStartTime => 50f; // 20
         
         protected override void StartTeleopTransition()
         {
