@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a4c3a1d7dcdde24b8cc1cd2c9723898, type: 3}
   m_Name: LollipopAlgae
   m_EditorClassIdentifier: 
-  elevatorHeight: 4.61
-  eeArmAngle: -283.8
+  elevatorHeight: 7.46
+  eeArmAngle: -274
   froggyAngle: 7
   climbPivot1Angle: 0
   climbPivot2Angle: 0

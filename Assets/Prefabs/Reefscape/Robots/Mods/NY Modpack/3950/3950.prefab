@@ -38256,6 +38256,9 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5834472765867728050}
+  - {fileID: 1911013037481662716}
+  - {fileID: 6836421833320431582}
+  - {fileID: 8776603386490604842}
   - {fileID: 9107178037535301884}
   m_Father: {fileID: 7508108429782771140}
   m_LocalEulerAnglesHint: {x: -180, y: -90, z: 0}
@@ -42986,7 +42989,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2189402448715766437}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 5
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -42999,7 +43002,7 @@ Rigidbody:
     serializedVersion: 2
     m_Bits: 0
   m_ImplicitCom: 1
-  m_ImplicitTensor: 1
+  m_ImplicitTensor: 0
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
@@ -57845,7 +57848,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -68742,7 +68745,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -86088,12 +86091,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4358203422298134582}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.1621097, y: -0, z: -0.000000014901159, w: 0.98677284}
-  m_LocalPosition: {x: -0.00023334027, y: -0.0032509232, z: 0.0031826363}
-  m_LocalScale: {x: 0.033143997, y: 0.034068715, z: 0.042364657}
+  m_LocalRotation: {x: 0.30155855, y: -0, z: -0.000000029802315, w: 0.9534477}
+  m_LocalPosition: {x: -0.00023334088, y: -0.0034864135, z: 0.003547141}
+  m_LocalScale: {x: 0.033143997, y: 0.03406871, z: 0.042364653}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 4464751552610110978}
+  m_Father: {fileID: 1292781157315852020}
   m_LocalEulerAnglesHint: {x: 18.659, y: 0, z: 0}
 --- !u!65 &6503812106138248368
 BoxCollider:
@@ -92753,12 +92756,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4680873297400888761}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.1621097, y: -0, z: -0.000000014901159, w: 0.98677284}
-  m_LocalPosition: {x: 0.00020575625, y: -0.003238, z: 0.003187}
-  m_LocalScale: {x: 0.013491519, y: 0.03, z: 0.03}
+  m_LocalRotation: {x: 0.30155855, y: -0, z: -0.000000029802315, w: 0.9534477}
+  m_LocalPosition: {x: 0.0007789997, y: -0.0034752542, z: 0.0035549845}
+  m_LocalScale: {x: 0.013491519, y: 0.029999997, z: 0.030000001}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 4464751552610110978}
+  m_Father: {fileID: 1292781157315852020}
   m_LocalEulerAnglesHint: {x: 18.659, y: 0, z: 0}
 --- !u!65 &8949704044912008035
 BoxCollider:
@@ -110420,12 +110423,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5609809310997339197}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.119473234, y: -0, z: -0.00000001117587, w: 0.9928375}
-  m_LocalPosition: {x: -0.000151, y: -0.003124, z: 0.003269}
-  m_LocalScale: {x: 0.6177519, y: 0.5761863, z: 0.43122926}
+  m_LocalRotation: {x: 0.26022762, y: -0, z: -0.000000014901158, w: 0.96554726}
+  m_LocalPosition: {x: -0.00015100064, y: -0.0033891292, z: 0.0036659006}
+  m_LocalScale: {x: 0.61775196, y: 0.5761863, z: 0.4312293}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 4464751552610110978}
+  m_Father: {fileID: 1292781157315852020}
   m_LocalEulerAnglesHint: {x: 13.723, y: 0, z: 0}
 --- !u!65 &1271499883637452117
 BoxCollider:
@@ -126713,9 +126716,6 @@ Transform:
   - {fileID: 3656022453292543701}
   - {fileID: 3500426929506490170}
   - {fileID: 2775326878193716983}
-  - {fileID: 1911013037481662716}
-  - {fileID: 6836421833320431582}
-  - {fileID: 8776603386490604842}
   m_Father: {fileID: 5834472765867728050}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6459869271371696416
@@ -161276,7 +161276,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
