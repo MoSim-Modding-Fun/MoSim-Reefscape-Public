@@ -3627,8 +3627,8 @@ HingeJoint:
   m_ExtendedLimits: 0
   m_UseAcceleration: 0
   m_Limits:
-    min: 0
-    max: 50
+    min: -50
+    max: 0
     bounciness: 0
     bounceMinVelocity: 0.2
     contactDistance: 0
@@ -14533,6 +14533,7 @@ GameObject:
   - component: {fileID: 975268171353880390}
   - component: {fileID: 854428147985737892}
   - component: {fileID: 192632517100946488}
+  - component: {fileID: 2106926039335666582}
   m_Layer: 6
   m_Name: OLIVER Fixed Stage Vertical
   m_TagString: Untagged
@@ -14607,6 +14608,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &2106926039335666582
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1059649597210339343}
+  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.00050800014, y: 0.009652001, z: 0.000508}
+  m_Center: {x: 0.00200025, y: -0.0055245007, z: 0.00050799997}
 --- !u!1 &1083614177561376354
 GameObject:
   m_ObjectHideFlags: 0
@@ -27221,6 +27243,7 @@ GameObject:
   - component: {fileID: 9041811730699203329}
   - component: {fileID: 7544299589376401682}
   - component: {fileID: 5899359406019653839}
+  - component: {fileID: 3690289655800497198}
   m_Layer: 6
   m_Name: OLIVER Fixed Stage Vertical.001
   m_TagString: Untagged
@@ -27295,6 +27318,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &3690289655800497198
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2137081737806613859}
+  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.00050800014, y: 0.009652001, z: 0.000508}
+  m_Center: {x: 0.00200025, y: -0.0055245007, z: 0.00050799997}
 --- !u!1 &2142175213532479306
 GameObject:
   m_ObjectHideFlags: 0
@@ -37082,6 +37126,7 @@ GameObject:
   - component: {fileID: 2534300232392423744}
   - component: {fileID: 1478446452286928613}
   - component: {fileID: 3702108972706120239}
+  - component: {fileID: 6302601244944717995}
   m_Layer: 6
   m_Name: Bumpers
   m_TagString: Untagged
@@ -37157,6 +37202,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &6302601244944717995
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2909452966169732090}
+  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.008870999, y: 0.010141002, z: 0.0013335004}
+  m_Center: {x: 0, y: 0, z: 0.0006667502}
 --- !u!1 &2914280120015713741
 GameObject:
   m_ObjectHideFlags: 0
@@ -50766,6 +50832,7 @@ GameObject:
   - component: {fileID: 7917768351388099059}
   - component: {fileID: 2145645854943000698}
   - component: {fileID: 1928585416646790634}
+  - component: {fileID: 2677126996314337831}
   m_Layer: 6
   m_Name: Tube 2"x1"x12.75"
   m_TagString: Untagged
@@ -50840,6 +50907,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &2677126996314337831
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3877734170436318338}
+  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.0032384994, y: 0.0002539996, z: 0.000508}
+  m_Center: {x: -3.4924597e-10, y: -0.017779998, z: 0.00050799997}
 --- !u!1 &3878260984653249350
 GameObject:
   m_ObjectHideFlags: 0
@@ -68276,6 +68364,7 @@ GameObject:
   - component: {fileID: 5351268161166176512}
   - component: {fileID: 9212309100860539899}
   - component: {fileID: 5167956564203932961}
+  - component: {fileID: 447073456425848556}
   m_Layer: 6
   m_Name: OLIVER First Stage Vertical.001
   m_TagString: Untagged
@@ -68350,6 +68439,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &447073456425848556
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5357341104771334895}
+  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.00025400007, y: 0.009334502, z: 0.000508}
+  m_Center: {x: 0.00149225, y: -0.013239751, z: 0.00050799997}
 --- !u!1 &5365288498624805785
 GameObject:
   m_ObjectHideFlags: 0
@@ -90424,6 +90534,7 @@ GameObject:
   - component: {fileID: 3209678253283183347}
   - component: {fileID: 7873337718179416754}
   - component: {fileID: 264986381222433755}
+  - component: {fileID: 2590437781470880171}
   m_Layer: 6
   m_Name: OLIVER First Stage Vertical
   m_TagString: Untagged
@@ -90498,6 +90609,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &2590437781470880171
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7342437065740012940}
+  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.00025400007, y: 0.009334502, z: 0.000508}
+  m_Center: {x: 0.00149225, y: -0.013239751, z: 0.00050799997}
 --- !u!1 &7346184705635418635
 GameObject:
   m_ObjectHideFlags: 0
