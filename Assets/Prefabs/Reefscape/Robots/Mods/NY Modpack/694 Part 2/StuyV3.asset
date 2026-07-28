@@ -29,5 +29,5 @@ MonoBehaviour:
   - {fileID: 6829736770845459078, guid: 04facd2835e6cec4e811d56ed9aed8c2, type: 3}
   - {fileID: 6829736770845459078, guid: 5cd09a27c82dc6741a8690bc0ff3e9d0, type: 3}
   alternateTutorialCards: []
-  autoClimbs: 0
+  autoClimbs: 1
   alternateAutoClimbs: 0

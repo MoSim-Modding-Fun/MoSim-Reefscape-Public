@@ -97,12 +97,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
 
             if (rollerAudioSource != null)
             {
-                // Don't want the audio on when stowed
-                var robot = GetComponent<StuyPulseOffseason>();
-                bool rollersSpinning = Mathf.Abs(_angularVelocity) > 0.1f && robot._climberTargetAngle == robot.climbPrep.climberAngle;
-                
-                if (rollersSpinning && !rollerAudioSource.isPlaying) rollerAudioSource.Play();
-                else if (!rollersSpinning && rollerAudioSource.isPlaying) rollerAudioSource.Stop();
+                if (_intakeWheelSpeed != 0 && !rollerAudioSource.isPlaying) rollerAudioSource.Play();
+                else if (_intakeWheelSpeed == 0 && rollerAudioSource.isPlaying) rollerAudioSource.Stop();
             }
         }
 

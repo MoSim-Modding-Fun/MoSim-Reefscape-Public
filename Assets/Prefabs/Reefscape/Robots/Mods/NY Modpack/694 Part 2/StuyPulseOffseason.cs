@@ -515,7 +515,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
                 climberObject.NotClimbing();
             }
             
-            if (scorer.AutoClimbTriggered && CurrentSetpoint == ReefscapeSetpoints.Climb && climberObject.WingsOpen())
+            if (scorer.AutoClimbTriggered && CurrentSetpoint == ReefscapeSetpoints.Climb)// && climberObject.WingsOpen())
             {
                 climberObject.PlayClick();
                 SetState(ReefscapeSetpoints.Climbed);
@@ -693,17 +693,16 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
                 return;
             }
 
-            if (!rollerSource.isPlaying && ((IntakeAction.IsPressed()) || OuttakeAction.IsPressed() ||
-                                            (_coralController.HasPiece() &&
-                                             _coralController.currentStateNum != coralChassisStowState.stateNum &&
-                                             _coralController.currentStateNum != coralArmStowState.stateNum)))
+            var intakeAudioActive = (IntakeAction.IsPressed() && _coralController.currentStateNum != coralArmStowState.stateNum)
+                                    || OuttakeAction.IsPressed()
+                                    || (_coralController.HasPiece()
+                                        && _coralController.currentStateNum != coralChassisStowState.stateNum
+                                        && _coralController.currentStateNum != coralArmStowState.stateNum);
+            if (!rollerSource.isPlaying && intakeAudioActive)
             {
                 rollerSource.Play();
             }
-            else if (rollerSource.isPlaying && !IntakeAction.IsPressed() && !OuttakeAction.IsPressed() &&
-                     (!_coralController.HasPiece() ||
-                      _coralController.currentStateNum == coralChassisStowState.stateNum ||
-                      _coralController.currentStateNum == coralArmStowState.stateNum))
+            else if (rollerSource.isPlaying && !intakeAudioActive)
             {
                 rollerSource.Stop();
             }
