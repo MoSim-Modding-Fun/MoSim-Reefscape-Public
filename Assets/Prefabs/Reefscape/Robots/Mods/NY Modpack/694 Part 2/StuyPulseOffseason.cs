@@ -60,7 +60,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
         
         [Header("climb Setpoints")]
         [SerializeField] private StuyPulsev3Setpoint climbStow;
-        [SerializeField] private StuyPulsev3Setpoint climbPrep;
+        [SerializeField] public StuyPulsev3Setpoint climbPrep;
         [SerializeField] private StuyPulsev3Setpoint climbed;
         
         [Header("Intake Componenets")]
@@ -122,7 +122,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
         private float _elevatorTargetHeight;
         private float _armTargetAngle;
         private float _intakeTargetAngle;
-        private float _climberTargetAngle;
+        public float _climberTargetAngle;
         [SerializeField] private float noWrapAngle;
 
         
@@ -493,14 +493,10 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
                 case ReefscapeSetpoints.Climb:
                     SetSetpoint(climbPrep);
                     climberObject.Climb();
-                    if (scorer.AutoClimbTriggered)
-                    {
-                        SetState(ReefscapeSetpoints.Climbed);
-                    }
                     break;
                 case ReefscapeSetpoints.Climbed:
                     SetSetpoint(climbed);
-                    climberObject.Climb();
+                    climberObject.NotClimbing();
                     break;
                 case ReefscapeSetpoints.Processor:
                     SetSetpoint(processor);
@@ -514,10 +510,18 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
             SetSetpoints();
             
             // If not climbing or climbed, set climber to not climbing
-            if (CurrentSetpoint != ReefscapeSetpoints.Climbed && CurrentSetpoint != ReefscapeSetpoints.Climb)
+            if (CurrentSetpoint != ReefscapeSetpoints.Climb)
             {
                 climberObject.NotClimbing();
             }
+            
+            if (scorer.AutoClimbTriggered && CurrentSetpoint == ReefscapeSetpoints.Climb && climberObject.WingsOpen())
+            {
+                climberObject.PlayClick();
+                SetState(ReefscapeSetpoints.Climbed);
+            }
+            else if (!scorer.AutoClimbTriggered && CurrentSetpoint == ReefscapeSetpoints.Climbed)
+                SetState(ReefscapeSetpoints.Climb);
 
         }
         private IEnumerator PlaceCoral()
@@ -689,7 +693,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
                 return;
             }
 
-            if (!rollerSource.isPlaying && (IntakeAction.IsPressed() || OuttakeAction.IsPressed() ||
+            if (!rollerSource.isPlaying && ((IntakeAction.IsPressed()) || OuttakeAction.IsPressed() ||
                                             (_coralController.HasPiece() &&
                                              _coralController.currentStateNum != coralChassisStowState.stateNum &&
                                              _coralController.currentStateNum != coralArmStowState.stateNum)))

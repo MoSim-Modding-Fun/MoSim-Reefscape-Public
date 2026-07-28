@@ -1,4 +1,6 @@
 using Games.Reefscape.Scoring.Scorers;
+using MoSimCore.BaseClasses.GameManagement;
+using MoSimCore.Enums;
 using MoSimLib;
 using RobotFramework.Components;
 using RobotFramework.Controllers.PidSystems;
@@ -35,6 +37,14 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
 
         [SerializeField] private float ClickerSpeed = 720f;
         
+        [Header("Audio")]
+        [SerializeField] private AudioSource rollerAudioSource;
+        [SerializeField] private AudioClip rollerClip;
+
+        [SerializeField] private AudioSource clickSource;
+        [SerializeField] private AudioClip detectorClickClip;
+        
+        
         private void Start()
         {
             _climbScorer = GetComponentInParent<ClimbScorer>();
@@ -42,6 +52,10 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
             {
                 Debug.LogError("StuyV3Climber: ClimbScorer component not found in parent.");
             }
+            
+            rollerAudioSource.clip = rollerClip; 
+            rollerAudioSource.loop = true;
+            rollerAudioSource.Stop();
             
             intakeWheelL.SetPid(pidConstants);
             intakeWheelR.SetPid(pidConstants);
@@ -69,12 +83,41 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
             intakeWheelR.SetAngularVelocity(-_angularVelocity).WithAxis(JointAxis.Y);
             intakeWheelGameObjectL.transform.Rotate(Vector3.left, _intakeWheelSpeed * Time.fixedDeltaTime);
             intakeWheelGameObjectR.transform.Rotate(Vector3.left, -_intakeWheelSpeed * Time.fixedDeltaTime);
+        
+            UpdateAudio();
+        }
+
+        private void UpdateAudio()
+        {
+            if (BaseGameManager.Instance.RobotState == RobotState.Disabled)
+            {
+                if (rollerAudioSource != null && rollerAudioSource.isPlaying) rollerAudioSource.Stop();
+                return;
+            }
+
+            if (rollerAudioSource != null)
+            {
+                // Don't want the audio on when stowed
+                var robot = GetComponent<StuyPulseOffseason>();
+                bool rollersSpinning = Mathf.Abs(_angularVelocity) > 0.1f && robot._climberTargetAngle == robot.climbPrep.climberAngle;
+                
+                if (rollersSpinning && !rollerAudioSource.isPlaying) rollerAudioSource.Play();
+                else if (!rollersSpinning && rollerAudioSource.isPlaying) rollerAudioSource.Stop();
+            }
         }
 
         public void Climb()
         {
             _angularVelocity = climbingAngularVelocity;
             _intakeWheelSpeed = targetIntakeWheelSpeed;
+        }
+
+        public void PlayClick()
+        {
+            if (clickSource != null && detectorClickClip != null)
+            {
+                clickSource.PlayOneShot(detectorClickClip);
+            }
         }
         
         public bool WingsOpen()
