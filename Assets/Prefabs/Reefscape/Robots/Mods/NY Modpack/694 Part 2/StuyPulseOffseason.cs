@@ -26,7 +26,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
         [SerializeField] private GenericJoint climber;
         [SerializeField] private GenericRoller[] intakeRollers;
         [SerializeField] private ReefscapeAutoAlign autoAlign;
-        [SerializeField] private ClimbScorer scorer;
+        //[SerializeField] private ClimbScorer scorer;
         
         
         [Header("PIDS")]
@@ -746,7 +746,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
             
             elevator.SetTarget(_elevatorTargetHeight);
 
-            groundIntake.SetTargetAngle(_intakeTargetAngle).withAxis(JointAxis.X).flipDirection().noWrap(-90);
+            groundIntake.SetTargetAngle(_intakeTargetAngle).withAxis(JointAxis.X).noWrap(-90);
 
             climber.SetTargetAngle(_climberTargetAngle).withAxis(JointAxis.Z).useAutomaticStartingOffset()
                 .noWrap(180f);
