@@ -32081,14 +32081,14 @@ MonoBehaviour:
   drivetrainParent: {fileID: 1796238409465893025}
   wheelDiameter: 4
   maxSpeed:
-    _obfuscationKey: 1312150584
-    _encryptedValue: 263836728
+    _obfuscationKey: 1476831215
+    _encryptedValue: 429303791
   accelerationForce:
-    _obfuscationKey: 1046333805
-    _encryptedValue: 2126367085
+    _obfuscationKey: 1127459697
+    _encryptedValue: 63155057
   falloffPercent: 0.075
   falloffExponent: 10
-  steerMultiplier: 1
+  steerMultiplier: 1.1
   speedDebug: 0
   swerveAudioMixerGroup: {fileID: 4093094553572483033, guid: ed4b10d8b69fb1240aaf15a3cba9d0bd,
     type: 2}
@@ -32254,13 +32254,13 @@ MonoBehaviour:
   climberObject: {fileID: 3533201879312383821}
   scorer: {fileID: 5931090368863886208}
   armPid:
-    kP: 0.4
+    kP: 0.6
     kI: 0
     kD: 0.00001
-    Max: 5
+    Max: 5.5
     Isaturation: 1
   intakePid:
-    kP: 2
+    kP: 3
     kI: 0
     kD: 0.00001
     Max: 8
