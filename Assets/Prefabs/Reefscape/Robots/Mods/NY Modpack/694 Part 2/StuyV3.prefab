@@ -32295,6 +32295,9 @@ MonoBehaviour:
   climbed: {fileID: 11400000, guid: 0377a6dc37961104fa379b9a1cf885ad, type: 2}
   coralIntake: {fileID: 7292939474002651707}
   algaeIntake: {fileID: 629245815656744709}
+  coralVisionZone: {fileID: 4654916130527751780}
+  autoSteerKp: 0.025
+  maxAutoSteerPower: 0.12
   currentState: 
   coralIntakeState:
     name: coralIntakeState
@@ -41522,6 +41525,59 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &3020951365458974359
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8900725132350353899}
+  - component: {fileID: 4654916130527751780}
+  m_Layer: 6
+  m_Name: Vision
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8900725132350353899
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3020951365458974359}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.07107259, z: 1.1705265}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3359639081751812666}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &4654916130527751780
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3020951365458974359}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.0684164, y: 0.13740599, z: 0.6678264}
+  m_Center: {x: 0.0017890632, y: -0.0069342554, z: -0.3327564}
 --- !u!1 &3026440898732525177
 GameObject:
   m_ObjectHideFlags: 0
@@ -71339,6 +71395,7 @@ Transform:
   - {fileID: 6959711470231862019}
   - {fileID: 4422537984883831191}
   - {fileID: 1999424274947027426}
+  - {fileID: 8900725132350353899}
   m_Father: {fileID: 5276575887366965953}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5293847363870205883

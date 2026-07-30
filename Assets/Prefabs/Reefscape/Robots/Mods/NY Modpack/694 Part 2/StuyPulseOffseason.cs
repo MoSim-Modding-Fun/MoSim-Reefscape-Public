@@ -66,6 +66,13 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
         [Header("Intake Componenets")]
         [SerializeField] private ReefscapeGamePieceIntake coralIntake;
         [SerializeField] private ReefscapeGamePieceIntake algaeIntake;
+
+        [Header("Coral Vision")]
+        [SerializeField] private BoxCollider coralVisionZone;
+        [SerializeField] private float autoSteerKp = 0.025f;
+        [SerializeField] private float maxAutoSteerPower = 0.12f;
+        private Collider[] _visionColliders = new Collider[6];
+        private LayerMask _coralLayerMask;
         
         [Header("Game Piece States")]
         [SerializeField] private string currentState;
@@ -195,6 +202,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
             armSource.Stop();
                 
             driveController = gameObject.GetComponent<DriveController>();
+
+            _coralLayerMask = LayerMask.GetMask("Coral");
         }
 
         // Update is called once per frame
@@ -523,6 +532,56 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
             else if (!scorer.AutoClimbTriggered && CurrentSetpoint == ReefscapeSetpoints.Climbed)
                 SetState(ReefscapeSetpoints.Climb);
 
+            RunCoralVision();
+        }
+
+        private void RunCoralVision()
+        {
+            // Abort if no vision box is assigned, the button isn't held, or the robot already has a piece
+            if (coralVisionZone == null) return;
+            if (!IntakeAction.IsPressed() || _coralController.HasPiece() || _coralController.IntakeHasPieces(coralIntake)) return;
+            if (CurrentRobotMode != ReefscapeRobotMode.Coral) return;
+
+            // Clear the array
+            for (int i = 0; i < _visionColliders.Length; i++) _visionColliders[i] = null;
+
+            // Scan the invisible box for corals
+            int hits = Physics.OverlapBoxNonAlloc(coralVisionZone.bounds.center, coralVisionZone.bounds.extents, _visionColliders, coralVisionZone.transform.rotation, _coralLayerMask);
+
+            if (hits == 0 || _visionColliders[0] == null) return;
+
+            // Find the closest coral in the box
+            GameObject closestCoral = _visionColliders[0].gameObject;
+            float closestDist = Vector3.Distance(closestCoral.transform.position, transform.position);
+
+            for (int i = 1; i < hits; i++)
+            {
+                if (_visionColliders[i] == null) continue;
+                float dist = Vector3.Distance(_visionColliders[i].transform.position, transform.position);
+                if (dist < closestDist)
+                {
+                    closestDist = dist;
+                    closestCoral = _visionColliders[i].gameObject;
+                }
+            }
+
+            // Calculate the angle between the robot's front and the closest coral
+            Vector3 directionToCoral = closestCoral.transform.position - transform.position;
+            directionToCoral.y = 0; // Ignore height differences
+            Vector3 forward = transform.forward;
+            forward.y = 0;
+
+            float angleError = Vector3.SignedAngle(forward, directionToCoral, Vector3.up);
+
+            // Calculate tuning and clamp the power
+            float steerPower = -angleError * autoSteerKp;
+            steerPower = Mathf.Clamp(steerPower, -maxAutoSteerPower, maxAutoSteerPower);
+
+            // Inject the steering command directly into the Swerve Drive Controller
+            if (driveController != null && Mathf.Abs(steerPower) > 0.01f)
+            {
+                driveController.SoftSteer(steerPower);
+            }
         }
         private IEnumerator PlaceCoral()
         {
