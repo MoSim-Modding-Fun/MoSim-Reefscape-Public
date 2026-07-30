@@ -315,7 +315,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
                 
                     if (_algaeController.HasPiece())
                     {
-                        _algaeController.ReleaseGamePieceWithForce(new Vector3(0, 1.15f, 0));
+                        _algaeController.ReleaseGamePieceWithForce(new Vector3(0, 3f, 0));
                         if (wasCoral)
                         {
                             SetRobotMode(ReefscapeRobotMode.Coral);
