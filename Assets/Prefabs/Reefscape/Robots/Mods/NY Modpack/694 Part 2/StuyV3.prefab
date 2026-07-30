@@ -3541,7 +3541,7 @@ MeshCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -9061,7 +9061,7 @@ MeshCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -32081,8 +32081,8 @@ MonoBehaviour:
   drivetrainParent: {fileID: 1796238409465893025}
   wheelDiameter: 4
   maxSpeed:
-    _obfuscationKey: 294140150
-    _encryptedValue: 1342191862
+    _obfuscationKey: 1312150584
+    _encryptedValue: 263836728
   accelerationForce:
     _obfuscationKey: 1046333805
     _encryptedValue: 2126367085
@@ -32262,14 +32262,14 @@ MonoBehaviour:
   intakePid:
     kP: 2
     kI: 0
-    kD: 0.2
+    kD: 0.00001
     Max: 8
     Isaturation: 1
   climberPid:
-    kP: 0.5
+    kP: 1
     kI: 0
     kD: 0.00001
-    Max: 3
+    Max: 4
     Isaturation: 1
   stow: {fileID: 11400000, guid: cc1ab7c436a890d4c8e28bf410c8255f, type: 2}
   coralStow: {fileID: 11400000, guid: 7180b041157ccf442840995275d4f3b9, type: 2}
@@ -32429,7 +32429,7 @@ MonoBehaviour:
   - {fileID: 5236794792831084459}
   elevatorType: 1
   pidConstants:
-    kP: 16
+    kP: 16.5
     kI: 0
     kD: 0.1
     Max: 3.5
