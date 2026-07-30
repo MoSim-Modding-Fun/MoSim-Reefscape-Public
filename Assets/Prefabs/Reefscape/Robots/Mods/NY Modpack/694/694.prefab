@@ -37934,6 +37934,10 @@ MonoBehaviour:
   - {fileID: 445430712957941900}
   froggyAnimationWheelSpeeds: 900
   frogState: 0
+  algaeVisionZone: {fileID: 8895390340442665067}
+  algaeAutoSteerKp: 0.025
+  algaeMaxAutoSteerPower: 0.12
+  algaeIntakeDirection: -90
 --- !u!114 &-5212941126464287568
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43739,6 +43743,59 @@ Transform:
   - {fileID: 5766085348735994698}
   m_Father: {fileID: 5373134394111106948}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2966378478659684997
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7000983508653494708}
+  - component: {fileID: 8895390340442665067}
+  m_Layer: 6
+  m_Name: VisionAlgae
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7000983508653494708
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2966378478659684997}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 1.11059, y: 0.07985231, z: -0.004000142}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5985978090524618172}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!65 &8895390340442665067
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2966378478659684997}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.0684164, y: 0.5068883, z: 0.6678265}
+  m_Center: {x: 0.001789093, y: 0.17780688, z: -0.3327564}
 --- !u!1 &2969748809186586435
 GameObject:
   m_ObjectHideFlags: 0
@@ -114054,6 +114111,7 @@ Transform:
   - {fileID: 6034365375546373043}
   - {fileID: 2914353119043551219}
   - {fileID: 1638815711604052471}
+  - {fileID: 7000983508653494708}
   m_Father: {fileID: 7508108429782771140}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8061672552666905485

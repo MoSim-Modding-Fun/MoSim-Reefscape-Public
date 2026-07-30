@@ -73,6 +73,12 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
         [SerializeField] private float maxAutoSteerPower = 0.12f;
         private Collider[] _visionColliders = new Collider[6];
         private LayerMask _coralLayerMask;
+
+        [Header("Algae Vision")]
+        [SerializeField] private BoxCollider algaeVisionZone;
+        [SerializeField] private float algaeAutoSteerKp = 0.025f;
+        [SerializeField] private float algaeMaxAutoSteerPower = 0.12f;
+        private LayerMask _algaeLayerMask;
         
         [Header("Game Piece States")]
         [SerializeField] private string currentState;
@@ -145,6 +151,15 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
 
         private bool armNearTarget;
 
+        [Header("Center of Mass")]
+        [SerializeField] private bool addCenterOfMassX;
+        [SerializeField] private bool addCenterOfMassZ;
+        [SerializeField] private float climbedCenterOfMassX;
+        [SerializeField] private float climbedCenterOfMassZ;
+        private Rigidbody _mainRb;
+        private Vector3 _originalCenterOfMass;
+        private bool _isCgShifted;
+
         private DriveController driveController;
 
         // Start is called before the first frame update
@@ -203,7 +218,19 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
                 
             driveController = gameObject.GetComponent<DriveController>();
 
+            _mainRb = gameObject.GetComponent<Rigidbody>();
+            _isCgShifted = false;
+            if (_mainRb != null)
+            {
+                _originalCenterOfMass = _mainRb.centerOfMass;
+            }
+            else
+            {
+                Debug.LogWarning("ts isnt working btw???");
+            }
+
             _coralLayerMask = LayerMask.GetMask("Coral");
+            _algaeLayerMask = LayerMask.GetMask("Algae");
         }
 
         // Update is called once per frame
@@ -532,7 +559,25 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
             else if (!scorer.AutoClimbTriggered && CurrentSetpoint == ReefscapeSetpoints.Climbed)
                 SetState(ReefscapeSetpoints.Climb);
 
+            if (_mainRb != null)
+            {
+                if (CurrentSetpoint == ReefscapeSetpoints.Climbed)
+                {
+                    if (!_isCgShifted)
+                    {
+                        _mainRb.centerOfMass = new Vector3(climbedCenterOfMassX, _originalCenterOfMass.y, climbedCenterOfMassZ);
+                        _isCgShifted = true;
+                    }
+                }
+                else if (_isCgShifted)
+                {
+                    _mainRb.centerOfMass = _originalCenterOfMass;
+                    _isCgShifted = false;
+                }
+            }
+
             RunCoralVision();
+            RunAlgaeVision();
         }
 
         private void RunCoralVision()
@@ -578,6 +623,49 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
             steerPower = Mathf.Clamp(steerPower, -maxAutoSteerPower, maxAutoSteerPower);
 
             // Inject the steering command directly into the Swerve Drive Controller
+            if (driveController != null && Mathf.Abs(steerPower) > 0.01f)
+            {
+                driveController.SoftSteer(steerPower);
+            }
+        }
+
+        private void RunAlgaeVision()
+        {
+        
+            if (algaeVisionZone == null) return;
+            if (!IntakeAction.IsPressed() || _algaeController.HasPiece() || _algaeController.IntakeHasPieces(algaeIntake)) return;
+            if (CurrentRobotMode != ReefscapeRobotMode.Algae) return;
+
+            for (int i = 0; i < _visionColliders.Length; i++) _visionColliders[i] = null;
+
+            int hits = Physics.OverlapBoxNonAlloc(algaeVisionZone.bounds.center, algaeVisionZone.bounds.extents, _visionColliders, algaeVisionZone.transform.rotation, _algaeLayerMask);
+
+            if (hits == 0 || _visionColliders[0] == null) return;
+
+            GameObject closestAlgae = _visionColliders[0].gameObject;
+            float closestDist = Vector3.Distance(closestAlgae.transform.position, transform.position);
+
+            for (int i = 1; i < hits; i++)
+            {
+                if (_visionColliders[i] == null) continue;
+                float dist = Vector3.Distance(_visionColliders[i].transform.position, transform.position);
+                if (dist < closestDist)
+                {
+                    closestDist = dist;
+                    closestAlgae = _visionColliders[i].gameObject;
+                }
+            }
+
+            Vector3 directionToAlgae = closestAlgae.transform.position - transform.position;
+            directionToAlgae.y = 0; // Ignore height differences
+            Vector3 forward = -transform.forward; // Algae intake faces the back of the robot
+            forward.y = 0;
+
+            float angleError = Vector3.SignedAngle(forward, directionToAlgae, Vector3.up);
+
+            float steerPower = -angleError * algaeAutoSteerKp;
+            steerPower = Mathf.Clamp(steerPower, -algaeMaxAutoSteerPower, algaeMaxAutoSteerPower);
+
             if (driveController != null && Mathf.Abs(steerPower) > 0.01f)
             {
                 driveController.SoftSteer(steerPower);

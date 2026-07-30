@@ -120,7 +120,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
         [SerializeField] private float froggyAnimationWheelSpeeds = 150;
 
         [SerializeField] private FroggyState frogState = FroggyState.Stow;
-        
+
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _coralController;
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _algaeController;
 
@@ -831,7 +831,7 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             RunFroggyWheels();
             // UpdateAudio();
         }
-        
+
         private float DistanceToReef(Vector3 reefPos)
         {
             return Mathf.Sqrt(Mathf.Pow(transform.position.x - reefPos.x, 2) + Mathf.Pow(transform.position.z - reefPos.z, 2));

@@ -7,6 +7,7 @@ using MoSimCore.BaseClasses.GameManagement;
 using MoSimCore.Enums;
 using MoSimLib;
 using RobotFramework.Components;
+using RobotFramework.Controllers.Drivetrain;
 using RobotFramework.Controllers.GamePieceSystem;
 using RobotFramework.Controllers.PidSystems;
 using RobotFramework.Enums;
@@ -133,6 +134,16 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
 
         [SerializeField] private FroggyState frogState = FroggyState.Stow;
 
+        [Header("Algae Vision")]
+        [SerializeField] private BoxCollider algaeVisionZone;
+        [SerializeField] private float algaeAutoSteerKp = 0.025f;
+        [SerializeField] private float algaeMaxAutoSteerPower = 0.12f;
+        [Tooltip("Which way the algae intake faces, in degrees from robot front: 0 = front, 90 = right, -90 = left, 180 = back")]
+        [SerializeField] private float algaeIntakeDirection;
+        private Collider[] _visionColliders = new Collider[6];
+        private LayerMask _algaeLayerMask;
+        private DriveController _driveController;
+
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _coralController;
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _algaeController;
         private StuyPulseAutoAlign _autoAlign;
@@ -204,6 +215,8 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             climbPivot2.SetPid(climbPivotsPid);
 
             _autoAlign = GetComponent<StuyPulseAutoAlign>();
+            _driveController = GetComponent<DriveController>();
+            _algaeLayerMask = LayerMask.GetMask("Algae");
             _defaultCoralStationDropDistance = CurrentCoralStationMode.DropDistance;
 
             RobotGamePieceController.SetPreload(shooterCoralStowState);
@@ -337,6 +350,46 @@ namespace Prefabs.Reefscape.Robots.Mods.NYPowerhousePack._694
             UpdateAudio();
             ApplyRollerOutputs();
             UpdateFroggyRollers();
+            RunAlgaeVision();
+        }
+
+        private void RunAlgaeVision()
+        {
+            if (algaeVisionZone == null) return;
+            if (!IntakeAction.IsPressed() || _algaeController.HasPiece() ||
+                _algaeController.IntakeHasPieces(froggyAlgaeIntake) || _algaeController.IntakeHasPieces(shooterAlgaeIntake)) return;
+            if (CurrentRobotMode != ReefscapeRobotMode.Algae) return;
+
+            for (var i = 0; i < _visionColliders.Length; i++) _visionColliders[i] = null;
+
+            var hits = Physics.OverlapBoxNonAlloc(algaeVisionZone.bounds.center, algaeVisionZone.bounds.extents, _visionColliders, algaeVisionZone.transform.rotation, _algaeLayerMask);
+            if (hits == 0 || _visionColliders[0] == null) return;
+
+            var closestAlgae = _visionColliders[0].gameObject;
+            var closestDist = Vector3.Distance(closestAlgae.transform.position, transform.position);
+            for (var i = 1; i < hits; i++)
+            {
+                if (_visionColliders[i] == null) continue;
+                var dist = Vector3.Distance(_visionColliders[i].transform.position, transform.position);
+                if (dist < closestDist)
+                {
+                    closestDist = dist;
+                    closestAlgae = _visionColliders[i].gameObject;
+                }
+            }
+
+            var directionToAlgae = closestAlgae.transform.position - transform.position;
+            directionToAlgae.y = 0;
+            var forward = Quaternion.Euler(0, algaeIntakeDirection, 0) * transform.forward;
+            forward.y = 0;
+
+            var angleError = Vector3.SignedAngle(forward, directionToAlgae, Vector3.up);
+            var steerPower = Mathf.Clamp(-angleError * algaeAutoSteerKp, -algaeMaxAutoSteerPower, algaeMaxAutoSteerPower);
+
+            if (_driveController != null && Mathf.Abs(steerPower) > 0.01f)
+            {
+                _driveController.SoftSteer(steerPower);
+            }
         }
 
         private void UpdateFroggySliderVisuals()

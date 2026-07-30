@@ -1860,7 +1860,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 144673494479699251}
-  m_Material: {fileID: 13400000, guid: 99a4521ed91e2a74fb49255117e7d7d0, type: 2}
+  m_Material: {fileID: 13400000, guid: e3a7aada2f3e61444825f76b87f50ea3, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -12080,7 +12080,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 875481466621338024}
-  m_Material: {fileID: 13400000, guid: 99a4521ed91e2a74fb49255117e7d7d0, type: 2}
+  m_Material: {fileID: 13400000, guid: e3a7aada2f3e61444825f76b87f50ea3, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -32081,11 +32081,11 @@ MonoBehaviour:
   drivetrainParent: {fileID: 1796238409465893025}
   wheelDiameter: 4
   maxSpeed:
-    _obfuscationKey: 973037250
-    _encryptedValue: 2021613250
+    _obfuscationKey: 1060000417
+    _encryptedValue: 2125450043
   accelerationForce:
-    _obfuscationKey: 2070088853
-    _encryptedValue: 979725043
+    _obfuscationKey: 21651567
+    _encryptedValue: 1078091887
   falloffPercent: 0.075
   falloffExponent: 10
   steerMultiplier: 1.2
@@ -32266,10 +32266,10 @@ MonoBehaviour:
     Max: 8
     Isaturation: 1
   climberPid:
-    kP: 1
+    kP: 0.35
     kI: 0
     kD: 0.00001
-    Max: 4
+    Max: 3
     Isaturation: 1
   stow: {fileID: 11400000, guid: cc1ab7c436a890d4c8e28bf410c8255f, type: 2}
   coralStow: {fileID: 11400000, guid: 7180b041157ccf442840995275d4f3b9, type: 2}
@@ -32298,6 +32298,9 @@ MonoBehaviour:
   coralVisionZone: {fileID: 4654916130527751780}
   autoSteerKp: 0.025
   maxAutoSteerPower: 0.12
+  algaeVisionZone: {fileID: 3387920450547468131}
+  algaeAutoSteerKp: 0.025
+  algaeMaxAutoSteerPower: 0.12
   currentState: 
   coralIntakeState:
     name: coralIntakeState
@@ -32415,6 +32418,10 @@ MonoBehaviour:
     gamePieceController: {fileID: 0}
   _climberTargetAngle: 0
   noWrapAngle: 270
+  addCenterOfMassX: 1
+  addCenterOfMassZ: 0
+  climbedCenterOfMassX: -0.32
+  climbedCenterOfMassZ: 0
 --- !u!114 &116580260664895136
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41536,7 +41543,7 @@ GameObject:
   - component: {fileID: 8900725132350353899}
   - component: {fileID: 4654916130527751780}
   m_Layer: 6
-  m_Name: Vision
+  m_Name: VisionCoral
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -60661,6 +60668,59 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &4426126815255880089
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9079285027868831774}
+  - component: {fileID: 3387920450547468131}
+  m_Layer: 6
+  m_Name: VisionAlgae
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9079285027868831774
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4426126815255880089}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.07107259, z: -0.50544125}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3359639081751812666}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &3387920450547468131
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4426126815255880089}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.0684164, y: 0.13740599, z: 0.6678264}
+  m_Center: {x: 0.0017890632, y: -0.0069342554, z: -0.3327564}
 --- !u!1 &4430891269867056825
 GameObject:
   m_ObjectHideFlags: 0
@@ -71396,6 +71456,7 @@ Transform:
   - {fileID: 4422537984883831191}
   - {fileID: 1999424274947027426}
   - {fileID: 8900725132350353899}
+  - {fileID: 9079285027868831774}
   m_Father: {fileID: 5276575887366965953}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5293847363870205883
