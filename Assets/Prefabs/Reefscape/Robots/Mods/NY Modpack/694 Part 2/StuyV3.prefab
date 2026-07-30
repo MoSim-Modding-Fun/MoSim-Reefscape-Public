@@ -32050,7 +32050,7 @@ Rigidbody:
   m_Mass: 98
   m_Drag: 3
   m_AngularDrag: 5
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_CenterOfMass: {x: 0, y: -0.067, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
   m_IncludeLayers:
@@ -32081,11 +32081,11 @@ MonoBehaviour:
   drivetrainParent: {fileID: 1796238409465893025}
   wheelDiameter: 4
   maxSpeed:
-    _obfuscationKey: 1476831215
-    _encryptedValue: 429303791
+    _obfuscationKey: 973037250
+    _encryptedValue: 2021613250
   accelerationForce:
-    _obfuscationKey: 1127459697
-    _encryptedValue: 63155057
+    _obfuscationKey: 2070088853
+    _encryptedValue: 979725043
   falloffPercent: 0.075
   falloffExponent: 10
   steerMultiplier: 1.2
@@ -32227,14 +32227,14 @@ MonoBehaviour:
   <CurrentSetpoint>k__BackingField: 0
   <CurrentCoralStationMode>k__BackingField:
     <DropType>k__BackingField: 0
-    <DropDistance>k__BackingField: 0
-    <DropStrength>k__BackingField: 5
-    <DropForceVariance>k__BackingField: 1
-    <RotationVariance>k__BackingField: 0.1
+    <DropDistance>k__BackingField: 1
+    <DropStrength>k__BackingField: 5.67
+    <DropForceVariance>k__BackingField: 0.67
+    <RotationVariance>k__BackingField: 0.05
     <DropOrientation>k__BackingField: 0
     <RequireIntaking>k__BackingField: 1
     <TargetTransform>k__BackingField: {fileID: 0}
-    <DrawDebugLines>k__BackingField: 0
+    <DrawDebugLines>k__BackingField: 1
   superCycler: 1
   elevator: {fileID: 116580260664895136}
   arm: {fileID: 3623663308617918623}
@@ -32432,16 +32432,16 @@ MonoBehaviour:
   - {fileID: 5236794792831084459}
   elevatorType: 1
   pidConstants:
-    kP: 16.5
+    kP: 20
     kI: 0
     kD: 0.1
-    Max: 3.5
+    Max: 5
     Isaturation: 1
   stagesPidConstants:
-    kP: 100
+    kP: 150
     kI: 0
-    kD: 0
-    Max: 4
+    kD: 0.1
+    Max: 20
     Isaturation: 1
   elevatorAxis: 1
   flipped: 0
@@ -54994,7 +54994,7 @@ MonoBehaviour:
   intakeSpeed: 70
   intakeForce: 118
   usePlanarTolerancing: 1
-  boxExtents: {x: 22, y: 7, z: 5}
+  boxExtents: {x: 22, y: 7, z: 12}
   maxDistance: 1.15
   accuracy: 0.05
   lockXAxis: 1
@@ -84912,8 +84912,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.0072627324, y: 0.6096006, z: 0.08507525}
-  m_Center: {x: 8.453775e-11, y: 2.1835104e-16, z: -0.005118729}
+  m_Size: {x: 0.0072627324, y: 0.6096006, z: 0.1374822}
+  m_Center: {x: -0.000000045137924, y: 1.5176432e-15, z: -0.0313221}
 --- !u!1 &6401170970090264064
 GameObject:
   m_ObjectHideFlags: 0
