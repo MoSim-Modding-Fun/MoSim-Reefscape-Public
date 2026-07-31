@@ -32081,11 +32081,11 @@ MonoBehaviour:
   drivetrainParent: {fileID: 1796238409465893025}
   wheelDiameter: 4
   maxSpeed:
-    _obfuscationKey: 1060000417
-    _encryptedValue: 2125450043
+    _obfuscationKey: 1842141141
+    _encryptedValue: 743277009
   accelerationForce:
-    _obfuscationKey: 21651567
-    _encryptedValue: 1078091887
+    _obfuscationKey: 165432567
+    _encryptedValue: 1227013469
   falloffPercent: 0.075
   falloffExponent: 10
   steerMultiplier: 1.2
@@ -32228,13 +32228,13 @@ MonoBehaviour:
   <CurrentCoralStationMode>k__BackingField:
     <DropType>k__BackingField: 0
     <DropDistance>k__BackingField: 1
-    <DropStrength>k__BackingField: 5.67
+    <DropStrength>k__BackingField: 6
     <DropForceVariance>k__BackingField: 0.67
     <RotationVariance>k__BackingField: 0.05
     <DropOrientation>k__BackingField: 0
     <RequireIntaking>k__BackingField: 1
     <TargetTransform>k__BackingField: {fileID: 0}
-    <DrawDebugLines>k__BackingField: 1
+    <DrawDebugLines>k__BackingField: 0
   superCycler: 1
   elevator: {fileID: 116580260664895136}
   arm: {fileID: 3623663308617918623}
