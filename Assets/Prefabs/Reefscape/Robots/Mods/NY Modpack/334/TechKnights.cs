@@ -163,7 +163,7 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
             if (handoff)
             {
                 RunRollers(eeRollers, eeSpeed, EESource);
-                RunRollers(handoffRollers, handoffSpeed, HandoffSource);
+                RunRollers(handoffRollers, 0f, HandoffSource);
                 if (EndEffectorAtSetpoint(processor)) SetState(ReefscapeSetpoints.Stow);
             }
             
@@ -204,7 +204,7 @@ namespace Prefabs.Reefscape.Robots.Mods.TechKnights._334
                     if (!(_coralController.atTarget && _coralController.currentStateNum == coralStowState.stateNum))
                     {
                         RunRollers(intakeRollers, intakeSpeed, IntakeSource);
-                        RunRollers(handoffRollers, hasAlgae ? (_coralController.currentStateNum == coralHandoffState.stateNum && _coralController.atTarget) ? 0 : handoffSpeed : (EndEffectorAtSetpoint(intake)) ? handoffSpeed : 0f, HandoffSource);
+                        RunRollers(handoffRollers, (_coralController.currentStateNum == coralHandoffState.stateNum && _coralController.atTarget) ? 0 : handoffSpeed, HandoffSource);
                         RunRollers(eeRollers, hasAlgae ? 0 : eeSpeed, EESource);
                     }
                     SetSetpoint(hasAlgae ? intakeWithAlgae : intake);

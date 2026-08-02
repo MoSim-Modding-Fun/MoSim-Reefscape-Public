@@ -900,10 +900,22 @@ namespace Prefabs.Reefscape.Robots.Mods.NYModpack._694
             
         private void SetSetpoint(StuyPulsev3Setpoint setpoint)
         {
-            _armTargetAngle = setpoint.armAngle;
-            _elevatorTargetHeight = setpoint.elevatorHeight;
-            _intakeTargetAngle = setpoint.intakeAngle;
-            _climberTargetAngle = setpoint.climberAngle;
+            if ((CurrentSetpoint == ReefscapeSetpoints.Climb || CurrentSetpoint == ReefscapeSetpoints.Climbed) &&
+                _algaeController.HasPiece())
+            {
+                _armTargetAngle = groundAlgae.armAngle;
+                _elevatorTargetHeight = groundAlgae.elevatorHeight;
+                _intakeTargetAngle = setpoint.intakeAngle;
+                _climberTargetAngle = setpoint.climberAngle;
+            }
+            else
+            {
+                _armTargetAngle = setpoint.armAngle;
+                _elevatorTargetHeight = setpoint.elevatorHeight;
+                _intakeTargetAngle = setpoint.intakeAngle;
+                _climberTargetAngle = setpoint.climberAngle;
+            }
+            
         }
         
         private void SetSetpoints()
