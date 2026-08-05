@@ -32084,8 +32084,8 @@ MonoBehaviour:
     _obfuscationKey: 1842141141
     _encryptedValue: 743277009
   accelerationForce:
-    _obfuscationKey: 165432567
-    _encryptedValue: 1227013469
+    _obfuscationKey: 1528111324
+    _encryptedValue: 437592284
   falloffPercent: 0.075
   falloffExponent: 10
   steerMultiplier: 1.2
