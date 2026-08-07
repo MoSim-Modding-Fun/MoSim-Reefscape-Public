@@ -10,11 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 713155721937481dbf0332a6dcf52567, type: 3}
-  m_Name: PrototypeMod
+  m_Name: China Modpack
   m_EditorClassIdentifier: 
-  modpackName: Prototype 5449
-  modpackVersion: 1.0.0
-  authorName: Sebastian
-  description: Fun little modpack that includes FRC 5449 Prototype from China
+  modpackName: China Modpack
+  modpackVersion: 2.0.0
+  authorName: seb
+  description: longlivepresxi
   robots:
   - {fileID: 11400000, guid: 59d761dc69bb04b9da2ab04eea03c7d9, type: 2}
+  - {fileID: 11400000, guid: 614e7b7f74f56e3748d55b1c20aee080, type: 2}
