@@ -76,6 +76,7 @@ crashlytics-build.properties
 Assets/Prefabs/Reefscape/Robots/Spectrum.prefab
 Assets/Prefabs/Reefscape/Robots/Spectrum.prefab
 /.idea
+*.DS_Store
 /_Build
 /_LinuxBuild
 StandaloneWindows64/robonautsmod_assets_all_5774bae440d1954dc02e1305d3e24445.bundle
