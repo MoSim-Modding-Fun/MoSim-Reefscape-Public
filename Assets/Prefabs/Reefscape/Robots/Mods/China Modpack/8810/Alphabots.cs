@@ -84,6 +84,8 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
 
         private LayerMask coralMask;
         private bool canClack;
+
+        private bool funnelDeployed = false;
         
         protected override void Start()
         {
@@ -130,6 +132,8 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
 
             coralMask = LayerMask.GetMask("Coral");
             canClack = true;
+
+            funnelDeployed = false;
         }
 
         private void PlaceCoral()
@@ -223,6 +227,7 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
                     break;
                 case ReefscapeSetpoints.Climb:
                     climb.Climb();
+                    funnelDeployed = true;
                     SetClimb(climberDeployAngle);
                     SetFunnelAngle(funnelClimbAngle);
                     break;
@@ -230,6 +235,15 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
                     SetClimb(climbClimbedAngle);
                     climb.NotClimbing();
                     break;
+            }
+
+            if (funnelDeployed || hasCoral || hasAlgae)
+            {
+                CurrentCoralStationMode.DropDistance = 0f;
+            }
+            else
+            {
+                CurrentCoralStationMode.DropDistance = 1.67f;
             }
             
             if (_coralController.atTarget && _coralController.currentStateNum == coralHandoffState.stateNum)
@@ -355,6 +369,14 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
 
         private void LateUpdate()
         {
+            if (funnelDeployed)
+            {
+                JointDrive xDrive = new JointDrive();
+                xDrive.positionDamper = 35f;
+                xDrive.maximumForce = funnelJoint.GetComponent<ConfigurableJoint>().angularXDrive.maximumForce;
+                funnelJoint.GetComponent<ConfigurableJoint>().angularXDrive = xDrive;
+            }
+            
             funnelJoint.UpdatePid(funnelPid);
             armJoint.UpdatePid(armPid);
             climberJoint.UpdatePid(climberPid);
