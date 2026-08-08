@@ -40349,10 +40349,10 @@ MonoBehaviour:
   hasGamePiece: 0
   requestIntake: 0
   pieceName: 
-  intakeSpeed: 20
+  intakeSpeed: 10
   intakeForce: 10
   usePlanarTolerancing: 1
-  boxExtents: {x: 7, y: 7, z: 7}
+  boxExtents: {x: 4, y: 4, z: 4}
   maxDistance: 7
   accuracy: 1
   lockXAxis: 0
@@ -48754,7 +48754,7 @@ MonoBehaviour:
   algaeStowState:
     name: Algae Stow State
     stateNum: 2
-    stateMoveSpeed: 80
+    stateMoveSpeed: 40
     stateTarget: {fileID: 3421268945901724914}
     smoothHandoff: 0
     angularSpeed: 10

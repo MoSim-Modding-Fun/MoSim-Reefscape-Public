@@ -208,6 +208,15 @@ namespace Prefabs.Reefscape.Robots.Mods.PrototypeMod._5449
         {
             bool hasAlgae = _algaeController.HasPiece();
             bool hasCoral = _coralController.HasPiece();
+
+            if (hasCoral || CurrentRobotMode == ReefscapeRobotMode.Algae)
+            {
+                CurrentCoralStationMode.DropDistance = 0f;
+            }
+            else
+            {
+                CurrentCoralStationMode.DropDistance = 1.45f;
+            }
             
             _algaeController.SetTargetState(algaeStowState);
             _coralController.SetTargetState(coralStowState);

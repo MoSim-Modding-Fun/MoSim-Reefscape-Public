@@ -837,14 +837,14 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 198263414983719447}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_Material: {fileID: 13400000, guid: 20e7d1a69977f2248b454fb4fca44b0a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 64
+  m_LayerOverridePriority: 100
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -1501,14 +1501,14 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 366685058841396841}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_Material: {fileID: 13400000, guid: 20e7d1a69977f2248b454fb4fca44b0a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 64
+  m_LayerOverridePriority: 100
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -1785,7 +1785,7 @@ GameObject:
   - component: {fileID: 1331706034693097659}
   - component: {fileID: 6475627048969182072}
   - component: {fileID: 5087315314966890028}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: hopper__hopper.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1907,11 +1907,11 @@ Transform:
   m_GameObject: {fileID: 399521152258364679}
   serializedVersion: 2
   m_LocalRotation: {x: 0.13269036, y: -0, z: -0, w: 0.99115753}
-  m_LocalPosition: {x: 0.088, y: 0.181, z: -0.223}
+  m_LocalPosition: {x: 0.088, y: 0.2841, z: -0.223}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7685792960174235260}
+  m_Father: {fileID: 7515809420919037322}
   m_LocalEulerAnglesHint: {x: 15.25, y: 0, z: 0}
 --- !u!136 &6317613691759750833
 CapsuleCollider:
@@ -3726,6 +3726,8 @@ Transform:
   m_Children:
   - {fileID: 8893330717044517233}
   - {fileID: 5857147328087396291}
+  - {fileID: 8303215867793835205}
+  - {fileID: 3788297973560753862}
   - {fileID: 7685792960174235260}
   m_Father: {fileID: 7508108429782771140}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -8496,7 +8498,7 @@ GameObject:
   - component: {fileID: 5663864197542029812}
   - component: {fileID: 6398055368773330178}
   - component: {fileID: 2813847250600533705}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: hopper__hopper.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9492,14 +9494,14 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1973338728425582665}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_Material: {fileID: 13400000, guid: 20e7d1a69977f2248b454fb4fca44b0a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 64
+  m_LayerOverridePriority: 100
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -10031,7 +10033,7 @@ GameObject:
   - component: {fileID: 6380999441937653746}
   - component: {fileID: 4401689622377407769}
   - component: {fileID: 5154082497015835380}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: hopper__hopper.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12544,8 +12546,8 @@ MonoBehaviour:
   drivePID:
     kP: 21
     kI: 0
-    kD: 2
-    Max: 2.9
+    kD: 1.9
+    Max: 1
     Isaturation: 2
   rotatePID:
     kP: 0.05
@@ -12621,10 +12623,10 @@ MonoBehaviour:
     Max: 6
     Isaturation: 0.5
   climberPid:
-    kP: 0.35
+    kP: 0.3
     kI: 0
     kD: 0.00001
-    Max: 3
+    Max: 2
     Isaturation: 1
   funnelStowAngle: 0
   funnelClimbAngle: -26
@@ -12686,7 +12688,7 @@ MonoBehaviour:
   rollerSpeed: 600
   funnelCloseSource: {fileID: 4227126270850341364}
   funnelCloseAudio: {fileID: 8300000, guid: 4ba0822a76f984745bc76bf206effafa, type: 3}
-  coralTrigger: {fileID: 1852503691252542279}
+  coralTrigger: {fileID: 63135493581416822}
   rollerSource: {fileID: 3545423529706999726}
   rollerClip: {fileID: 8300000, guid: 602fb269d44b4964d8d4881108b75f19, type: 3}
 --- !u!1 &2542870606334838454
@@ -12891,6 +12893,59 @@ Transform:
   - {fileID: 439837395759706294}
   m_Father: {fileID: 1468907277997572073}
   m_LocalEulerAnglesHint: {x: -0.473, y: 0, z: 90}
+--- !u!1 &2626103599355765811
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7201888382692212949}
+  - component: {fileID: 63135493581416822}
+  m_Layer: 6
+  m_Name: Clanker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7201888382692212949
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2626103599355765811}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.34276375, y: -0, z: -0, w: 0.93942165}
+  m_LocalPosition: {x: 0.0059167147, y: 0.4831, z: -0.2175}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1055594487528021017}
+  m_LocalEulerAnglesHint: {x: 40.091, y: 0, z: 0}
+--- !u!65 &63135493581416822
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2626103599355765811}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.5983597, y: 0.23794031, z: 0.28907716}
+  m_Center: {x: -0.0029639602, y: 0.041787114, z: 0.082145184}
 --- !u!1 &2634541789634984023
 GameObject:
   m_ObjectHideFlags: 0
@@ -14327,14 +14382,14 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3047762200028233268}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_Material: {fileID: 13400000, guid: 20e7d1a69977f2248b454fb4fca44b0a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 64
+  m_LayerOverridePriority: 100
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -14406,7 +14461,7 @@ GameObject:
   - component: {fileID: 8814927456561416598}
   - component: {fileID: 1255241415843974958}
   - component: {fileID: 1691785320557966409}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: hopper__hopper.004 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15254,14 +15309,14 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3333618566911705282}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_Material: {fileID: 13400000, guid: 20e7d1a69977f2248b454fb4fca44b0a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 64
+  m_LayerOverridePriority: 100
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -15277,7 +15332,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2680355983011512893}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: b
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15340,14 +15395,14 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3370822038345527775}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_Material: {fileID: 13400000, guid: 20e7d1a69977f2248b454fb4fca44b0a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 64
+  m_LayerOverridePriority: 100
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -16257,14 +16312,14 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3591032563197796678}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_Material: {fileID: 13400000, guid: 20e7d1a69977f2248b454fb4fca44b0a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 64
+  m_LayerOverridePriority: 100
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -16875,14 +16930,14 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3759340262352624444}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_Material: {fileID: 13400000, guid: 20e7d1a69977f2248b454fb4fca44b0a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 64
+  m_LayerOverridePriority: 100
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -16934,7 +16989,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2634754977580066846}
   - component: {fileID: 7319680924864204345}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Coral Intake
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16986,7 +17041,7 @@ MonoBehaviour:
   lockYAxis: 0
   lockZAxis: 0
   roationForce: 2
-  maxRotationSpeed: 5
+  maxRotationSpeed: 20
   useRotaion: 1
   smoothHandoff: 1
   target: {fileID: 1094658230580771950}
@@ -19180,11 +19235,11 @@ Transform:
   m_GameObject: {fileID: 4451337476501519466}
   serializedVersion: 2
   m_LocalRotation: {x: 0.13269036, y: -0, z: -0, w: 0.99115753}
-  m_LocalPosition: {x: -0.086, y: 0.181, z: -0.223}
+  m_LocalPosition: {x: -0.086, y: 0.2841, z: -0.223}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7685792960174235260}
+  m_Father: {fileID: 7515809420919037322}
   m_LocalEulerAnglesHint: {x: 15.25, y: 0, z: 0}
 --- !u!136 &7704211045765847291
 CapsuleCollider:
@@ -19493,14 +19548,14 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4510645579297626181}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_Material: {fileID: 13400000, guid: 20e7d1a69977f2248b454fb4fca44b0a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 64
+  m_LayerOverridePriority: 100
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -19601,7 +19656,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1094658230580771950}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Coral Target
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19662,14 +19717,14 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4619370601461752954}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_Material: {fileID: 13400000, guid: 20e7d1a69977f2248b454fb4fca44b0a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 64
+  m_LayerOverridePriority: 100
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -21056,14 +21111,14 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4953643034672848458}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_Material: {fileID: 13400000, guid: 20e7d1a69977f2248b454fb4fca44b0a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 64
+  m_LayerOverridePriority: 100
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -25106,7 +25161,7 @@ GameObject:
   - component: {fileID: 3921291501256873524}
   - component: {fileID: 5715784100867650732}
   - component: {fileID: 4407876815355060312}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: hopper__hopper.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29235,7 +29290,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6397041749719963956}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ts (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30240,14 +30295,14 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7565590144224725909}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_Material: {fileID: 13400000, guid: 20e7d1a69977f2248b454fb4fca44b0a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 64
+  m_LayerOverridePriority: 100
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -30971,7 +31026,7 @@ GameObject:
   - component: {fileID: 1865250133236357973}
   - component: {fileID: 6113950093230332270}
   - component: {fileID: 8467883331707522512}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: hopper__hopper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31930,7 +31985,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7391166962249295194}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ts
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32048,6 +32103,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7685792960174235260}
+  - component: {fileID: 3055259986077314013}
+  - component: {fileID: 4848911306339665498}
   m_Layer: 6
   m_Name: Colliders
   m_TagString: Untagged
@@ -32071,10 +32128,51 @@ Transform:
   - {fileID: 5479857480020601691}
   - {fileID: 1947979703648885180}
   - {fileID: 6977444970318520991}
-  - {fileID: 8303215867793835205}
-  - {fileID: 3788297973560753862}
   m_Father: {fileID: 7515809420919037322}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &3055259986077314013
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7971284100169047478}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!138 &4848911306339665498
+FixedJoint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7971284100169047478}
+  serializedVersion: 1
+  m_ConnectedBody: {fileID: 8921164627416285410}
+  m_ConnectedArticulationBody: {fileID: 0}
+  m_BreakForce: Infinity
+  m_BreakTorque: Infinity
+  m_EnableCollision: 0
+  m_EnablePreprocessing: 1
+  m_MassScale: 1
+  m_ConnectedMassScale: 1
 --- !u!1 &8001770729579471861
 GameObject:
   m_ObjectHideFlags: 0
@@ -33881,14 +33979,14 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8388840749460565447}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_Material: {fileID: 13400000, guid: 20e7d1a69977f2248b454fb4fca44b0a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 64
+  m_LayerOverridePriority: 100
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -34258,6 +34356,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2634754977580066846}
+  - {fileID: 7201888382692212949}
   - {fileID: 1765219883984386273}
   m_Father: {fileID: 7508108429782771140}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -34812,14 +34911,14 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8517031144528876456}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_Material: {fileID: 13400000, guid: 20e7d1a69977f2248b454fb4fca44b0a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 64
+  m_LayerOverridePriority: 100
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -34897,14 +34996,14 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8526896026402781899}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_Material: {fileID: 13400000, guid: 20e7d1a69977f2248b454fb4fca44b0a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 64
+  m_LayerOverridePriority: 100
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
@@ -35537,7 +35636,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4969364467586530822}
   - component: {fileID: 1852503691252542279}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Intake Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35578,8 +35677,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.28346866, y: 0.1445871, z: 0.28907716}
-  m_Center: {x: -0.0059910417, y: -0.004888902, z: 0.082145125}
+  m_Size: {x: 0.28346866, y: 0.1445871, z: 0.35540533}
+  m_Center: {x: -0.0059910417, y: -0.004889209, z: 0.04898107}
 --- !u!1 &8804521798534469455
 GameObject:
   m_ObjectHideFlags: 0
@@ -35713,7 +35812,7 @@ GameObject:
   - component: {fileID: 6569649890169376614}
   - component: {fileID: 1091076383464712748}
   - component: {fileID: 8165285370173380765}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: hopper__hopper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36721,14 +36820,14 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9160855380696862005}
-  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
+  m_Material: {fileID: 13400000, guid: 20e7d1a69977f2248b454fb4fca44b0a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 64
+  m_LayerOverridePriority: 100
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1

@@ -86,6 +86,8 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
         private bool canClack;
 
         private bool funnelDeployed = false;
+
+        private bool overrideAudio = false;
         
         protected override void Start()
         {
@@ -162,12 +164,20 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
         {
             bool hasCoral = _coralController.HasPiece();
             bool hasAlgae = _algaeController.HasPiece();
+
+            if (CurrentSetpoint != ReefscapeSetpoints.Place)
+            {
+                overrideAudio = false;
+            }
             
             switch (CurrentSetpoint)
             {
                 case ReefscapeSetpoints.Place:
                     if (hasCoral) PlaceCoral();
                     else _algaeController.ReleaseGamePieceWithForce(algaeOuttakeForce.vector3);
+                    
+                    if (LastSetpoint == ReefscapeSetpoints.Stow || LastSetpoint == ReefscapeSetpoints.Intake) overrideAudio = true;
+                    else overrideAudio = false;
                     break;
                 case ReefscapeSetpoints.Stow:
                     SetSetpoint(hasAlgae ? algaeStow : stow);
@@ -237,7 +247,7 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
                     break;
             }
 
-            if (funnelDeployed || hasCoral || hasAlgae)
+            if (funnelDeployed || hasCoral || hasAlgae || CurrentRobotMode == ReefscapeRobotMode.Algae)
             {
                 CurrentCoralStationMode.DropDistance = 0f;
             }
@@ -342,7 +352,7 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
                     rollerSource.Play();
                 }
             }
-            else if (CurrentSetpoint == ReefscapeSetpoints.Place && OuttakeAction.IsPressed())
+            else if (CurrentSetpoint == ReefscapeSetpoints.Place && OuttakeAction.IsPressed() && !overrideAudio)
             {
                 RunRollers(true);
                 if (!rollerSource.isPlaying)
@@ -410,6 +420,10 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
                 if (Utils.InRange(setpoint.elevatorHeight, elevator.GetElevatorHeight(), 2f))
                 {
                     _armAngle = setpoint.armAngle;
+                }
+                else
+                {
+                    _armAngle = algaeStow.armAngle;
                 }
                 _elevatorTargetHeight = setpoint.elevatorHeight;
                 return;
