@@ -42,15 +42,15 @@ MonoBehaviour:
   m_BundleRetryCount: 0
   m_BundleRedirectLimit: -1
   m_SharedBundleSettings: 1
-  m_SharedBundleSettingsCustomGroupIndex: 4
+  m_SharedBundleSettingsCustomGroupIndex: 7
   m_ContiguousBundles: 1
   m_StripUnityVersionFromBundleBuild: 0
   m_DisableVisibleSubAssetRepresentations: 0
   m_BuiltInBundleNaming: 2
-  mBuiltInBundleCustomNaming: nymodpack
+  mBuiltInBundleCustomNaming: chinamodpack
   m_MonoScriptBundleNaming: 2
   m_CheckForContentUpdateRestrictionsOption: 0
-  m_MonoScriptBundleCustomNaming: nymodpack
+  m_MonoScriptBundleCustomNaming: chinamodpack
   m_RemoteCatalogBuildPath:
     m_Id: 
   m_RemoteCatalogLoadPath:
@@ -86,6 +86,8 @@ MonoBehaviour:
         m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
       - m_Id: 0e5919d6f1e0aa942884f286be525d14
         m_Value: '{UnityEngine.Application.dataPath}/../Mods/NY Modpack'
+      - m_Id: 1aeda53ffba4f95858d60c06210767bb
+        m_Value: '{UnityEngine.Application.dataPath}/../Mods/China Modpack'
       - m_Id: 37e529e86860a7741a1cf0fcf45e094b
         m_Value: '[UnityEngine.AddressableAssets.Addressables.BuildPath]/[BuildTarget]'
       - m_Id: 3995af1f76783674a86b8f7323c5f71e
@@ -100,6 +102,8 @@ MonoBehaviour:
         m_Value: '{UnityEngine.Application.dataPath}/../Mods/Lanternfly Mod'
       - m_Id: a2842c0f9ded8a54d9ba8ec693eb3bcc
         m_Value: '{UnityEngine.Application.dataPath}/../Mods/Packed Assets'
+      - m_Id: b0e1cfe99d57941e0b6808282508e7a8
+        m_Value: '{UnityEngine.Application.persistentDataPath}/Mods/China Modpack'
       - m_Id: c65595e78f4c7db44a4324f2e84106be
         m_Value: '{UnityEngine.Application.persistentDataPath}/Mods/MechTechMod'
       - m_Id: d7ce8c026e36f7d42a1bcf400a2df73e
@@ -121,6 +125,9 @@ MonoBehaviour:
     - m_Id: 0e5919d6f1e0aa942884f286be525d14
       m_Name: NY Modpack_BuildPath
       m_InlineUsage: 0
+    - m_Id: 1aeda53ffba4f95858d60c06210767bb
+      m_Name: China Modpack_BuildPath
+      m_InlineUsage: 0
     - m_Id: 37e529e86860a7741a1cf0fcf45e094b
       m_Name: Local.BuildPath
       m_InlineUsage: 0
@@ -141,6 +148,9 @@ MonoBehaviour:
       m_InlineUsage: 0
     - m_Id: a2842c0f9ded8a54d9ba8ec693eb3bcc
       m_Name: Packed Assets_BuildPath
+      m_InlineUsage: 0
+    - m_Id: b0e1cfe99d57941e0b6808282508e7a8
+      m_Name: China Modpack_LoadPath
       m_InlineUsage: 0
     - m_Id: c65595e78f4c7db44a4324f2e84106be
       m_Name: MechTechMod_LoadPath
