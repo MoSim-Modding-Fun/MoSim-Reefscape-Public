@@ -87,6 +87,11 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
 
         private bool funnelDeployed = false;
 
+        private bool _handoffAtStow = false;
+
+        private bool _algaeFromGround = false;
+        private bool _hadAlgae = false;
+
         private bool overrideAudio = false;
         
         protected override void Start()
@@ -169,11 +174,16 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
             {
                 overrideAudio = false;
             }
-            
+
+            if (hasAlgae) SetRobotMode(ReefscapeRobotMode.Algae);
+            else if (hasCoral) SetRobotMode(ReefscapeRobotMode.Coral);
+            else if (_hadAlgae && !_algaeFromGround) SetRobotMode(ReefscapeRobotMode.Coral);
+            _hadAlgae = hasAlgae;
+
             switch (CurrentSetpoint)
             {
                 case ReefscapeSetpoints.Place:
-                    if (hasCoral) PlaceCoral();
+                    if (_coralController.atTarget && _coralController.currentStateNum == coralArmState.stateNum) PlaceCoral();
                     else _algaeController.ReleaseGamePieceWithForce(algaeOuttakeForce.vector3);
                     
                     if (LastSetpoint == ReefscapeSetpoints.Stow || LastSetpoint == ReefscapeSetpoints.Intake) overrideAudio = true;
@@ -185,46 +195,44 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
                 case ReefscapeSetpoints.Intake:
                     if (CurrentRobotMode == ReefscapeRobotMode.Algae && !hasCoral && !hasAlgae)
                     {
+                        _algaeFromGround = true;
                         SetSetpoint(groundAlgae);
                         _algaeController.RequestIntake(algaeIntake, IntakeAction.IsPressed());
                         _coralController.RequestIntake(coralIntake, false);
-                    } 
-                    else if (!hasCoral && !hasAlgae)
-                    {
-                        SetSetpoint(stow);
-                        _coralController.RequestIntake(coralIntake, !hasAlgae);
-                        _algaeController.RequestIntake(algaeIntake, false);
                     }
-
-                    if (hasAlgae || hasCoral)
+                    else if (!hasCoral)
                     {
-                        _coralController.RequestIntake(coralIntake, false);
+                        SetSetpoint(hasAlgae ? algaeStow : stow);
+                        _coralController.RequestIntake(coralIntake);
                         _algaeController.RequestIntake(algaeIntake, false);
                     }
                     break;
                 case ReefscapeSetpoints.L1:
-                    SetSetpoint(l1);
+                    if (_coralController.atTarget && _coralController.currentStateNum == coralArmState.stateNum) SetSetpoint(l1);
                     break;
                 case ReefscapeSetpoints.Stack:
+                    _algaeFromGround = true;
                     SetSetpoint(lollipop);
                     _algaeController.RequestIntake(algaeIntake, IntakeAction.IsPressed() && !hasAlgae);
                     break;
                 case ReefscapeSetpoints.L2:
-                    SetSetpoint(l2);
+                    if (_coralController.atTarget && _coralController.currentStateNum == coralArmState.stateNum) SetSetpoint(l2);
                     break;
                 case ReefscapeSetpoints.LowAlgae:
+                    _algaeFromGround = false;
                     SetSetpoint(lowAlgae);
                     _algaeController.RequestIntake(algaeIntake, IntakeAction.IsPressed() && !hasAlgae);
                     break;
                 case ReefscapeSetpoints.L3:
-                    SetSetpoint(l3);
+                    if (_coralController.atTarget && _coralController.currentStateNum == coralArmState.stateNum) SetSetpoint(l3);
                     break;
                 case ReefscapeSetpoints.HighAlgae:
+                    _algaeFromGround = false;
                     SetSetpoint(highAlgae);
                     _algaeController.RequestIntake(algaeIntake, IntakeAction.IsPressed() && !hasAlgae);
                     break;
                 case ReefscapeSetpoints.L4:
-                    SetSetpoint(l4);
+                    if (_coralController.atTarget && _coralController.currentStateNum == coralArmState.stateNum) SetSetpoint(l4);
                     break;
                 case ReefscapeSetpoints.Processor:
                     SetSetpoint(processor);
@@ -247,7 +255,20 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
                     break;
             }
 
-            if (funnelDeployed || hasCoral || hasAlgae || CurrentRobotMode == ReefscapeRobotMode.Algae)
+            //if (hasAlgae)
+            //{
+            //    if (L4Action.IsPressed() && CurrentSetpoint != ReefscapeSetpoints.Barge) SetState(ReefscapeSetpoints.Barge);
+            //    if (L1Action.IsPressed() && CurrentSetpoint != ReefscapeSetpoints.Processor) SetState(ReefscapeSetpoints.Processor);
+            //}
+            //else if (_coralController.atTarget && _coralController.currentStateNum == coralHandoffState.stateNum)
+            //{
+            //    if (L1Action.IsPressed()) SetState(CurrentSetpoint == ReefscapeSetpoints.L1 && _coralController.atTarget && _coralController.currentStateNum == coralHandoffState.stateNum ? ReefscapeSetpoints.Stow : ReefscapeSetpoints.L1);
+            //    if (L2Action.IsPressed()) SetState(CurrentSetpoint == ReefscapeSetpoints.L2 && _coralController.atTarget && _coralController.currentStateNum == coralHandoffState.stateNum ? ReefscapeSetpoints.Stow : ReefscapeSetpoints.L2);
+            //    if (L3Action.IsPressed()) SetState(CurrentSetpoint == ReefscapeSetpoints.L3 && _coralController.atTarget && _coralController.currentStateNum == coralHandoffState.stateNum ? ReefscapeSetpoints.Stow : ReefscapeSetpoints.L3);
+            //    if (L4Action.IsPressed()) SetState(CurrentSetpoint == ReefscapeSetpoints.L4 && _coralController.atTarget && _coralController.currentStateNum == coralHandoffState.stateNum ? ReefscapeSetpoints.Stow : ReefscapeSetpoints.L4);
+            //}
+
+            if (funnelDeployed || hasCoral)
             {
                 CurrentCoralStationMode.DropDistance = 0f;
             }
@@ -255,17 +276,14 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
             {
                 CurrentCoralStationMode.DropDistance = 1.67f;
             }
-            
-            if (_coralController.atTarget && _coralController.currentStateNum == coralHandoffState.stateNum)
+
+            if (_coralController.atTarget && _coralController.currentStateNum == coralHandoffState.stateNum &&
+                !hasAlgae && CurrentSetpoint != ReefscapeSetpoints.Place)
             {
-                SetSetpoint(coralPickup);
-                if (Utils.InRange(coralPickup.elevatorHeight, elevator.GetElevatorHeight(), .25f))
-                {
-                    _coralController.SetTargetState(coralArmState);
-                    SetSetpoint(stow);
-                }
+                HandoffCoral();
             }
-            else if (!hasCoral)
+            
+            if (!hasCoral)
             {
                 _coralController.SetTargetState(coralHandoffState);
             }
@@ -304,6 +322,44 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
             UpdateSetpoints();
             Audio();
         }
+
+        private bool AtStow()
+        {
+            return Utils.InRange(stow.elevatorHeight, elevator.GetElevatorHeight(), .5f) &&
+                   Utils.InAngularRange(stow.armAngle, armJoint.GetSingleAxisAngle(JointAxis.X), 1f);
+        }
+
+        private bool HandoffCoral()
+        {
+            if (_coralController.atTarget && _coralController.currentStateNum == coralHandoffState.stateNum)
+            {
+                if (!_handoffAtStow)
+                {
+                    SetSetpoint(stow);
+                    if (AtStow())
+                    {
+                        _handoffAtStow = true;
+                    }
+                }
+                else
+                {
+                    SetSetpoint(coralPickup);
+                    if (Utils.InRange(coralPickup.elevatorHeight, elevator.GetElevatorHeight(), .5f) &&
+                        Utils.InAngularRange(coralPickup.armAngle, armJoint.GetSingleAxisAngle(JointAxis.X), 1f))
+                    {
+                        _coralController.SetTargetState(coralArmState);
+                        SetSetpoint(stow);
+                        _handoffAtStow = false;
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                _handoffAtStow = false;
+            }
+            return false;
+        }
         
         private void Audio()
         {
@@ -332,7 +388,8 @@ namespace Prefabs.Reefscape.Robots.Mods.China_Modpack._8810
             }
 
             if (_coralController.HasPiece() &&
-                !(_coralController.atTarget && _coralController.currentStateNum == coralArmState.stateNum))
+                !(_coralController.atTarget && _coralController.currentStateNum == coralArmState.stateNum) && !_algaeController.HasPiece() &&
+                _handoffAtStow)
             {
                 RunRollers();
                 if (!rollerSource.isPlaying)

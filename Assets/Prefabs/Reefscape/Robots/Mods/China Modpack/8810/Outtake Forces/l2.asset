@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e20f25d50649212686d578dc2ab76b2, type: 3}
   m_Name: l2
   m_EditorClassIdentifier: 
-  vector3: {x: 0, y: 0, z: 3}
+  vector3: {x: 0, y: 0, z: 3.5}
   rotation: 0
