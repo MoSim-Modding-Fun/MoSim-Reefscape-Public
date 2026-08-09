@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamNumber: 1114
   teamName: Simbotics
-  robotPrefab: {fileID: 2534371394911199621, guid: 30888f11f705eb147815a92a19def5d4,
+  robotPrefab: {fileID: 2534371394911199621, guid: cb0c3aef9b43c2c8ea16564748a037e6,
     type: 3}
   robotPreloadGamePiece: {fileID: 2185987706872048638, guid: 970bdf84a203d9a4b8dc602974341a07,
     type: 3}
