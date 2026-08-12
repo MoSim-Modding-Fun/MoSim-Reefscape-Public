@@ -63,3 +63,46 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+# MoSimulator
+
+## Scene & Prefab Inspection
+
+Do NOT read or grep scene/prefab YAML directly. Use `Tools/unityscan.py` (accepts basename, relative path, or full path; supports `--json`).
+
+* `python Tools/unityscan.py index` — Refresh cache
+* `unityscan.py info <asset>` — Content summary
+* `unityscan.py tree <asset> [--depth N]` — Hierarchy
+* `unityscan.py find "<regex>"` — Search GameObjects
+* `unityscan.py scripts <asset> --name <script>` — Inspector values
+* `unityscan.py usage <script>` — Script usages
+* `unityscan.py deps <asset>` / `refs <asset>` — Dependencies / References
+* `unityscan.py mods <asset> --interesting` — Prefab overrides
+* `unityscan.py obj <asset> <id>` — Raw object YAML
+* `unityscan.py doctor` — Find broken references
+
+## Editing Serialized Fields
+
+Do NOT hand-edit prefab/scene YAML. Use `unityscan.py set`, the one write command.
+
+* `unityscan.py set <asset> FIELD=VALUE [...] --name <script> [--on <path regex>] [--id <fileID>]`
+
+Dry run unless `--write` is passed. It rewrites single lines in place, refuses
+unknown field names (Unity drops them silently), and refuses arrays and object
+references. Bools take `true`/`false` or `1`/`0`.
+
+Close the asset in Unity first, or the editor will overwrite the change on its
+next save. Add `--check-overrides` to catch prefab-instance overrides in scenes
+that would mask the edit.
+
+## C# Compilation
+
+Do NOT run `dotnet build`. Use `Tools/unitybuild.py` (outputs errors only).
+
+* `python Tools/unitybuild.py [--warnings]`
+
+## Unity Logs
+
+Never read `Editor.log` directly. Use `Tools/unitylog.py` to extract errors/exceptions.
+
+* `python Tools/unitylog.py [--new|--player|--tail N|--grep RE]`

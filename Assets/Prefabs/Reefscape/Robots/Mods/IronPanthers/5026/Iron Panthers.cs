@@ -57,8 +57,6 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
 
         private bool _atSetpoint = true;
 
-        private bool _wrapped = false;
-        
         #endregion
         
         protected override void Start()
@@ -142,26 +140,10 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
 
         #region Actuators & Setpoints
 
-        private bool NeedsWrapping()
-        {
-            return CurrentSetpoint == ReefscapeSetpoints.L4 ||
-                   LastSetpoint == ReefscapeSetpoints.L4 ||
-                   CurrentSetpoint == ReefscapeSetpoints.HighAlgae || 
-                   LastSetpoint ==  ReefscapeSetpoints.HighAlgae ||
-                   CurrentSetpoint == ReefscapeSetpoints.LowAlgae ||
-                   LastSetpoint == ReefscapeSetpoints.LowAlgae;
-        }
-        
         private void SetSetpoint(IronPanthersSetpoint setpoint)
         {
-
-            if (ElevatorAtHeight(setpoint.elevatorHeight) && (_wrapped || !NeedsWrapping()))
+            if (LastSetpoint != ReefscapeSetpoints.L4 && (CurrentSetpoint == ReefscapeSetpoints.L2 || CurrentSetpoint == ReefscapeSetpoints.L3))
             {
-                _armTargetAngle = setpoint.armAngle;
-            } 
-            
-            /*
-            if (LastSetpoint != ReefscapeSetpoints.L4 && (CurrentSetpoint == ReefscapeSetpoints.L2 || CurrentSetpoint == ReefscapeSetpoints.L3)) {
                 _elevatorTargetHeight = setpoint.elevatorHeight;
                 _armTargetAngle = ElevatorAtHeight(setpoint.elevatorHeight) ? setpoint.armAngle : 10;
                 return;
@@ -181,7 +163,6 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
             {
                 _elevatorTargetHeight = minimumElevatorHeightForSwingAround;
             }
-            */
         }
 
         private void SetClimberAngle(float climberAngle)
