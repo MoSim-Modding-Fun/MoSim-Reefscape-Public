@@ -30916,7 +30916,7 @@ GameObject:
   - component: {fileID: 7148881284041615245}
   - component: {fileID: 1865250133236357973}
   - component: {fileID: 6113950093230332270}
-  - component: {fileID: 8467883331707522512}
+  - component: {fileID: 6271272647403486032}
   m_Layer: 6
   m_Name: hopper__hopper
   m_TagString: Untagged
@@ -30991,14 +30991,14 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &8467883331707522512
+--- !u!64 &6271272647403486032
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7725580504883371489}
-  m_Material: {fileID: 13400000, guid: 7753f476d8594a0498685718bfc29b13, type: 2}
+  m_Material: {fileID: 13400000, guid: 91a97ecb2bc4d2f46b9d7b6d3f66552a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
