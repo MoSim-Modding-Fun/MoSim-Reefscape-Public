@@ -32308,7 +32308,7 @@ MonoBehaviour:
     stateMoveSpeed: 60
     stateTarget: {fileID: 3925462552873530738}
     smoothHandoff: 1
-    angularSpeed: 0.001
+    angularSpeed: 100
   coralSecondSetpointState:
     name: coralSecondSetpointState
     stateNum: 2
@@ -82990,13 +82990,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6269830861397364211}
   serializedVersion: 2
-  m_LocalRotation: {x: -1.2318479e-11, y: 0.7105467, z: 0.7036501, w: 9.31241e-10}
-  m_LocalPosition: {x: -0, y: 0.193, z: 0.0966}
+  m_LocalRotation: {x: -1.2926625e-10, y: 0.6164718, z: 0.78737694, w: 9.223079e-10}
+  m_LocalPosition: {x: 0, y: 0.1613, z: 0.0515}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 3846242747169527769}
-  m_LocalEulerAnglesHint: {x: -89.442, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: -103.882, y: 180, z: 0}
 --- !u!1 &6275405364939295084
 GameObject:
   m_ObjectHideFlags: 0

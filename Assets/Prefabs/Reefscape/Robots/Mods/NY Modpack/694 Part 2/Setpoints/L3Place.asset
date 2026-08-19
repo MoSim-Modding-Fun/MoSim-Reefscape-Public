@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: L3Place
   m_EditorClassIdentifier: 
   armAngle: 85
-  elevatorHeight: 20
+  elevatorHeight: 16
   intakeAngle: 0
   climberAngle: 0
