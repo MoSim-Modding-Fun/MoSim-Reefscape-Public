@@ -1,3 +1,5 @@
+# PUBLIC READ ONLY TOKEN TO CLONE WITH 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
+
 # This MoSimulator repo includes the source for the following Robots:
 
 - 334: TechKnights
