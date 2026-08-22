@@ -15,7 +15,3 @@
 ### To view the Official Modding Repo for MoSim, [click here](https://github.com/MoSimulator/MoSimulator-Public)
 
 Base created by Sebastian (\_slxxplxss\_)
-
-
-# To clone this repo, you must use this public read-only token
-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
