@@ -253,19 +253,17 @@ namespace Editor
                 : $"{zipName} {version} {platformLabel}.zip";
             var zipPath = Path.Combine(modsRoot, archiveName);
 
-            // Zip a top-level folder named zipName so unzipping produces "<zipName>/<files>"
-            // rather than dumping loose files into whatever directory it's extracted into.
-            var namedFolder = Path.GetFullPath(Path.Combine(modsRoot, zipName));
+            // zipName only brands the ARCHIVE FILE's name. The folder *inside* the zip must
+            // stay modFolder's real name (the addressable group name) unchanged: each group's
+            // LoadPath profile variable is baked into the catalog as ".../Mods/<groupName>/...",
+            // so if the internal folder doesn't match the group name after extraction, the game
+            // 404s trying to load the bundle from the (correct) group-name path that no longer
+            // exists on disk. Renaming it to a branded zipName here broke exactly that.
             var sourceFolder = Path.GetFullPath(modFolder);
-            if (!string.Equals(sourceFolder, namedFolder, StringComparison.OrdinalIgnoreCase))
-            {
-                if (Directory.Exists(namedFolder)) Directory.Delete(namedFolder, recursive: true);
-                Directory.Move(sourceFolder, namedFolder);
-            }
 
             if (File.Exists(zipPath)) File.Delete(zipPath);
-            ZipFile.CreateFromDirectory(namedFolder, zipPath, System.IO.Compression.CompressionLevel.Optimal, includeBaseDirectory: true);
-            Directory.Delete(namedFolder, recursive: true);
+            ZipFile.CreateFromDirectory(sourceFolder, zipPath, System.IO.Compression.CompressionLevel.Optimal, includeBaseDirectory: true);
+            Directory.Delete(sourceFolder, recursive: true);
 
             Debug.Log($"Zipped mod folder to {zipPath}");
         }

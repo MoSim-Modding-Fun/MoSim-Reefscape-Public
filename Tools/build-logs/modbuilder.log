@@ -1,0 +1,9 @@
+[2026-08-22T03:53:34.004Z] SUCCESS  target=win64  groups=China Modpack(test-v1), Wildcats Mod(v1.0.0.zip)  exitCode=0
+[2026-08-22T03:54:44.738Z] SUCCESS  target=osx  groups=China Modpack(test-v1), Wildcats Mod(v1.0.0.zip)  exitCode=0
+[2026-08-22T03:55:47.954Z] SUCCESS  target=linux64  groups=China Modpack(test-v1), Wildcats Mod(v1.0.0.zip)  exitCode=0
+[2026-08-22T04:04:03.957Z] SUCCESS  target=win64  groups=China Modpack(1), NY Modpack(.zip.zip)  exitCode=0
+[2026-08-22T04:05:31.307Z] SUCCESS  target=osx  groups=China Modpack(1), NY Modpack(.zip.zip)  exitCode=0
+[2026-08-22T04:06:59.046Z] SUCCESS  target=linux64  groups=China Modpack(1), NY Modpack(.zip.zip)  exitCode=0
+[2026-08-22T05:20:49.486Z] SUCCESS  target=win64  groups=MechTechMod  exitCode=0
+[2026-08-22T05:21:01.895Z] SUCCESS  target=osx  groups=MechTechMod  exitCode=0
+[2026-08-22T05:21:14.119Z] SUCCESS  target=linux64  groups=MechTechMod  exitCode=0

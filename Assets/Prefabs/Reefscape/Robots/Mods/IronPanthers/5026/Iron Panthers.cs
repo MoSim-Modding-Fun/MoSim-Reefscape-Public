@@ -142,7 +142,7 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
 
         private void SetSetpoint(IronPanthersSetpoint setpoint)
         {
-            if (LastSetpoint != ReefscapeSetpoints.L4 && (CurrentSetpoint == ReefscapeSetpoints.L2 || CurrentSetpoint == ReefscapeSetpoints.L3))
+            if (LastSetpoint != ReefscapeSetpoints.L4 && (CurrentSetpoint == ReefscapeSetpoints.L1 || CurrentSetpoint == ReefscapeSetpoints.L2 || CurrentSetpoint == ReefscapeSetpoints.L3))
             {
                 _elevatorTargetHeight = setpoint.elevatorHeight;
                 _armTargetAngle = ElevatorAtHeight(setpoint.elevatorHeight) ? setpoint.armAngle : 10;
