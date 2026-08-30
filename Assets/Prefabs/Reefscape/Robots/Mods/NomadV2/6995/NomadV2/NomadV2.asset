@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aff2b59de2c4a0c96d6b848990b46af, type: 3}
+  m_Name: NomadV2
+  m_EditorClassIdentifier: 
+  teamNumber: 6995
+  teamName: NomadV2
+  robotPrefab: {fileID: 6757178681103391079, guid: f366ca38d78e301489db4dc375d74e8b,
+    type: 3}
+  robotPreloadGamePiece: {fileID: 2185987706872048638, guid: 970bdf84a203d9a4b8dc602974341a07,
+    type: 3}
+  mainMenuPrefab: {fileID: 6757178681103391079, guid: e5e37734f397467469fb00554f50d577,
+    type: 3}
+  hasAlternateRobot: 0
+  alternateRobotPrefab: {fileID: 0}
+  alternateMainMenuPrefab: {fileID: 0}
+  robotImage: {fileID: 21300000, guid: 0d87eeb83d3bc3d47ac51267e8e7823c, type: 3}
+  tutorialCards:
+  - {fileID: 6829736770845459078, guid: c2ffe742d607eab41803cea3771c1f50, type: 3}
+  - {fileID: 6829736770845459078, guid: aec0dd1cff6222a4d95a4ab90d5fa3a7, type: 3}
+  - {fileID: 6829736770845459078, guid: fd24cec68813b394998de10e9f9f8aac, type: 3}
+  alternateTutorialCards: []
+  autoClimbs: 1
+  alternateAutoClimbs: 0
