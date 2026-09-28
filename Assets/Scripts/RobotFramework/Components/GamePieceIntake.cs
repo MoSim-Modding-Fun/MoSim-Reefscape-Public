@@ -109,6 +109,9 @@ namespace RobotFramework.Components
         
         [Tooltip("Whether the game piece is secured (no longer needs containment).")]
         public bool securedGamePiece;
+
+        [Tooltip("Log intake state transitions.")]
+        public bool debugLog;
         
         private Vector3[] _halfExtents;
 
@@ -132,6 +135,7 @@ namespace RobotFramework.Components
 
         public void RemovePiece()
         {
+            if (GamePiece) Log($"removed {GamePiece.name}#{GamePiece.GetInstanceID()}");
             requestIntake = false;
             hasGamePiece = false;
             GamePiece = null;
@@ -164,9 +168,11 @@ namespace RobotFramework.Components
                         boxExtents, lockXAxis, lockYAxis, lockZAxis);
                     hasGamePiece = true;
                     GamePiece = gamePieces;
+                    Log($"acquired {GamePiece.name}#{GamePiece.GetInstanceID()} result={result}");
                     if (result == 1)
                     {
                         securedGamePiece = true;
+                        Log("secured");
                     }
                 }
             }
@@ -174,6 +180,7 @@ namespace RobotFramework.Components
             {
                 if (hasGamePiece && !requestIntake)
                 {
+                    Log($"request released, dropped {GamePiece.name}#{GamePiece.GetInstanceID()}");
                     hasGamePiece = false;
                     GamePiece = null;
                     GamePieceController = null;
@@ -187,6 +194,10 @@ namespace RobotFramework.Components
                         lockXAxis, lockYAxis, lockZAxis);
                     if (Mathf.Approximately(_results, -1))
                     {
+                        var localDistance = target.InverseTransformDirection(GamePieceController.Distance) / 0.0254f;
+                        var limit = usePlanarTolerancing ? boxExtents * maxDistance : Vector3.one * maxDistance;
+                        Log($"dropped {GamePiece.name}#{GamePiece.GetInstanceID()} out of range localDist={localDistance:F2}in limit={limit:F2}in " +
+                            $"dist={GamePieceController.DistanceMagnitude / 0.0254f:F2}in pos={GamePiece.transform.position:F4} target={target.position:F4}");
                         hasGamePiece = false;
                         GamePiece = null;
                         GamePieceController = null;
@@ -196,6 +207,7 @@ namespace RobotFramework.Components
                     if (_results == 1)
                     {
                         securedGamePiece = true;
+                        Log("secured");
                     }
                 }
             }
@@ -226,8 +238,14 @@ namespace RobotFramework.Components
                 // if (controller.gamePieceType != intakeType) continue; TODO: Fix this
                 if (gamePieces) continue;
                 gamePieces = objectThing;
+                Log($"detected {objectThing.name}#{objectThing.GetInstanceID()}");
                 break;
             }
+        }
+
+        private void Log(string message)
+        {
+            if (debugLog) Debug.Log($"[Intake {name}] {Time.fixedTime:F3} {message}");
         }
 
         //gizmo stuff

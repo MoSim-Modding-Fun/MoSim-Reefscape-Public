@@ -5356,6 +5356,7 @@ MonoBehaviour:
   smoothHandoff: 1
   target: {fileID: 7680704948867714936}
   securedGamePiece: 0
+  debugLog: 0
 --- !u!1 &1219122119951146808
 GameObject:
   m_ObjectHideFlags: 0
@@ -16924,7 +16925,7 @@ MonoBehaviour:
   intakeSpeed: 100
   intakeForce: 50
   usePlanarTolerancing: 1
-  boxExtents: {x: 8.64, y: 5.56, z: 15.06}
+  boxExtents: {x: 8.64, y: 5.56, z: 18.7}
   maxDistance: 1
   accuracy: 1
   lockXAxis: 0
@@ -16936,6 +16937,7 @@ MonoBehaviour:
   smoothHandoff: 1
   target: {fileID: 1094658230580771950}
   securedGamePiece: 0
+  debugLog: 0
 --- !u!1 &3816770653510084737
 GameObject:
   m_ObjectHideFlags: 0

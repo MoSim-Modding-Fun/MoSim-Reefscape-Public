@@ -18,6 +18,7 @@ namespace RobotFramework.Controllers.GamePieceSystem
         public TPiece GamePiece => gamePiece;
         public string PieceName => gamePieceData.Name;
         public bool IsScored { get; set; } = false;
+        public bool debugLog;
 
         // State
         public Vector3 Distance { get; private set; }
@@ -28,6 +29,7 @@ namespace RobotFramework.Controllers.GamePieceSystem
         private float _startingAngularDrag;
         private bool _moving;
         private bool _isControlled;
+        private int _lastBreakableResult;
 
         private Transform _gamePieceWorld;
         private Collider[] _colliders;
@@ -125,6 +127,13 @@ namespace RobotFramework.Controllers.GamePieceSystem
             Distance = distance;
             DistanceMagnitude = distanceMagnitude;
 
+            if (result != _lastBreakableResult)
+            {
+                Log($"MoveBreakable {_lastBreakableResult} -> {result} target={target.name} dist={distanceMagnitude / 0.0254f:F2}in " +
+                    $"vel={GamePiece.rigidbody.velocity.magnitude:F2}m/s angVel={GamePiece.rigidbody.angularVelocity.magnitude:F2}rad/s");
+                _lastBreakableResult = result;
+            }
+
             GamePiece.owner = Mathf.Approximately(result, 1) ? target.gameObject : GamePiece.owner;
             if (result == 1)
             {
@@ -147,6 +156,7 @@ namespace RobotFramework.Controllers.GamePieceSystem
 
             if (result == 1)
             {
+                Log($"reached state target {target.name}");
                 _moving = smoothHandoff;
                 SetParent(target);
             }
@@ -156,6 +166,7 @@ namespace RobotFramework.Controllers.GamePieceSystem
         public void Release(Vector3 force, ForceMode forceMode = ForceMode.Impulse)
         {
             if (!_gamePieceWorld) return;
+            Log($"released force={force}");
             UseRobot();
             SetParent(_gamePieceWorld);
             _colliderParent.parent = gameObject.transform;
@@ -169,6 +180,7 @@ namespace RobotFramework.Controllers.GamePieceSystem
         public IEnumerator ContinuedRelease(Vector3 force, float time, float maxSpeed, ForceMode forceMode = ForceMode.Impulse)
         {
             if (!_gamePieceWorld) yield return null;
+            Log($"released (continued) force={force} time={time}");
             UseRobot();
             SetParent(_gamePieceWorld);
             var startTime = Time.time;
@@ -202,6 +214,7 @@ namespace RobotFramework.Controllers.GamePieceSystem
             GamePiece.transform.parent = GamePiece.owner.transform;
             if (!_isControlled)
             {
+                Log($"controlled by {GamePiece.owner.name} smoothHandoff={smoothHandoff}");
                 IgnoreRobot();
             }
 
@@ -274,6 +287,11 @@ namespace RobotFramework.Controllers.GamePieceSystem
             }
 
             _isControlled = false;
+        }
+
+        private void Log(string message)
+        {
+            if (debugLog) Debug.Log($"[Piece {name}#{gameObject.GetInstanceID()}] {Time.fixedTime:F3} {message}");
         }
     }
 }

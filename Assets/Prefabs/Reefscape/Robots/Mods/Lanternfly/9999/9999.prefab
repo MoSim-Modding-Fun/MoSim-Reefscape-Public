@@ -4599,8 +4599,8 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: b45c16bea63f3ee4b97133104a8d9017, type: 3}
   m_Resource: {fileID: 8300000, guid: b45c16bea63f3ee4b97133104a8d9017, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.012072707
-  m_Pitch: 0.60460603
+  m_Volume: 0.012906089
+  m_Pitch: 0.606458
   Loop: 1
   Mute: 0
   Spatialize: 0
@@ -10680,6 +10680,7 @@ MonoBehaviour:
   smoothHandoff: 1
   target: {fileID: 3652244245649758939}
   securedGamePiece: 0
+  debugLog: 0
 --- !u!65 &1736581083869387095
 BoxCollider:
   m_ObjectHideFlags: 0
