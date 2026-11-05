@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aff2b59de2c4a0c96d6b848990b46af, type: 3}
+  m_Name: MissDaisy
+  m_EditorClassIdentifier: 
+  teamNumber: 341
+  teamName: Miss Daisy
+  robotPrefab: {fileID: 1607229749943273579, guid: 983f7dc59f1292ee2804a2a75cdfa932,
+    type: 3}
+  robotPreloadGamePiece: {fileID: 2185987706872048638, guid: 970bdf84a203d9a4b8dc602974341a07,
+    type: 3}
+  mainMenuPrefab: {fileID: 7993002461336693068, guid: 23b75273c2126daee9b9003e90d688aa,
+    type: 3}
+  hasAlternateRobot: 0
+  alternateRobotPrefab: {fileID: 0}
+  alternateMainMenuPrefab: {fileID: 0}
+  robotImage: {fileID: 0}
+  tutorialCards:
+  - {fileID: 6829736770845459078, guid: de60ffa02f7f23482b558049618cb23d, type: 3}
+  - {fileID: 6829736770845459078, guid: 4b6f5899da3cbea428f4e43e865c574b, type: 3}
+  - {fileID: 6829736770845459078, guid: deddea91ef2f874589576b32971223f6, type: 3}
+  alternateTutorialCards: []
+  autoClimbs: 0
+  alternateAutoClimbs: 0
