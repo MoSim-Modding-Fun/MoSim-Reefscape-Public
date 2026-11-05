@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: SPAM
+  m_EditorClassIdentifier: 
+  m_GroupName: SPAM
+  m_GUID: 6803fa7159170fcd083dc7787c259a59
+  m_SerializeEntries:
+  - m_GUID: 6209c1b905c3be1ca87b1b01d3a76a63
+    m_Address: Assets/Prefabs/Reefscape/Robots/Mods/SPAM
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - modpack_metadata
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 75be54ec8452b4f43b0aa1a3b6238e73, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: bea07d7e624cfff43a00e452cbc4003a, type: 2}
+    - {fileID: 11400000, guid: 3ed034aefb2e75b95a7f8df482898298, type: 2}
