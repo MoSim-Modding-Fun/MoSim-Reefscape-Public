@@ -15,6 +15,6 @@ MonoBehaviour:
   modpackName: Simbotics Mod
   modpackVersion: 1.0.0
   authorName: darksplice (3950) & CJ (3950)
-  description: 1114
+  description: Team 1114 Simbotics, Simbot Suzuki (2025)
   robots:
-  - {fileID: 11400000, guid: 8b78cdba9d4bea24f998194c4fd7a68e, type: 2}
+  - {fileID: 11400000, guid: c871bdfdb3be52a2b9de2d0699599430, type: 2}
