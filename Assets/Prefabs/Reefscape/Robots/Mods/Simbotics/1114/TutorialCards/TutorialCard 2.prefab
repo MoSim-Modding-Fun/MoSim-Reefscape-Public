@@ -21,9 +21,9 @@ PrefabInstance:
     - target: {fileID: 6000603204863370303, guid: 4f6390b7332e92b43aee0cf7f4734f72,
         type: 3}
       propertyPath: m_text
-      value: 'Climb drops the funnel on its four-bar (slow: 12 s, start early) and
-        the head falls out of the right side. Drive a cage upright into its fork,
-        then climb again to wind up.'
+      value: Climb folds the funnel down on its four-bar (about 3 s) and the head
+        drops out of the right side. Drive a cage upright into its fork, then climb
+        again to wind the cage in and lift.
       objectReference: {fileID: 0}
     - target: {fileID: 7647712989278884331, guid: 4f6390b7332e92b43aee0cf7f4734f72,
         type: 3}
