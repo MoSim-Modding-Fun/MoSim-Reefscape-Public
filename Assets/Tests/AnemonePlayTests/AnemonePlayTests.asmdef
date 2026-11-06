@@ -1,0 +1,28 @@
+{
+    "name": "AnemonePlayTests",
+    "rootNamespace": "",
+    "references": [
+        "UnityEngine.TestRunner",
+        "Unity.InputSystem",
+        "Unity.Addressables",
+        "Reefscape",
+        "RobotFramework",
+        "MoSimCore",
+        "MoSimLib",
+        "GameSystems",
+        "SPAM"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
