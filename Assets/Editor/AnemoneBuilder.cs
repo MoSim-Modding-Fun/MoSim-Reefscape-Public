@@ -477,8 +477,8 @@ namespace Editor
                 // the elevator is lower at the same arm angle
                 // (+9 cm: the bottom wheel then meets MoSim's ball from the bumper-against-the-reef pose and pulls it
                 // up into the top wheel)
-                ("Low Algae", 0.24f, -8f, IntakeStow, 0f),
-                ("High Algae", 0.64f, -8f, IntakeStow, 0f),
+                ("Low Algae", 0.16f, -8f, IntakeStow, 0f),          // 8 cm under 180's: the ball now sits on the wheels' faces, not sunk into them, so it is held higher
+                ("High Algae", 0.56f, -8f, IntakeStow, 0f),         // 8 cm under 180's, as Low Algae
                 ("Processor", 0f, -40f, IntakeStow, 0f),           // PROCESSOR
                 ("Net Approach", 0.05f, 46.4f, IntakeStow, 0f),    // lining up at the barge: the ball carried at ~1 m (footage)
                 ("Net", 1.445f, 6f, IntakeStow, 0f),               // NET (1.47 m - 1 in), netScore (8 - 2): the ball sits on top
@@ -719,7 +719,7 @@ namespace Editor
             var headTopHinge = PlanarPin(topBar.gameObject, headRb, topBar.InverseTransformPoint(Pv(HeadTopPin)));
             // the kicker: pinned on the top bar's shaft; its slot joint on the bottom bar's pin is added once posed
             Body(kicker.gameObject, 0.4f);
-            Hinge(kicker.gameObject, topRb, Vector3.zero);
+            var kickerHinge = Hinge(kicker.gameObject, topRb, Vector3.zero);
             // the intake's links stay stiff and out of walls when the robot drives the deployed head into one (with the
             // default solver the chain flexed and the head sank into the wall)
             foreach (var rb in new[] { barRb, topRb, headRb, kicker.GetComponent<Rigidbody>() })
@@ -852,10 +852,10 @@ namespace Editor
                 // lower stacks swing one end up and the coral pivots off to the side, then climbs at ~60 deg and
                 // straightens end-first between the upper stacks
                 ("Coral Channel", Empty("Coral Channel State", drivebase, Channel(0.100f), across), 60f, 0.001f),
-                ("Coral Pivot 1", Empty("Coral Pivot 1 State", drivebase, Channel(0.100f, -0.050f), Th(15f)), 40f, 0.001f),
-                ("Coral Pivot 2", Empty("Coral Pivot 2 State", drivebase, Channel(0.100f, -0.055f), Th(20f)), 40f, 0.001f),
-                ("Coral Pivot 3", Empty("Coral Pivot 3 State", drivebase, Channel(0.110f, -0.070f), Th(45f)), 40f, 0.001f),
-                ("Coral Pivot 4", Empty("Coral Pivot 4 State", drivebase, Channel(0.125f, -0.075f), Th(55f)), 40f, 0.001f),
+                ("Coral Pivot 1", Empty("Coral Pivot 1 State", drivebase, Channel(0.100f, -0.050f), Th(15f)), 15f, 0.001f),
+                ("Coral Pivot 2", Empty("Coral Pivot 2 State", drivebase, Channel(0.100f, -0.055f), Th(20f)), 15f, 0.001f),
+                ("Coral Pivot 3", Empty("Coral Pivot 3 State", drivebase, Channel(0.110f, -0.070f), Th(45f)), 15f, 0.001f),
+                ("Coral Pivot 4", Empty("Coral Pivot 4 State", drivebase, Channel(0.125f, -0.075f), Th(55f)), 15f, 0.001f),
                 ("Coral Climb 1", Empty("Coral Climb 1 State", drivebase, Channel(0.180f, -0.055f), Th(60f)), 60f, 0.001f),
                 ("Coral Climb 2", Empty("Coral Climb 2 State", drivebase, Channel(0.255f, -0.010f), Th(60f)), 60f, 0.001f),
                 // end-first and already in the stow's rotation (the tube's line, 2.6 deg off the channel's): from here
@@ -891,7 +891,7 @@ namespace Editor
             var halfGap = (wa - wb).magnitude / 2;
             var outN = Vector3.Cross(root.transform.right, wa - wb).normalized;
             if (Vector3.Dot(outN, mid - pivot) < 0) outN = -outN;
-            var sink = 0.06f; // well into the compliant wheels: 180's "Mickey Mouse" hugs the ball
+            var sink = 0f; // on the wheels' faces at most: moved further out below if anything on the arm is in the way
             var reach = Mathf.Sqrt(Mathf.Pow(AlgaeRadius + AlgaeWheelRadius - sink, 2) - halfGap * halfGap);
             var algaeHold = Empty("Algae State", arm, mid + outN * reach, Quaternion.identity);
             // taken only once the ball touches a wheel: the spinning wheel then drags it into the V. The zones are
@@ -1243,6 +1243,12 @@ namespace Editor
                 var kickTurn = Vector3.SignedAngle(cp0 - kp0, cp1 - kp1, right);
                 kicker.position = kp1;
                 Swing(kicker, kp1, kickTurn);
+                // the slot's ends stop it turning on the top bar: upside down, its pin sits in line with the pivot, where
+                // the slot joint has no leverage to bring it back. The joint's zero is this stowed pose.
+                var kickerSwing = Mathf.Abs(Mathf.DeltaAngle(topTurn, kickTurn)) + 6f;
+                kickerHinge.limits = new JointLimits { min = -kickerSwing, max = kickerSwing };
+                kickerHinge.useLimits = true;
+                Debug.Log($"ANEMONE kicker hinge limit +-{kickerSwing:F1} deg (top bar turned {topTurn:F1})");
                 // the slot: free along its length (radial from the pivot) and across the robot, held square to it in the
                 // side plane, so the pin sets the angle without over-constraining the loop
                 var slotDir = Quaternion.AngleAxis(kickTurn, right) * (cp0 - kp0).normalized;
@@ -1338,6 +1344,32 @@ namespace Editor
             so.FindProperty("groundCoralIntake").objectReferenceValue = groundIntake;
             so.FindProperty("hpCoralIntake").objectReferenceValue = hpIntake;
             so.FindProperty("algaeIntake").objectReferenceValue = algaeIntake;
+            // The ball is held just clear of everything on the arm that meets algae (the wheels' V alone would put it in the
+            // tube), and the wheels' catch reaches it there.
+            {
+                var ball = new GameObject("Ball Probe").AddComponent<SphereCollider>();
+                ball.radius = AlgaeRadius;
+                var algaeLayer = LayerMask.NameToLayer("Algae");
+                var solid = arm.GetComponentsInChildren<Collider>(true).Where(c => !c.isTrigger && c.enabled &&
+                    (c.excludeLayers & (1 << algaeLayer)) == 0 && !Physics.GetIgnoreLayerCollision(c.gameObject.layer, algaeLayer)).ToList();
+                Physics.SyncTransforms();
+                var at = algaeHold.position;
+                bool Hits(Vector3 p) => solid.Any(c => Physics.ComputePenetration(ball, p, Quaternion.identity, c, c.transform.position, c.transform.rotation, out _, out _));
+                var moved = 0f;
+                while (Hits(at) && moved < 0.4f)
+                {
+                    at += outN * 0.002f;
+                    moved += 0.002f;
+                }
+                var wheels = solid.Where(c => c.name.EndsWith(" Wheel")).ToList();
+                var wheelGap = Mathf.Max(0f, wheels.Min(c => (c.ClosestPoint(at) - at).magnitude) - AlgaeRadius);
+                foreach (var touch in algaeIntake.GetComponentsInChildren<BoxCollider>(true).Where(b => b.name.EndsWith(" Touch")))
+                    touch.size += new Vector3(0, 2 * wheelGap, 2 * wheelGap);
+                algaeHold.position = at;
+                algaeEject.position = at;
+                Debug.Log($"ANEMONE algae hold moved {moved * 100:F1} cm out to clear {string.Join(", ", solid.Where(c => (c.ClosestPoint(at) - at).magnitude - AlgaeRadius < 0.006f).Select(c => c.name).Distinct())}; wheels {wheelGap * 100:F1} cm from it");
+                Object.DestroyImmediate(ball.gameObject);
+            }
             SetState(so, "coralState", "Coral Tube", floorStates.Length + 1, 40f, coralHold, false, 360f);
             SetState(so, "algaeState", "Algae Wheels", 1, 20f, algaeHold, false, 180f);
             so.FindProperty("coralEject").objectReferenceValue = coralEject;

@@ -38,9 +38,9 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
         [SerializeField] private Collider[] chuteWalls;
         [Tooltip("L1: as the coral slides out the end effector tips up this far (degrees, toward upright) for this long, " +
                  "flipping the coral over the trough's lip (as 180's L4 flip: the arm pivot up a little at the end).")]
-        [SerializeField] private float l1FlipAngle = 25f;
-        [SerializeField] private float l1FlipTime = 0.25f;
-        [Tooltip("Where the coral's centre is (m past the tube's top lip) when the end effector tips up.")]
+        [SerializeField] private float l1FlipAngle = 35f;
+        [SerializeField] private float l1FlipTime = 0.15f;
+        [Tooltip("Where the coral's centre is (m past the tube's top lip) when the rollers let it go and the end effector tips up.")]
         [SerializeField] private float l1TipAt = 0.1f;
         [Tooltip("Intake and indexer wheels, spun for show.")]
         [SerializeField] private GenericAnimationJoint[] intakeRollerVisuals;
@@ -64,21 +64,19 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
         [Header("PIDs")]
         [SerializeField] private PidConstants armPid;
         [SerializeField] private PidConstants intakePid, climberPid;
-        [Tooltip("The climb itself: the winch hauls the cage round slowly (5-8 s in Einstein R3 M9; 180's code runs it at 0.3), " +
+        [Tooltip("The climb itself: the winch hauls the cage round in about 4 s, " +
                  "deg/s of the arm's target. The target moves, not the speed limit: the drive's force scales with that limit, " +
                  "and a capped arm stalled just as the robot's weight came on.")]
-        [SerializeField] private float climbPullRate = 15f;
+        [SerializeField] private float climbPullRate = 40f;
 
         [Header("Setpoints")]
         [SerializeField] private AnemoneSetpoint stow;
         [SerializeField] private AnemoneSetpoint groundIntake, hpIntake;
         [SerializeField] private AnemoneSetpoint l1, l2, l3, l4;
         [SerializeField] private AnemoneSetpoint groundAlgae, lollipop, lowAlgae, highAlgae, processor, net;
-        [Tooltip("Barge: the ball carried low (~1 m) on top of the end effector while the robot drives up slowly; Place " +
+        [Tooltip("Barge: the ball carried low (~1 m) on top of the end effector while the robot drives up; Place " +
                  "then goes up to Net.")]
         [SerializeField] private AnemoneSetpoint netApproach;
-        [Tooltip("Drive speed while lining up at the barge (180's code: 0.25x).")]
-        [SerializeField] private float bargeDriveScale = 0.25f;
         [SerializeField] private AnemoneSetpoint climbPrep, climbed;
 
         [Header("Intakes")]
@@ -114,11 +112,11 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
         [Tooltip("Visual spin (deg/s): slow enough that a spoked wheel visibly turns at 30-60 fps instead of strobing.")]
         [SerializeField] private float rollerVisualSpeed = 360f;
         [Tooltip("L2/L3: the coral leaves the tube ~12 cm behind the bumper and flies ~0.3 m onto the branch.")]
-        [SerializeField] private float coralEjectSpeed = 2.6f;
+        [SerializeField] private float coralEjectSpeed = 3f;
         [Tooltip("L1 roller push-out (180 runs them at 0.3): slow, so the coral tips over the trough rather than shooting.")]
-        [SerializeField] private float l1EjectSpeed = 1.4f;
+        [SerializeField] private float l1EjectSpeed = 1.8f;
         [Tooltip("L4 eject speed (2 m/s glances off the post sideways).")]
-        [SerializeField] private float l4EjectSpeed = 0.9f;
+        [SerializeField] private float l4EjectSpeed = 1.8f;
         [SerializeField] private float algaeEjectForce = 6f;
         [SerializeField] private float processorEjectForce = 3f;
         [Tooltip("Net shot (180's code, and Einstein R3 M9 / the reveal video): the elevator goes to NET as the arm swings " +
@@ -128,8 +126,9 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
                  "robot's motion) and angle above horizontal.")]
         [SerializeField] private float netSpeed = 2.75f;
         [SerializeField] private float netPitch = 55f;
-        [Tooltip("Seconds it sits at the top before the wheels spit the ball (0.5-0.8 s in the footage).")]
-        [SerializeField] private float netDwell = 0f;
+        [Tooltip("The wheels spit once the elevator is this close to Net (m) and the arm this close (deg): the arm is still swinging.")]
+        [SerializeField] private float netReleaseElevator = 0.06f;
+        [SerializeField] private float netReleaseArm = 15f;
         [Tooltip("Seconds after a piece leaves before the robot stows itself.")]
         [SerializeField] private float stowAfterScore = 0.6f;
         [Tooltip("Inches from a reef branch pole to the face centre, where the algae sits.")]
@@ -148,7 +147,6 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
         private bool _l1Tipping, _coralLeaving;
         private float _l1Tip;
         private float _climberTarget;
-        private float _netAtTopSince = -1f;
         private RobotFramework.Controllers.Drivetrain.DriveController _drive;
         private float _driveTurn = 1f;
         private float _driveScale = 1f;
@@ -288,11 +286,8 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
                 SetState(ReefscapeSetpoints.Stow);
 
             UpdateAlignOffset();
-            // lining up at the barge (and going up to shoot): slow
-            var atBarge = CurrentSetpoint == ReefscapeSetpoints.Barge ||
-                          (CurrentSetpoint == ReefscapeSetpoints.Place && _placeFrom == ReefscapeSetpoints.Barge && hasAlgae);
             // pulling on the cage: no driving (a push leans the cage over and walks the upright out of the hook)
-            var driveScale = CurrentSetpoint == ReefscapeSetpoints.Climbed ? 0f : atBarge ? bargeDriveScale : 1f;
+            var driveScale = CurrentSetpoint == ReefscapeSetpoints.Climbed ? 0f : 1f;
             if (_drive && !Mathf.Approximately(driveScale, _driveScale))
             {
                 // SetDriveMp, not moveSpeedMultiplier: that one is only read in robot-relative drive
@@ -384,6 +379,8 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
             {
                 var toCentre = AutoAlignLeftAction.IsPressed() ? 1f : AutoAlignRightAction.IsPressed() ? -1f : 0f;
                 offset.x += toCentre * reefFaceHalfWidth;
+                // the wheels are off the robot's centre: the ball goes in front of them
+                offset.x -= transform.InverseTransformPoint(algaeState.stateTarget.position).x * InchesPerMeter;
             }
 
             _align.offset = offset;
@@ -428,22 +425,22 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
         private void SetPassing(GameObject piece, bool pass) => SetPassing(piece, pass, headRollerColliders);
 
         private GameObject _algaePassing;
-        private Collider[] _armColliders;
+        private Collider[] _algaeWheelColliders;
 
-        // A ball a wheel has caught is drawn into the wheels' V, sinking into them (they are compliant): it passes the
-        // arm's colliders until it is held (held pieces touch nothing); a ball let go meets them again (PassRobotBriefly).
+        // A ball a wheel has caught rolls round that wheel to its seat: the wheels give (they are compliant), so it passes
+        // them on the way; everything else on the arm still stops it. Seated, it touches none of them.
         private void LetCaughtAlgaeIn()
         {
-            _armColliders ??= arm.GetComponentsInChildren<Collider>(true).Where(c => !c.isTrigger).ToArray();
+            _algaeWheelColliders ??= arm.GetComponentsInChildren<Collider>(true).Where(c => c.name.StartsWith("Algae Shaft") && c.name.EndsWith(" Wheel")).ToArray();
             var caught = algaeIntake.hasGamePiece ? algaeIntake.GamePiece : null;
-            if (_algaePassing && _algaePassing != caught && !(_algaeController.HasPiece() && _algaeController.controller && _algaeController.controller.gameObject == _algaePassing))
+            if (_algaePassing && _algaePassing != caught)
             {
-                SetPassing(_algaePassing, false, _armColliders);
+                SetPassing(_algaePassing, false, _algaeWheelColliders);
                 _algaePassing = null;
             }
             if (caught && caught != _algaePassing)
             {
-                SetPassing(caught, true, _armColliders);
+                SetPassing(caught, true, _algaeWheelColliders);
                 _algaePassing = caught;
             }
         }
@@ -464,18 +461,6 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
                 SetPassing(piece, false, chuteWalls);
         }
 
-        // a ball let go from the wheels (sunk into them, overlapping the arm's colliders) clears the robot first, or
-        // the overlap shoves it off its line
-        private System.Collections.IEnumerator PassRobotBriefly(GameObject piece)
-        {
-            _robotColliders ??= GetComponentsInChildren<Collider>(true).Where(c => !c.isTrigger).ToArray();
-            SetPassing(piece, true, _robotColliders);
-            yield return new WaitForSeconds(0.4f);
-            if (piece && !(_algaeController.HasPiece() && _algaeController.controller && _algaeController.controller.gameObject == piece))
-                SetPassing(piece, false, _robotColliders);
-        }
-
-        private Collider[] _robotColliders;
         private GameObject _stationPassing;
 
         // a station coral caught in the top of the tube is pulled to its seat through the walls; once seated it meets them again
@@ -559,12 +544,9 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
                     // Place: up to NET as the arm swings the ball over the top, a moment there, then the wheels spit it
                     // (180's netScore: the wheels only run once the elevator is at NET)
                     _target = net;
-                    if (!AtPose(net, 3f)) { _netAtTopSince = -1f; return; }
-                    if (_netAtTopSince < 0) _netAtTopSince = Time.time;
-                    if (Time.time - _netAtTopSince < netDwell) return;
+                    if (Mathf.Abs(Elevator() - net.elevatorHeight) > netReleaseElevator || Mathf.Abs(ArmAngle() - net.armAngle) > netReleaseArm) return;
                     var dir = Quaternion.AngleAxis(-netPitch, transform.right) * transform.forward;
                     if (!_algaeController.ReleaseGamePieceWithForce(Vector3.zero)) return;
-                    StartCoroutine(PassRobotBriefly(t.gameObject));
                     // thrown toward the net (the robot's front), on top of the robot's own motion
                     if (body) body.velocity = RobotVelocityAt(body.position) + dir * netSpeed;
                 }
@@ -572,12 +554,10 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
                 {
                     var strength = _placeFrom == ReefscapeSetpoints.Processor ? processorEjectForce : algaeEjectForce;
                     if (!_algaeController.ReleaseGamePieceWithForce(t.InverseTransformDirection(algaeEject.forward) * strength)) return;
-                    StartCoroutine(PassRobotBriefly(t.gameObject));
                     // the wheels' push is on top of the robot's own motion (the release starts the ball from rest)
                     if (body) body.velocity += RobotVelocityAt(body.position);
                 }
 
-                _algaePassing = null; // PassRobotBriefly lets it clear the robot, then meets it again
                 _released = true;
                 _releasedAt = Time.time;
                 return;
@@ -649,13 +629,14 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
                 if (tipEnd < 0 && along < speed) body.velocity += dir * Mathf.Min(speed - along, speed * Time.fixedDeltaTime / 0.05f);
                 yield return new WaitForFixedUpdate();
             }
-            // clear of the rollers: it clears the tube before the arm swings back to stow (the walls would bat it away)
-            if (body) StartCoroutine(PassChuteBriefly(body.gameObject));
             if (l1)
             {
+                tipEnd = Mathf.Max(tipEnd, Time.time + 0.2f); // up a moment longer, under its tail
                 while (Time.time < tipEnd) yield return null;
                 _l1Tipping = false;
             }
+            // clear of the rollers: it clears the tube before the arm swings back to stow (the walls would bat it away)
+            if (body) StartCoroutine(PassChuteBriefly(body.gameObject));
             _coralLeaving = false;
         }
 
