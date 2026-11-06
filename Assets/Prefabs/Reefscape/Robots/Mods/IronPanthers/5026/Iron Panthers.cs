@@ -32,6 +32,21 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
         [SerializeField] private float armSensorL4 = -64;
 
         // From the team's Superstructure.java (elevator units x 1.14 in, pivot + 106 deg). See Setpoints/ for the rest.
+        [Header("Descore Rollers")]
+        [SerializeField] private GenericRoller[] descoreRollers;
+        [SerializeField] private float descoreRollerSpeed = -7000;
+        [Tooltip("What a spinning compliant wheel does to the ball: rigid contact alone only spins it in place.")]
+        [SerializeField] private float descoreForce = 60;
+        [SerializeField] private float descoreReach = 0.15f;
+        [SerializeField] private float descoreBallSpeed = 2.5f;
+        [Tooltip("Sideways from a branch to the algae between the two branches of a face, inches.")]
+        [SerializeField] private float descoreAlignShift = 6.5f;
+        [SerializeField] private float alignDescore = 0f;
+        [Tooltip("The arm waits up here, inside the bumpers and clear of the branches, until the robot is square at the face. Then it comes down between them onto the ball.")]
+        [SerializeField] private float descoreWaitArm = 150f;
+        [SerializeField] private float descoreSquareAngle = 4f;
+        [SerializeField] private float descoreHomeDistance = 1.4f;
+
         [Header("One-Way Latch")]
         [Tooltip("Pin of the hook plates; its children are the hook's meshes and solid colliders.")]
         [SerializeField] private Transform latch;
@@ -61,7 +76,6 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
         [SerializeField] private float alignL3 = 0.07f;
         [SerializeField] private float alignL4Prep = 0.5f;
         [SerializeField] private float alignL4 = 0.09f;
-        [SerializeField] private float alignedTolerance = 0.03f;
         [Tooltip("Rigidbody drag: free driving reaches the team's 4.5 m/s; auto align runs a position loop that holds still.")]
         [SerializeField] private float driveDrag = 1.7f, alignDrag = 3f;
 
@@ -104,8 +118,10 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
         private Rigidbody _rb;
         private Transform _reef;
         private bool _placed, _ejecting, _l3SetupDone;
-        private float _placeStartTime, _releaseTime, _alignedTime, _latchAngle;
+        private float _placeStartTime, _releaseTime, _latchAngle;
         private readonly Collider[] _latchHits = new Collider[16];
+        private readonly Collider[] _algaeHits = new Collider[8];
+        private int _algaeMask;
 
         #endregion
         
@@ -143,6 +159,7 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
             soundDetector = new OverlapBoxBounds(coralTrigger);
 
             coralMask = LayerMask.GetMask("Coral");
+            _algaeMask = LayerMask.GetMask("Algae");
             canClack = true;
 
             // Auto tensor on a light arm twists off its hinge when a crash stops the robot in one step: 5 deg at the
@@ -178,8 +195,8 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
                 case ReefscapeSetpoints.Stack: SetState(ReefscapeSetpoints.Stow); break;
                 case ReefscapeSetpoints.Barge: SetState(ReefscapeSetpoints.Stow); break;
                 
-                case ReefscapeSetpoints.LowAlgae: SetSetpoint(lowDescore); break;
-                case ReefscapeSetpoints.HighAlgae: SetSetpoint(highDescore); break;
+                case ReefscapeSetpoints.LowAlgae: SetDescore(lowDescore); break;
+                case ReefscapeSetpoints.HighAlgae: SetDescore(highDescore); break;
                 
                 case ReefscapeSetpoints.L1: if (_coralController.atTarget) SetSetpoint(l1); break;
                 case ReefscapeSetpoints.L2: if (_coralController.atTarget) SetSetpoint(l2); break;
@@ -199,11 +216,44 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
             var level = CurrentSetpoint == ReefscapeSetpoints.Place ? LastSetpoint : CurrentSetpoint;
             SetArmSensorAngle(level == ReefscapeSetpoints.L4 ? armSensorL4 : level == ReefscapeSetpoints.L3 ? armSensorL3 : 0);
             UpdateAlignOffset(level);
-            AutoEject();
+            UpdateDrag();
 
+            UpdateDescore();
             UpdateLatch();
             UpdateSetpoints();
             UpdateAudio();
+        }
+
+        private void SetDescore(IronPanthersSetpoint setpoint)
+        {
+            SetSetpoint(setpoint);
+            var fromReef = Vector3.ProjectOnPlane(transform.position - _reef.position, Vector3.up);
+            var home = fromReef.magnitude < descoreHomeDistance && Vector3.Angle(transform.forward, fromReef) < descoreSquareAngle;
+            if (!home && _armTargetAngle == setpoint.armAngle) _armTargetAngle = descoreWaitArm;
+        }
+
+        // Real DESCORE: the end effector's wheels run while the arm is out behind the robot, which auto align backs onto the
+        // algae between two branches. A ball the wheels touch gets driven off the reef.
+        private void UpdateDescore()
+        {
+            var descoring = CurrentSetpoint is ReefscapeSetpoints.LowAlgae or ReefscapeSetpoints.HighAlgae;
+            _autoAlign.enableForwardAlign = !descoring;
+            foreach (var roller in descoreRollers) roller.SetAngularVelocity(descoring ? descoreRollerSpeed : 0f);
+            if (!descoring) return;
+
+            Rigidbody last = null;
+            foreach (var roller in descoreRollers)
+            {
+                var hits = Physics.OverlapSphereNonAlloc(roller.transform.position, descoreReach, _algaeHits, _algaeMask, QueryTriggerInteraction.Collide);
+                for (var i = 0; i < hits; i++)
+                {
+                    var ball = _algaeHits[i].attachedRigidbody;
+                    if (!ball || ball == last || ball.velocity.magnitude > descoreBallSpeed) continue;
+                    last = ball;
+                    var off = Vector3.ProjectOnPlane(ball.position - _reef.position, Vector3.up).normalized;
+                    ball.AddForce((off + Vector3.up * 0.5f).normalized * descoreForce);
+                }
+            }
         }
 
         // The hook is free one way only: a post on its curved top cams it open about its pin, and with nothing there the
@@ -363,13 +413,14 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
                 return;
             }
 
+            var descoring = CurrentSetpoint is ReefscapeSetpoints.LowAlgae or ReefscapeSetpoints.HighAlgae;
             if (((IntakeAction.IsPressed() && !_coralController.HasPiece() && !_coralController.HasPiece()) ||
-                 OuttakeAction.IsPressed()) &&
+                 OuttakeAction.IsPressed() || descoring) &&
                 !rollerSource.isPlaying)
             {
                 rollerSource.Play();
             }
-            else if (!IntakeAction.IsPressed() && !OuttakeAction.IsPressed() && rollerSource.isPlaying)
+            else if (!IntakeAction.IsPressed() && !OuttakeAction.IsPressed() && !descoring && rollerSource.isPlaying)
             {
                 rollerSource.Stop();
             }
@@ -402,6 +453,13 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
                 case ReefscapeSetpoints.L1: offset = alignL1; break;
                 case ReefscapeSetpoints.L2: offset = alignL2; break;
                 case ReefscapeSetpoints.L3: offset = alignL3; break;
+                case ReefscapeSetpoints.LowAlgae:
+                case ReefscapeSetpoints.HighAlgae:
+                    offset = alignDescore;
+                    if (AutoAlignLeftAction.IsPressed()) _autoAlign.offset.x = descoreAlignShift;
+                    else if (AutoAlignRightAction.IsPressed()) _autoAlign.offset.x = -descoreAlignShift;
+                    _autoAlign.offset.z = alignBaseOffset - offset / 0.0254f;
+                    return;
                 case ReefscapeSetpoints.L4:
                     offset = CurrentSetpoint == ReefscapeSetpoints.Place || LevelReached(l4Prep) ? alignL4 : alignL4Prep;
                     break;
@@ -411,6 +469,7 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
                     break;
             }
             _autoAlign.offset.z = alignBaseOffset - offset / 0.0254f;
+            _autoAlign.offset.x = 0f;
         }
 
         private bool LevelReached(IronPanthersSetpoint setpoint)
@@ -431,22 +490,9 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
             };
         }
 
-        // The team's "eject" flag: once auto align has arrived with the superstructure at the level, it scores itself.
-        private void AutoEject()
+        private void UpdateDrag()
         {
-            var setpoint = LevelSetpoint(CurrentSetpoint);
-            var aligning = AutoAlignLeftAction.IsPressed() || AutoAlignRightAction.IsPressed();
-            _rb.drag = aligning ? alignDrag : driveDrag;
-            var nearReef = Vector3.Distance(transform.position, _reef.position) < 3f;
-            if (setpoint == null || !aligning || !nearReef || !_coralController.atTarget || !LevelReached(setpoint) ||
-                _autoAlign.getDistance() > alignedTolerance || _rb.velocity.magnitude > 0.1f)
-            {
-                _alignedTime = 0;
-                return;
-            }
-
-            _alignedTime += Time.fixedDeltaTime;
-            if (_alignedTime > 0.05f) SetState(ReefscapeSetpoints.Place);
+            _rb.drag = AutoAlignLeftAction.IsPressed() || AutoAlignRightAction.IsPressed() ? alignDrag : driveDrag;
         }
 
         // Rollers are one motor: L1-L3 carry the coral on out the far side (+2 V to +2.4 V), everything else ejects back
