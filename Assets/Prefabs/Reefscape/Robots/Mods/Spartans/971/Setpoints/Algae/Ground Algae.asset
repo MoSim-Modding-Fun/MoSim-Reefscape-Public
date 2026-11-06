@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95b5e0c833b1c09429bd8a414271edac, type: 3}
   m_Name: Ground Algae
   m_EditorClassIdentifier: 
-  elevatorHeight: 0.03
-  armAngle: 67
-  wristAngle: 158
+  elevatorHeight: 0.005
+  armAngle: 72.06
+  wristAngle: 133.17
   intakeAngle: 0
   climberAngle: 0

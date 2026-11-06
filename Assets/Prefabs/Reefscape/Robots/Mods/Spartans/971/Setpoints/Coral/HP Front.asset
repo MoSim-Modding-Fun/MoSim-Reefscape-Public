@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: HP Front
   m_EditorClassIdentifier: 
   elevatorHeight: 0.083
-  armAngle: 24.17
+  armAngle: 23
   wristAngle: 121.904
   intakeAngle: 0
   climberAngle: 0
