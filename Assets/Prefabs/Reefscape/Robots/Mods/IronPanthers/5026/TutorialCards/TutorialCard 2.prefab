@@ -21,7 +21,8 @@ PrefabInstance:
     - target: {fileID: 6000603204863370303, guid: 4f6390b7332e92b43aee0cf7f4734f72,
         type: 3}
       propertyPath: m_text
-      value: Lynk's Climber Is Single Deploy, So Be Careful To Not Deploy Early
+      value: 'Climb Deploys The V: Turn 45 Degrees, Drive It Into A Cage Corner Until
+        The Hook Clicks, Then Climb Again To Lift'
       objectReference: {fileID: 0}
     - target: {fileID: 6000603204863370303, guid: 4f6390b7332e92b43aee0cf7f4734f72,
         type: 3}
@@ -32,7 +33,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 3bf7ef9a2de6ab7498822fce373d0b0a,
+      objectReference: {fileID: 21300000, guid: caf123ea92991306f93b4a1fac1e8086,
         type: 3}
     - target: {fileID: 7647712989278884331, guid: 4f6390b7332e92b43aee0cf7f4734f72,
         type: 3}
