@@ -47,6 +47,9 @@ namespace Editor
         [MenuItem("Tools/Mods/Build Miss Daisy (341)")]
         public static void Build()
         {
+            // a Library cloned with a project copy can lose this script's link ("referenced script is missing" on the robot)
+            AssetDatabase.ImportAsset(Dir + "/MissDaisy.cs", ImportAssetOptions.ForceUpdate);
+            AssetDatabase.ImportAsset(TemplateDir + "/Spartans.cs", ImportAssetOptions.ForceUpdate); // the template's too
             ConfigureModel();
             var setpoints = MakeSetpoints();
             CopyIfMissing(TemplateDir + "/Bumper Materials/Blue Bumpers.mat", Dir + "/Bumper Materials/Blue Bumpers.mat");
@@ -266,7 +269,7 @@ namespace Editor
             // Every root component of the template except its robot script (values and asset references kept).
             foreach (var src in template.GetComponents<Component>())
             {
-                if (src is Transform || src is Games.Reefscape.Robots.ReefscapeRobotBase) continue;
+                if (!src || src is Transform || src is Games.Reefscape.Robots.ReefscapeRobotBase) continue; // (null: its robot script, unlinked in a cloned Library)
                 UnityEditorInternal.ComponentUtility.CopyComponent(src);
                 var have = root.GetComponent(src.GetType());
                 if (have)
@@ -547,9 +550,8 @@ namespace Editor
             foreach (var sx in new[] { -1f, 1f })
             {
                 var lat = root.transform.right * sx;
-                // (out past the end of a coral lying half off the roller: starting inside it, the wall's edge met the coral's
-                // flank and shoved it away sideways; now its end meets the wall's inner face and slides in)
-                var ramp0 = F - along * 0.12f + toRamps * 0.07f + lat * 0.56f;
+                // (they start behind the roller, within its ends: starting ahead of it their edge met a coral's flank and shoved it away)
+                var ramp0 = F + along * 0.02f + toRamps * 0.07f + lat * 0.31f;
                 var ramp1 = F + along * 0.14f + toRamps * 0.07f + lat * 0.165f;
                 var d = ramp1 - ramp0;
                 var wall = Empty("Side Ramp", intake, ramp0 + d / 2, Quaternion.LookRotation(d.normalized, toRamps)).gameObject.AddComponent<BoxCollider>();
@@ -685,8 +687,9 @@ namespace Editor
                     var outward = Vector3.ProjectOnPlane(fDep - root.transform.position, Vector3.up).normalized;
                     // Inside the front roller, on the middle of the channel: nothing but the real rollers (friction) and the
                     // side ramps bring a coral here. Only from here is it pulled up to the claw.
-                    zone.SetPositionAndRotation(new Vector3(root.transform.position.x, floor - 0.02f + 0.07f, fDep.z) - outward * 0.09f, root.transform.rotation);
-                    zone.GetComponent<BoxCollider>().size = new Vector3(0.24f, 0.12f, 0.10f);
+                    // (back past the second flap: a coral further in than the zone reached was no longer pulled, and stuck there)
+                    zone.SetPositionAndRotation(new Vector3(root.transform.position.x, floor - 0.02f + 0.13f, fDep.z) - outward * 0.12f, root.transform.rotation);
+                    zone.GetComponent<BoxCollider>().size = new Vector3(0.24f, 0.26f, 0.18f);
                     // The ramp a coral rides up from the carpet to the channel floor (the real intake's lexan ramps): without
                     // it a coral coming in end-on stopped with its nose against the floor's edge.
                     var rampTop = channelFloor.transform.TransformPoint(0f, 0f, -channelFloor.size.z / 2f);

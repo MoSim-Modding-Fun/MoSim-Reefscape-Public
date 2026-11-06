@@ -97,6 +97,7 @@ namespace Prefabs.Reefscape.Robots.Mods.MissDaisy._341
         [SerializeField] private float coralCatchClear = 0.1f; // m: over a step's travel at the rollers' speed
         [SerializeField] private float coralCatchSquare = 5f; // deg
         private bool _coralTurning;
+        private int _pathSkip = 1;
         private readonly System.Collections.Generic.Dictionary<Rigidbody, (Collider[] cols, LayerMask[] masks)> _centringCoral = new();
         [SerializeField] private float coralStallTime = 1f; // s: longer than any normal pull (0.75), which has to lift the flap on its own
         [SerializeField] private float coralCentreSpeed = 0.6f; // m/s
@@ -135,8 +136,6 @@ namespace Prefabs.Reefscape.Robots.Mods.MissDaisy._341
         [SerializeField] private float mirroredL2IntakeAngle = -18f; // 341: coralIntakeAngle 72 deg with 90 = stowed
         [Tooltip("Degrees a harpoon hook can fold in.")]
         [SerializeField] private float climbSeatAngle = 150f;
-        [SerializeField] private float climbSeatTime = 1.5f;
-        private float _climbedAt;
         [SerializeField] private float maxHookTravel = 45f;
         [Tooltip("How fast a hook folds in under a bar and springs back out (deg/s).")]
         [SerializeField] private float hookSpeed = 100f; // deg/s (Seb's playtest setting)
@@ -188,6 +187,11 @@ namespace Prefabs.Reefscape.Robots.Mods.MissDaisy._341
         private float _l1Lift, _l1LiftTo;
         [SerializeField] private float hpStowDelay = 0.5f; // s: the coral settles in the claw before the arm swings back
         private float _hpHeldAt = float.NaN;
+        [SerializeField] private float restCentreOfMassY = 0.03f; // m above the root, about the wheels' axle plane
+        private Vector3 _restCentreOfMass;
+        [SerializeField] private float coralOuttakeSpeed = 0.9f, coralOuttakeClear = 0.12f; // m/s, m: the claw wheels drive it out of the mouth
+        private Collider[] _intakeSolidToCoral, _clawSolidToCoral;
+        private bool _intakePassesCoral = true;
         [SerializeField] private float climbedLockHeight = 0.05f; // m off the carpet: hanging, nothing on the robot moves any more
         private bool _climbLocked;
         private float _carpetY;
@@ -250,6 +254,12 @@ namespace Prefabs.Reefscape.Robots.Mods.MissDaisy._341
             _align = GetComponent<ReefscapeAutoAlign>();
             _robotBody = GetComponent<Rigidbody>();
             _carpetY = _robotBody.position.y;
+            // Weight low in the frame: the battery and drivetrain, not the middle of the collision boxes. Over the wheels as
+            // before (off to a side it dragged the robot), only lower.
+            var com = _robotBody.centerOfMass;
+            _restCentreOfMass = new Vector3(com.x, restCentreOfMassY, com.z);
+            _robotBody.automaticCenterOfMass = false;
+            _robotBody.centerOfMass = _restCentreOfMass;
             if (_align) _alignOffset = _align.offset;
 
             var blue = GameObject.Find("BlueReef");
@@ -357,6 +367,7 @@ namespace Prefabs.Reefscape.Robots.Mods.MissDaisy._341
                 : hpCoralIntake && hpCoralIntake.hasGamePiece ? hpCoralIntake.GamePiece : null;
             if (coming) ClawLetsCoralIn(coming.transform);
             else if (!hasCoral && Time.time > _clawClearUntil) ClawLetsCoralIn(null);
+            IntakePassesCoral(_target == groundIntake || coming);
             var coralState = _coralController.GetCurrentState();
             var inClaw = hasCoral && _coralController.atTarget && coralState != null && coralState.name == clawCoralState.name;
             if (inClaw) _floorCoral = false;
@@ -446,13 +457,28 @@ namespace Prefabs.Reefscape.Robots.Mods.MissDaisy._341
             if (pulled && pulled.collisionDetectionMode == CollisionDetectionMode.Discrete)
                 pulled.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             _pathLost = float.NegativeInfinity;
-            if (_pathS < 0) { _pathStart = piece.transform.position; _pathS = 0f; }
+            if (_pathS < 0)
+            {
+                _pathStart = piece.transform.position;
+                _pathS = 0f;
+                // The way up starts from where it is: waypoints it is already past lie behind and below it, and pulled back
+                // down to them it was pinned against the channel floor under the second flap.
+                _pathSkip = 1;
+                var nearest = float.MaxValue;
+                for (var k = 0; k < coralPath.Length - 1; k++)
+                {
+                    var a = coralPath[k].position;
+                    var seg = coralPath[k + 1].position - a;
+                    var d = (a + seg * Mathf.Clamp01(Vector3.Dot(_pathStart - a, seg) / seg.sqrMagnitude) - _pathStart).sqrMagnitude;
+                    if (d < nearest) { nearest = d; _pathSkip = k + 1; }
+                }
+            }
             _pathPts.Clear();
             _pathRots.Clear();
             _pathPts.Add(_pathStart);
             _pathRots.Add(Facing(coralPath[0].rotation));
             // (it is past the front roller by the time the intake has it: up from where it is)
-            foreach (var p in coralPath.Skip(1)) { _pathPts.Add(p.position); _pathRots.Add(Facing(p.rotation)); }
+            foreach (var p in coralPath.Skip(_pathSkip)) { _pathPts.Add(p.position); _pathRots.Add(Facing(p.rotation)); }
             // into the claw's mouth along its axis (341: the intake tosses the coral up into the waiting claw)
             _pathPts.Add(end.position + clawEject.forward * clawEntry);
             _pathRots.Add(end.rotation);
@@ -564,6 +590,23 @@ namespace Prefabs.Reefscape.Robots.Mods.MissDaisy._341
                 }
                 run += len;
             }
+        }
+
+        // The intake's tubes and plates let coral through only while it is down intaking (its way in runs through them).
+        // Stowed, a coral lying on the robot lands on them.
+        private void IntakePassesCoral(bool pass)
+        {
+            if (pass == _intakePassesCoral) return;
+            _intakePassesCoral = pass;
+            var coral = LayerMask.GetMask("Coral");
+            _intakeSolidToCoral ??= intakePivot.GetComponentsInChildren<Collider>(true).Where(c => !c.isTrigger && (c.excludeLayers & coral) != 0).ToArray();
+            foreach (var c in _intakeSolidToCoral)
+                if (c) c.excludeLayers = pass ? c.excludeLayers | coral : c.excludeLayers & ~coral;
+            // the claw too: waiting low at the mouth, a wrist part knocked a coral coming in off-centre back out
+            var state = clawCoralState.stateTarget;
+            _clawSolidToCoral ??= clawEject.GetComponentInParent<Rigidbody>().GetComponentsInChildren<Collider>(true).Where(c => !c.isTrigger && !c.transform.IsChildOf(state)).ToArray();
+            foreach (var c in _clawSolidToCoral)
+                if (c) c.excludeLayers = pass ? c.excludeLayers | coral : c.excludeLayers & ~coral;
         }
 
         // The claw is solid to loose coral, but not to the one it is taking in: that one goes between its wheels.
@@ -816,10 +859,9 @@ namespace Prefabs.Reefscape.Robots.Mods.MissDaisy._341
             // The climber swings up and over the top (0 stowed inward, 165 deployed out the front, 77 climbed - 341's
             // angles), never down through the floor.
             // Pushed against, the cage leans away from the flat harpoon, and a post held off at the hook plates cannot get
-            // past its barb. So the pull first slides up to where harpoon and cage are square and waits there for a hook
-            // still folded: the leaning cage swings back in and the post clicks past it.
-            if (d != climbed) _climbedAt = Time.time;
-            var climberAngle = d == climbed && _hookAngles.Any(a => a > 2f) && Time.time - _climbedAt < climbSeatTime ? climbSeatAngle : d.climberAngle;
+            // past its barb. So the pull first slides up to where harpoon and cage are square and stays there until both hooks
+            // have clicked shut, the driver pushing in: pulling on with a post still unlatched only drew that post back out.
+            var climberAngle = d == climbed && !_climbLocked && Mathf.DeltaAngle(0f, climber.GetSingleAxisAngle(JointAxis.X)) > climbSeatAngle - 5f && _hookAngles.Any(a => a > 2f) ? climbSeatAngle : d.climberAngle;
             climber.SetTargetAngle(climberAngle).withAxis(JointAxis.X).noWrap(-90).useCustomStartingOffset(0);
         }
 
@@ -927,12 +969,13 @@ namespace Prefabs.Reefscape.Robots.Mods.MissDaisy._341
             if (coralBody) coralBody.maxDepenetrationVelocity = releasedDepenetration;
             // let go wherever it is: a coral pushed off its seat in the claw (by the corals already in the trough) was
             // never "at target", so the claw never let go and the L1 stack stopped at one
-            // Scored on a branch, the claw pulling away does not knock it off.
-            if (score) _clawClearUntil = Time.time + 1.2f;
-            else ClawLetsCoralIn(null);
-            // Not at a scoring pose (outtake at stow): the rollers just let go and it sits where it is, no push at all.
+            // Not at a scoring pose (outtake at stow): the claw's wheels drive it out of the mouth, no further; then it falls.
             var plainDrop = !toL1 && !score;
-            if (plainDrop) _coralController.ReleaseGamePieceWithForce(Vector3.zero);
+            // Scored on a branch, the claw pulling away does not knock it off. Driven out, it clears the wheels first.
+            if (score) _clawClearUntil = Time.time + 1.2f;
+            else if (plainDrop) _clawClearUntil = Time.time + 0.5f;
+            else ClawLetsCoralIn(null);
+            if (plainDrop) _coralController.ReleaseGamePieceWithForce(Vector3.zero, ForceMode.Impulse, false);
             else
                 _coralController.ReleaseGamePieceWithContinuedForce(piece.InverseTransformDirection(ejectDir) * coralEjectForce,
                     toL1 ? coralEjectTime : scoreEjectTime, toL1 ? coralEjectSpeed : scoreEjectSpeed, false);
@@ -941,7 +984,8 @@ namespace Prefabs.Reefscape.Robots.Mods.MissDaisy._341
             if (coralBody) StartCoroutine(ReleasedCoralClears(coralBody));
             // the release zeroes its velocity: it leaves with the claw's motion (let go mid-dunk, it would stop dead),
             // at most the dunk's own pace (the claw can jump as it comes off the branch, and threw it past it)
-            if (coralBody) coralBody.velocity = plainDrop ? Vector3.zero : Vector3.ClampMagnitude(_clawVelocity, 0.5f);
+            if (coralBody && plainDrop) StartCoroutine(ClawWheelsDriveOut(coralBody));
+            else if (coralBody) coralBody.velocity = Vector3.ClampMagnitude(_clawVelocity, 0.5f);
             _released = true;
         }
 
@@ -1173,6 +1217,20 @@ namespace Prefabs.Reefscape.Robots.Mods.MissDaisy._341
         }
 
 
+        // Held by the wheels until it has come out between them along the mouth: a steady push, square, then it is free.
+        private System.Collections.IEnumerator ClawWheelsDriveOut(Rigidbody coral)
+        {
+            var dir = clawEject.forward;
+            var from = coral.position;
+            var until = Time.time + 0.4f;
+            while (coral && Time.time < until && Vector3.Dot(coral.position - from, dir) < coralOuttakeClear)
+            {
+                coral.velocity = dir * coralOuttakeSpeed;
+                coral.angularVelocity = Vector3.zero;
+                yield return new WaitForFixedUpdate();
+            }
+        }
+
         private System.Collections.IEnumerator ReleasedCoralClears(Rigidbody coral)
         {
             var mine = coral.GetComponentsInChildren<Collider>().Where(c => c.enabled && !c.isTrigger).ToArray();
@@ -1214,8 +1272,7 @@ namespace Prefabs.Reefscape.Robots.Mods.MissDaisy._341
             var climbedNow = CurrentSetpoint == ReefscapeSetpoints.Climbed;
             if (climbedNow == _comShifted) return;
             _comShifted = climbedNow;
-            _robotBody.automaticCenterOfMass = !climbedNow;
-            if (climbedNow) _robotBody.centerOfMass = climbedCentreOfMass;
+            _robotBody.centerOfMass = climbedNow ? climbedCentreOfMass : _restCentreOfMass;
         }
 
         private static void Loop(AudioSource source, bool play, float pitch)
