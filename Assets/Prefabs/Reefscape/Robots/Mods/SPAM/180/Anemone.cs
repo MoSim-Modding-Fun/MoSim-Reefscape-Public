@@ -42,6 +42,12 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
         [SerializeField] private float l1FlipTime = 0.15f;
         [Tooltip("Where the coral's centre is (m past the tube's top lip) when the rollers let it go and the end effector tips up.")]
         [SerializeField] private float l1TipAt = 0.1f;
+        [Tooltip("What a caught ball passes on its way to its seat: the wheels and the frame behind them.")]
+        [SerializeField] private Collider[] algaeSeatColliders;
+        [Tooltip("The kicker, on the top bar: turned to keep the bottom bar's pin on its slot.")]
+        [SerializeField] private Transform kicker;
+        [SerializeField] private Transform kickerPin;
+        [SerializeField] private Vector3 kickerSlot;
         [Tooltip("Intake and indexer wheels, spun for show.")]
         [SerializeField] private GenericAnimationJoint[] intakeRollerVisuals;
         [Tooltip("Rollers inside the arm tube, spun for show; positive moves a coral toward the top end.")]
@@ -64,10 +70,10 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
         [Header("PIDs")]
         [SerializeField] private PidConstants armPid;
         [SerializeField] private PidConstants intakePid, climberPid;
-        [Tooltip("The climb itself: the winch hauls the cage round in about 4 s, " +
+        [Tooltip("The climb itself: the winch hauls the cage round in under 2 s, " +
                  "deg/s of the arm's target. The target moves, not the speed limit: the drive's force scales with that limit, " +
                  "and a capped arm stalled just as the robot's weight came on.")]
-        [SerializeField] private float climbPullRate = 40f;
+        [SerializeField] private float climbPullRate = 100f;
 
         [Header("Setpoints")]
         [SerializeField] private AnemoneSetpoint stow;
@@ -99,8 +105,6 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
         [SerializeField] private AudioClip algaeStallClip;
         [Tooltip("Once, as a coral seats in the tube.")]
         [SerializeField] private AudioClip coralSeatClip;
-        [Tooltip("Once, as the hook takes the cage.")]
-        [SerializeField] private AudioClip cageHookClip;
 
         [Header("Tuning")]
         [Tooltip("Seconds the rollers keep pushing after the coral's nose has met something.")]
@@ -116,7 +120,7 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
         [Tooltip("L1 roller push-out (180 runs them at 0.3): slow, so the coral tips over the trough rather than shooting.")]
         [SerializeField] private float l1EjectSpeed = 1.8f;
         [Tooltip("L4 eject speed (2 m/s glances off the post sideways).")]
-        [SerializeField] private float l4EjectSpeed = 1.8f;
+        [SerializeField] private float l4EjectSpeed = 2.6f;
         [SerializeField] private float algaeEjectForce = 6f;
         [SerializeField] private float processorEjectForce = 3f;
         [Tooltip("Net shot (180's code, and Einstein R3 M9 / the reveal video): the elevator goes to NET as the arm swings " +
@@ -124,11 +128,16 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
                  "lob that lands 0.5-1.5 m out. In the footage the ball sits 0.3-0.5 m above the rim at the top; MoSim's " +
                  "barge rim is level with it, so the lob is steeper here to clear the rim. Speed (m/s, on top of the " +
                  "robot's motion) and angle above horizontal.")]
-        [SerializeField] private float netSpeed = 2.75f;
-        [SerializeField] private float netPitch = 55f;
+        [SerializeField] private float netSpeed = 3.8f;
+        [SerializeField] private float netPitch = 60f;
         [Tooltip("The wheels spit once the elevator is this close to Net (m) and the arm this close (deg): the arm is still swinging.")]
         [SerializeField] private float netReleaseElevator = 0.06f;
-        [SerializeField] private float netReleaseArm = 15f;
+        [SerializeField] private float netReleaseArm = 6f;
+        [Tooltip("The elevator in the throw: it speeds up at this rate (m/s per s) to this top speed (m/s).")]
+        [SerializeField] private float netRiseAccel = 9f;
+        [SerializeField] private float netRiseRate = 5f;
+        [Tooltip("Once the coral's nose touches a branch the rollers only ease it on, at this speed (m/s): it bounced off at full speed.")]
+        [SerializeField] private float coralContactSpeed = 1f;
         [Tooltip("Seconds after a piece leaves before the robot stows itself.")]
         [SerializeField] private float stowAfterScore = 0.6f;
         [Tooltip("Inches from a reef branch pole to the face centre, where the algae sits.")]
@@ -150,6 +159,7 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
         private RobotFramework.Controllers.Drivetrain.DriveController _drive;
         private float _driveTurn = 1f;
         private float _driveScale = 1f;
+        private float _elevatorRamp, _elevatorRampSpeed;
         private float _releasedAt;
         private ReefscapeSetpoints _placeFrom;
         private ReefscapeAutoAlign _align;
@@ -187,7 +197,6 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
             _drive = GetComponent<RobotFramework.Controllers.Drivetrain.DriveController>();
             if (_drive) _driveTurn = _drive.rotationSpeedMultiplier;
             _stationDropDistance = CurrentCoralStationMode.DropDistance;
-            _climbScorer = GetComponent<Games.Reefscape.Scoring.Scorers.ClimbScorer>();
 
             var group = Resources.Load<UnityEngine.Audio.AudioMixerGroup>("MainAudioMixer").audioMixer.FindMatchingGroups("RobotSounds")[0];
             AudioSource Source(AudioClip clip, bool loop, float volume)
@@ -206,8 +215,7 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
         }
 
         private AudioSource _rollerAudio, _stallAudio, _oneShotAudio;
-        private Games.Reefscape.Scoring.Scorers.ClimbScorer _climbScorer;
-        private bool _wasSeated, _wasHooked;
+        private bool _wasSeated;
 
         private static void Loop(AudioSource a, bool on)
         {
@@ -222,9 +230,6 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
             Loop(_stallAudio, running && hasAlgae);
             if (inTube && !_wasSeated && running && coralSeatClip) _oneShotAudio.PlayOneShot(coralSeatClip);
             _wasSeated = inTube;
-            var hooked = _climbScorer && CurrentSetpoint is ReefscapeSetpoints.Climb or ReefscapeSetpoints.Climbed && _climbScorer.ScoringTriggered;
-            if (hooked && !_wasHooked && cageHookClip) _oneShotAudio.PlayOneShot(cageHookClip);
-            _wasHooked = hooked;
         }
 
         private void LateUpdate()
@@ -234,8 +239,54 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
             climber.UpdatePid(climberPid);
         }
 
+        // A station coral is only taken once it has dropped in: its centre below the tube's lip, on the tube's line.
+        private bool StationCoralLinedUp()
+        {
+            var axis = coralEject.forward;
+            foreach (var c in Physics.OverlapBox(coralEject.position - axis * 0.15f, new Vector3(0.08f, 0.08f, 0.17f), coralEject.rotation, LayerMask.GetMask("Coral")))
+            {
+                var body = c.attachedRigidbody;
+                if (!body) continue;
+                var at = coralEject.InverseTransformPoint(body.position);
+                if (at.z > 0f || new Vector2(at.x, at.y).magnitude > 0.03f) continue;
+                var off = Vector3.Angle(body.transform.TransformDirection(coralLongLocal), axis);
+                if (Mathf.Min(off, 180f - off) < 20f) return true;
+            }
+            return false;
+        }
+
+        private const float IntakeTopTravel = 72f; // the top bar's turn from stowed to deployed (the build logs 70 deg)
+        private HingeJoint _topBarHinge;
+        private bool _topBarStopped;
+
+        // The top bar's hinge gets stops at both ends of its travel (its zero is the stowed pose), set the first time the
+        // intake deploys, which shows which way the hinge counts.
+        private void StopTopBar()
+        {
+            if (_topBarStopped) return;
+            _topBarHinge ??= GetComponentsInChildren<HingeJoint>(true).FirstOrDefault(h => h.name == "IntakeTopBar" && h.connectedBody && h.connectedBody.gameObject == gameObject);
+            if (!_topBarHinge || Mathf.Abs(_topBarHinge.angle) < 15f || IntakeAngle() > intakeRestAngle - 10f) return;
+            var way = Mathf.Sign(_topBarHinge.angle);
+            _topBarHinge.limits = way > 0
+                ? new JointLimits { min = -4f, max = IntakeTopTravel + 8f }
+                : new JointLimits { min = -IntakeTopTravel - 8f, max = 4f };
+            _topBarHinge.useLimits = true;
+            _topBarStopped = true;
+        }
+
+        private void TurnKicker()
+        {
+            var axis = transform.right;
+            var slot = Vector3.ProjectOnPlane(kicker.TransformDirection(kickerSlot), axis);
+            var pin = Vector3.ProjectOnPlane(kickerPin.position - kicker.position, axis);
+            var turn = Vector3.SignedAngle(slot, pin, axis);
+            if (Mathf.Abs(turn) > 0.05f) kicker.Rotate(axis, turn, Space.World);
+        }
+
         private void FixedUpdate()
         {
+            TurnKicker();
+            StopTopBar();
             var hasCoral = _coralController.HasPiece();
             var hasAlgae = _algaeController.HasPiece();
             var intaking = IntakeAction.IsPressed();
@@ -263,8 +314,7 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
             _coralController.RequestIntake(groundCoralIntake, floorIntakeRunning && (groundCoralIntake.hasGamePiece || FlatCoralAtRoller()));
             LetCaughtCoralThrough();
             LetCaughtAlgaeIn();
-            LetStationCoralIn();
-            _coralController.RequestIntake(hpCoralIntake, hpIntaking && AtPose(hpIntake, 6f));
+            _coralController.RequestIntake(hpCoralIntake, hpIntaking && AtPose(hpIntake, 6f) && (hpCoralIntake.hasGamePiece || StationCoralLinedUp()));
             _algaeController.RequestIntake(algaeIntake, intaking && IsAlgaeTarget() && !hasAlgae);
             StepCoral(hasCoral, groundMode);
             _algaeController.SetTargetState(algaeState);
@@ -425,22 +475,22 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
         private void SetPassing(GameObject piece, bool pass) => SetPassing(piece, pass, headRollerColliders);
 
         private GameObject _algaePassing;
-        private Collider[] _algaeWheelColliders;
 
-        // A ball a wheel has caught rolls round that wheel to its seat: the wheels give (they are compliant), so it passes
-        // them on the way; everything else on the arm still stops it. Seated, it touches none of them.
+        // A ball a wheel has caught rolls round that wheel to its seat: it passes the compliant wheels (and the frame it
+        // seats against) on the way, and meets them again once a shot ball has left. Everything else on the arm stops it.
         private void LetCaughtAlgaeIn()
         {
-            _algaeWheelColliders ??= arm.GetComponentsInChildren<Collider>(true).Where(c => c.name.StartsWith("Algae Shaft") && c.name.EndsWith(" Wheel")).ToArray();
             var caught = algaeIntake.hasGamePiece ? algaeIntake.GamePiece : null;
-            if (_algaePassing && _algaePassing != caught)
+            if (_algaePassing && _algaePassing != caught && !(_algaeController.HasPiece() && _algaeController.controller && _algaeController.controller.gameObject == _algaePassing) &&
+                (_algaePassing.transform.position - algaeState.stateTarget.position).magnitude > 0.12f)
             {
-                SetPassing(_algaePassing, false, _algaeWheelColliders);
+                SetPassing(_algaePassing, false, algaeSeatColliders);
                 _algaePassing = null;
             }
             if (caught && caught != _algaePassing)
             {
-                SetPassing(caught, true, _algaeWheelColliders);
+                if (_algaePassing) SetPassing(_algaePassing, false, algaeSeatColliders);
+                SetPassing(caught, true, algaeSeatColliders);
                 _algaePassing = caught;
             }
         }
@@ -461,24 +511,6 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
                 SetPassing(piece, false, chuteWalls);
         }
 
-        private GameObject _stationPassing;
-
-        // a station coral caught in the top of the tube is pulled to its seat through the walls; once seated it meets them again
-        private void LetStationCoralIn()
-        {
-            var caught = hpCoralIntake.hasGamePiece ? hpCoralIntake.GamePiece : null;
-            var seated = _coralController.HasPiece() && _coralController.atTarget;
-            if (_stationPassing && (seated || _stationPassing != caught))
-            {
-                SetPassing(_stationPassing, false, chuteWalls);
-                _stationPassing = null;
-            }
-            if (caught && !seated && caught != _stationPassing)
-            {
-                SetPassing(caught, true, chuteWalls);
-                _stationPassing = caught;
-            }
-        }
 
         // ---- current pose, in setpoint terms
 
@@ -505,7 +537,11 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
                 i = groundIntake.intakeAngle;
             }
 
-            elevator.SetTarget(e * InchesPerMeter);
+            // the throw: the elevator goes up steadily rather than as fast as it can
+            var throwing = CurrentSetpoint == ReefscapeSetpoints.Place && _placeFrom == ReefscapeSetpoints.Barge && _target == net;
+            _elevatorRampSpeed = throwing ? Mathf.Min(netRiseRate, _elevatorRampSpeed + netRiseAccel * Time.fixedDeltaTime) : 0f;
+            _elevatorRamp = throwing ? Mathf.MoveTowards(_elevatorRamp, e, _elevatorRampSpeed * Time.fixedDeltaTime) : Elevator();
+            elevator.SetTarget((throwing ? _elevatorRamp : e) * InchesPerMeter);
             // the arm never swings through straight down (the elevator is in the way)
             // L1: tip up once the coral is mostly out (its tail still on the lip), to flip it into the trough
             _l1Tip = Mathf.MoveTowards(_l1Tip, _l1Tipping ? l1FlipAngle : 0f, l1FlipAngle / l1FlipTime * Time.fixedDeltaTime);
@@ -605,7 +641,8 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
                 return false;
             }
             body.useGravity = false;
-            while (body && past < CoralHalfLength && !Touches(coralEject.forward))
+            var touched = false;
+            while (body && past < CoralHalfLength && !(touched = Touches(coralEject.forward)))
             {
                 Tip();
                 if (tipEnd >= 0) break;
@@ -619,6 +656,11 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
                 yield return new WaitForFixedUpdate();
             }
             if (body) body.useGravity = true;
+            if (body && !l1 && touched)
+            {
+                speed = Mathf.Min(speed, coralContactSpeed);
+                body.velocity = armBody.GetPointVelocity(body.position) + coralEject.forward * speed;
+            }
             var pushEnd = Time.time + coralContactPushTime;
             while (body && past < CoralHalfLength && Time.time < pushEnd)
             {
@@ -653,10 +695,11 @@ namespace Prefabs.Reefscape.Robots.Mods.SPAM._180
             if (!_coralController.atTarget) return;
             var at = System.Array.FindIndex(floorCoralStates, st => st.stateNum == _coralController.currentStateNum);
             if (at < 0) return; // in the tube
-            if (at < floorCoralStates.Length - 1)
-                _coralController.SetTargetState(floorCoralStates[at + 1]);
-            else if (AtPose(groundIntake, 4f))
-                _coralController.SetTargetState(coralState);
+            // the steps onto the arm (under the tube, its mouth, the seat) wait for the arm to be still at the receive pose,
+            // so the coral is never pulled through the tube's walls
+            var ontoArm = at >= floorCoralStates.Length - 3;
+            if (ontoArm && !AtPose(groundIntake, 2f)) return;
+            _coralController.SetTargetState(at < floorCoralStates.Length - 1 ? floorCoralStates[at + 1] : coralState);
         }
 
         private static bool BaseGameManagerRunning()

@@ -467,7 +467,7 @@ namespace Editor
                 ("HP Intake", 0.038f, 42.1f, IntakeStow, 0f),      // receiveHP (1.5 in) + receivingHP
                 // L1_SCORE, the end effector tipping up as the coral leaves, flipping it into the trough; elevator 3 cm lower than
                 // 180's 0.212 m: the tipped coral's nose then passes under MoSim's L2 branch tip (PlayMode)
-                ("L1", 0.18f, -16.7f, IntakeStow, 0f),
+                ("L1", 0.18f, -16.7f, IntakeStow, 0f),               // 180's L1 is 0.212 m, L1_SCORE: 0.212 misses the MoSim trough, 0.18 lands in it
                 ("L2", 0.353f, -8f, IntakeStow, 0f),               // 0.302 m + 2 in, L2_SCORE
                 ("L3", 0.735f, -8f, IntakeStow, 0f),               // L2 + 16 in - 2.4 cm, L3_SCORE: at L2 + 16 in the coral's lip clips the tip of the MoSim branch
                 ("L4", 1.43f, -16f, IntakeStow, 0f),               // L4 (1.46 m) - 3 cm, L4_SCORE: at 1.46 the coral's lip clips the top of the MoSim post; lower, the post enters its hollow nose
@@ -477,11 +477,11 @@ namespace Editor
                 // the elevator is lower at the same arm angle
                 // (+9 cm: the bottom wheel then meets MoSim's ball from the bumper-against-the-reef pose and pulls it
                 // up into the top wheel)
-                ("Low Algae", 0.16f, -8f, IntakeStow, 0f),          // 8 cm under 180's: the ball now sits on the wheels' faces, not sunk into them, so it is held higher
-                ("High Algae", 0.56f, -8f, IntakeStow, 0f),         // 8 cm under 180's, as Low Algae
+                ("Low Algae", 0.20f, -8f, IntakeStow, 0f),          // 4 cm under 180's: the ball sits on the wheels' faces, not sunk into them, so it is held higher
+                ("High Algae", 0.60f, -8f, IntakeStow, 0f),         // 4 cm under 180's, as Low Algae
                 ("Processor", 0f, -40f, IntakeStow, 0f),           // PROCESSOR
-                ("Net Approach", 0.05f, 46.4f, IntakeStow, 0f),    // lining up at the barge: the ball carried at ~1 m (footage)
-                ("Net", 1.445f, 6f, IntakeStow, 0f),               // NET (1.47 m - 1 in), netScore (8 - 2): the ball sits on top
+                ("Net Approach", 0.25f, 46.4f, IntakeStow, 0f),    // lining up at the barge: the ball carried at ~1 m (footage)
+                ("Net", 1.445f, 20f, IntakeStow, 0f),              // NET (1.47 m - 1 in); arm up from netScore (8 - 2): the ball sits lower on the wheels and has to clear the net
                 ("Climb Prep", 0.381f, -37.2f, IntakeStow, 95f),   // CLIMB (15 in), arm CLIMB, intake stowed, climber deployed
                 // out, then back up through upright and over the chassis (180's climb direction; as far as 1690's
                 // MoSim climber swings, 95 -> 245 from its hanging stow)
@@ -662,6 +662,8 @@ namespace Editor
             // on its pivot): everything low between the bar and the roller, the arms and belt, and whatever sits on the
             // pivot axis.
             var kicker = Empty("Kicker", intakeGo.transform, Pv(KickerPin), root.transform.rotation);
+            Transform kickerPin = null;
+            var kickerSlot = Vector3.zero;
             {
                 var region = new Bounds();
                 region.SetMinMax(Vector3.Min(Pv(new Vector3(-0.25f, -0.52f, 0.03f)), Pv(new Vector3(0.25f, -0.35f, 0.16f))),
@@ -717,12 +719,9 @@ namespace Editor
             // parallel hinges over-constrain a planar four-bar, and PhysX then locks it part way (PlayMode: stuck at
             // 6-30 deg with the pins pulled 1-3 cm apart, no contacts). The head stays square on its bottom pin.
             var headTopHinge = PlanarPin(topBar.gameObject, headRb, topBar.InverseTransformPoint(Pv(HeadTopPin)));
-            // the kicker: pinned on the top bar's shaft; its slot joint on the bottom bar's pin is added once posed
-            Body(kicker.gameObject, 0.4f);
-            var kickerHinge = Hinge(kicker.gameObject, topRb, Vector3.zero);
             // the intake's links stay stiff and out of walls when the robot drives the deployed head into one (with the
             // default solver the chain flexed and the head sank into the wall)
-            foreach (var rb in new[] { barRb, topRb, headRb, kicker.GetComponent<Rigidbody>() })
+            foreach (var rb in new[] { barRb, topRb, headRb })
             {
                 rb.solverIterations = 30;
                 rb.solverVelocityIterations = 12;
@@ -841,27 +840,28 @@ namespace Editor
             var holdRecv = receive * coralHold.rotation;
             var floorStates = new[]
             {
-                ("Coral Intake", Empty("Coral Intake State", head, P(0, -0.605f, 0.057f), across), 50f, 0.001f),
-                ("Coral Pinch", Empty("Coral Pinch State", head, P(0, -0.548f, 0.075f), across), 50f, 0.001f),
-                ("Coral Kick", Empty("Coral Kick State", head, P(0, -0.527f, 0.125f), across), 50f, 0.001f),
-                ("Coral Under", Empty("Coral Under State", head, P(0, -0.495f, 0.155f), across), 50f, 0.001f),
-                ("Coral Over", Empty("Coral Over State", head, P(0, -0.445f, 0.195f), across), 50f, 0.001f),
-                ("Coral Entry", Empty("Coral Entry State", drivebase, P(0, -0.400f, 0.235f), across), 50f, 0.001f),
+                ("Coral Intake", Empty("Coral Intake State", head, P(0, -0.605f, 0.057f), across), 80f, 0.001f),
+                ("Coral Pinch", Empty("Coral Pinch State", head, P(0, -0.548f, 0.075f), across), 80f, 0.001f),
+                ("Coral Kick", Empty("Coral Kick State", head, P(0, -0.520f, 0.106f), across), 80f, 0.001f),
+                ("Coral Under", Empty("Coral Under State", head, P(0, -0.490f, 0.126f), across), 80f, 0.001f),
+                ("Coral Over", Empty("Coral Over State", head, P(0, -0.430f, 0.166f), across), 80f, 0.001f),
+                ("Coral Entry", Empty("Coral Entry State", drivebase, P(0, -0.380f, 0.206f), across), 80f, 0.001f),
                 // the turn, searched in the channel's plane between the uptake's shafts (rigid, the channel's full depth)
                 // and its 3" wheels (near the floor and ceiling, where the coral is ~39 mm wide; they give 15 mm): the
                 // lower stacks swing one end up and the coral pivots off to the side, then climbs at ~60 deg and
                 // straightens end-first between the upper stacks
-                ("Coral Channel", Empty("Coral Channel State", drivebase, Channel(0.100f), across), 60f, 0.001f),
-                ("Coral Pivot 1", Empty("Coral Pivot 1 State", drivebase, Channel(0.100f, -0.050f), Th(15f)), 15f, 0.001f),
-                ("Coral Pivot 2", Empty("Coral Pivot 2 State", drivebase, Channel(0.100f, -0.055f), Th(20f)), 15f, 0.001f),
-                ("Coral Pivot 3", Empty("Coral Pivot 3 State", drivebase, Channel(0.110f, -0.070f), Th(45f)), 15f, 0.001f),
-                ("Coral Pivot 4", Empty("Coral Pivot 4 State", drivebase, Channel(0.125f, -0.075f), Th(55f)), 15f, 0.001f),
-                ("Coral Climb 1", Empty("Coral Climb 1 State", drivebase, Channel(0.180f, -0.055f), Th(60f)), 60f, 0.001f),
-                ("Coral Climb 2", Empty("Coral Climb 2 State", drivebase, Channel(0.255f, -0.010f), Th(60f)), 60f, 0.001f),
+                ("Coral Channel", Empty("Coral Channel State", drivebase, Channel(0.100f), across), 95f, 0.001f),
+                ("Coral Pivot 1", Empty("Coral Pivot 1 State", drivebase, Channel(0.100f, -0.050f), Th(15f)), 24f, 0.001f),
+                ("Coral Pivot 2", Empty("Coral Pivot 2 State", drivebase, Channel(0.100f, -0.055f), Th(20f)), 24f, 0.001f),
+                ("Coral Pivot 3", Empty("Coral Pivot 3 State", drivebase, Channel(0.110f, -0.070f), Th(45f)), 24f, 0.001f),
+                ("Coral Pivot 4", Empty("Coral Pivot 4 State", drivebase, Channel(0.125f, -0.075f), Th(55f)), 24f, 0.001f),
+                ("Coral Climb 1", Empty("Coral Climb 1 State", drivebase, Channel(0.180f, -0.055f), Th(60f)), 95f, 0.001f),
+                ("Coral Climb 2", Empty("Coral Climb 2 State", drivebase, Channel(0.200f, -0.030f), Th(60f)), 95f, 0.001f),
                 // end-first and already in the stow's rotation (the tube's line, 2.6 deg off the channel's): from here
                 // the coral only slides, onto the tube's line and up it
-                ("Coral End First", Empty("Coral End First State", drivebase, Channel(0.300f, -0.005f), holdRecv), 60f, 0.001f),
-                ("Coral Mouth", Empty("Coral Mouth State", arm, Tube(TubeBottom + 0.10f), coralHold.rotation), 60f, 0.001f),
+                ("Coral End First", Empty("Coral End First State", drivebase, Channel(0.222f, -0.004f), holdRecv), 95f, 0.001f),
+                ("Coral Under Tube", Empty("Coral Under Tube State", arm, Tube(TubeBottom - 0.16f), coralHold.rotation), 95f, 0.001f),
+                ("Coral Mouth", Empty("Coral Mouth State", arm, Tube(TubeBottom + 0.10f), coralHold.rotation), 95f, 0.001f),
             };
             // the catch: a thin strip on the front roller's face (3" wheels, centre CAD y -0.60 z 0.134), where a coral
             // lying on the carpet touches them; nothing is pulled before that. Planar tolerance as 1690's.
@@ -878,9 +878,9 @@ namespace Editor
                 gso.FindProperty("useRotaion").boolValue = false;
                 gso.ApplyModifiedPropertiesWithoutUndo();
             }
-            // station coral: caught by the sushi rollers anywhere in the top of the tube, from just above the lip
-            // down the bore (a coral dropped in falls past the lip), and pulled to the hold point
-            var hpIntake = MakeIntake("Tube Coral Intake", arm, Tube((TubeTop + 0.06f + holdU - 0.10f) / 2), new Vector3(0.15f, 0.15f, TubeTop + 0.06f - (holdU - 0.10f)),
+            // station coral: caught by the sushi rollers only once it has dropped into the tube, centred and lined up with
+            // it (a narrow zone on the bore's axis; the robot also checks the coral's line), and pulled to the hold point
+            var hpIntake = MakeIntake("Tube Coral Intake", arm, Tube((TubeTop + holdU - 0.10f) / 2), new Vector3(0.07f, 0.07f, TubeTop - (holdU - 0.10f)),
                 coralHold, coral: true, maxDistance: 12f);
             hpIntake.transform.rotation = Quaternion.LookRotation(tubeDir, root.transform.up);
 
@@ -1100,7 +1100,7 @@ namespace Editor
                     var from = floorStates[k - 1].Item2;
                     var secs = (t.position - from.position).magnitude / (v * 0.0254f);
                     var deg = Quaternion.Angle(from.rotation, t.rotation);
-                    floorStates[k] = (n, t, v, deg < 0.5f || secs <= 0 ? 0.001f : deg / secs * 1.05f);
+                    floorStates[k] = (n, t, v, deg < 0.5f || secs <= 0 ? (k is >= 2 and <= 6 ? 720f : 0.001f) : deg / secs * 1.05f);
                     Debug.Log($"ANEMONE leg {floorStates[k - 1].Item1} -> {n}: {(t.position - from.position).magnitude * 100:F1} cm, {deg:F0} deg, {floorStates[k].Item4:F0} deg/s");
                 }
                 var legs = floorStates.Select(f => (f.Item1, f.Item2)).Append(("Tube", coralHold)).ToList();
@@ -1243,32 +1243,13 @@ namespace Editor
                 var kickTurn = Vector3.SignedAngle(cp0 - kp0, cp1 - kp1, right);
                 kicker.position = kp1;
                 Swing(kicker, kp1, kickTurn);
-                // the slot's ends stop it turning on the top bar: upside down, its pin sits in line with the pivot, where
-                // the slot joint has no leverage to bring it back. The joint's zero is this stowed pose.
-                var kickerSwing = Mathf.Abs(Mathf.DeltaAngle(topTurn, kickTurn)) + 6f;
-                kickerHinge.limits = new JointLimits { min = -kickerSwing, max = kickerSwing };
-                kickerHinge.useLimits = true;
-                Debug.Log($"ANEMONE kicker hinge limit +-{kickerSwing:F1} deg (top bar turned {topTurn:F1})");
-                // the slot: free along its length (radial from the pivot) and across the robot, held square to it in the
-                // side plane, so the pin sets the angle without over-constraining the loop
+                // No body or joints of its own (joints here threw the whole robot around): it sits on the top bar and the
+                // robot turns it each step to keep the bottom bar's pin on its slot, as the real pin does.
                 var slotDir = Quaternion.AngleAxis(kickTurn, right) * (cp0 - kp0).normalized;
-                var slot = kicker.gameObject.AddComponent<ConfigurableJoint>();
-                slot.connectedBody = barRb;
-                slot.anchor = kicker.InverseTransformPoint(cp1);
-                slot.axis = kicker.InverseTransformDirection(slotDir);
-                slot.secondaryAxis = kicker.InverseTransformDirection(right);
-                slot.autoConfigureConnectedAnchor = true;
-                // only as far along as the slot runs (the pin moves ~12 mm in it from deployed to stowed): free along
-                // its whole line, a knock at spawn swung the kicker right over with the pin on the pivot's far side
                 var slotTravel = ((cp1 - kp1).magnitude - (cp0 - kp0).magnitude);
-                slot.anchor = kicker.InverseTransformPoint(cp1 - slotDir * slotTravel / 2); // the slot's middle
-                slot.autoConfigureConnectedAnchor = false;
-                slot.connectedAnchor = bar.InverseTransformPoint(cp1);                     // the bar's pin
-                slot.xMotion = ConfigurableJointMotion.Limited;
-                slot.linearLimit = new SoftJointLimit { limit = Mathf.Abs(slotTravel) / 2 + 0.004f };
-                slot.yMotion = ConfigurableJointMotion.Free;
-                slot.zMotion = ConfigurableJointMotion.Locked;
-                slot.angularXMotion = slot.angularYMotion = slot.angularZMotion = ConfigurableJointMotion.Free;
+                kickerPin = Empty("Kicker Pin", bar, cp1, bar.rotation);
+                kickerSlot = kicker.InverseTransformDirection(slotDir);
+                kicker.SetParent(topBar, true);
                 Debug.Log($"ANEMONE kicker stowed: turned {kickTurn:F1} deg on the top bar's shaft, pin {((cp1 - kp1).magnitude - (cp0 - kp0).magnitude) * 1000:F1} mm along its slot");
                 Debug.Log($"ANEMONE intake rests stowed: bars {turn:F1} deg, top bar to {(pinT2 - topBar.position).magnitude:F3} m pin, " +
                           $"head turned {headTurn:F1} deg, loop error {Mathf.Abs((pinT2 - pinB2).magnitude - lenC):F4} m");
@@ -1277,6 +1258,9 @@ namespace Editor
             // ---- robot script
             var so = new SerializedObject(robot);
             SetArray(so, "headRollerColliders", headRollers.Cast<Object>().ToList());
+            so.FindProperty("kicker").objectReferenceValue = kicker;
+            so.FindProperty("kickerPin").objectReferenceValue = kickerPin;
+            so.FindProperty("kickerSlot").vector3Value = kickerSlot;
             SetArray(so, "chuteWalls", arm.GetComponentsInChildren<Collider>(true).Where(c => c.name == "Chute Wall").Cast<Object>().ToList());
             so.FindProperty("coralLongLocal").vector3Value = coralLong;
             so.FindProperty("elevator").objectReferenceValue = elev;
@@ -1300,7 +1284,6 @@ namespace Editor
             so.FindProperty("rollerClip").objectReferenceValue = Clip("1986Rollers.wav");
             so.FindProperty("algaeStallClip").objectReferenceValue = Clip("1986Stall.wav");
             so.FindProperty("coralSeatClip").objectReferenceValue = Clip("1986EndEffectorDrop.wav");
-            so.FindProperty("cageHookClip").objectReferenceValue = Clip("2910ClimbLatch.wav");
             foreach (var j in new[] { armJ, crankJ, climberJ })
             {
                 var jso = new SerializedObject(j);
@@ -1344,33 +1327,33 @@ namespace Editor
             so.FindProperty("groundCoralIntake").objectReferenceValue = groundIntake;
             so.FindProperty("hpCoralIntake").objectReferenceValue = hpIntake;
             so.FindProperty("algaeIntake").objectReferenceValue = algaeIntake;
-            // The ball is held just clear of everything on the arm that meets algae (the wheels' V alone would put it in the
-            // tube), and the wheels' catch reaches it there.
+            // The ball sits in the wheels' V, on both wheels' faces and against the frame behind them.
             {
                 var ball = new GameObject("Ball Probe").AddComponent<SphereCollider>();
                 ball.radius = AlgaeRadius;
                 var algaeLayer = LayerMask.NameToLayer("Algae");
                 var solid = arm.GetComponentsInChildren<Collider>(true).Where(c => !c.isTrigger && c.enabled &&
                     (c.excludeLayers & (1 << algaeLayer)) == 0 && !Physics.GetIgnoreLayerCollision(c.gameObject.layer, algaeLayer)).ToList();
-                Physics.SyncTransforms();
-                var at = algaeHold.position;
-                bool Hits(Vector3 p) => solid.Any(c => Physics.ComputePenetration(ball, p, Quaternion.identity, c, c.transform.position, c.transform.rotation, out _, out _));
-                var moved = 0f;
-                while (Hits(at) && moved < 0.4f)
-                {
-                    at += outN * 0.002f;
-                    moved += 0.002f;
-                }
                 var wheels = solid.Where(c => c.name.EndsWith(" Wheel")).ToList();
-                var wheelGap = Mathf.Max(0f, wheels.Min(c => (c.ClosestPoint(at) - at).magnitude) - AlgaeRadius);
-                foreach (var touch in algaeIntake.GetComponentsInChildren<BoxCollider>(true).Where(b => b.name.EndsWith(" Touch")))
-                    touch.size += new Vector3(0, 2 * wheelGap, 2 * wheelGap);
+                var frame = solid.Except(wheels).ToList();
+                Physics.SyncTransforms();
+                var at = mid;
+                float Gap(Collider c, Vector3 p) => (c.ClosestPoint(p) - p).magnitude - AlgaeRadius;
+                while (wheels.Any(c => Gap(c, at) < 0f)) at += outN * 0.001f;
+                // pressed into the compliant wheels until it meets the tube itself (the tube's collider is a rough box)
+                var tubeVerts = arm.GetComponentsInChildren<MeshFilter>(true).Where(f => f.name.StartsWith("lowerarmtube") || f.name.StartsWith("arm_tube"))
+                    .SelectMany(f => f.sharedMesh.vertices.Select(v => f.transform.TransformPoint(v))).ToList();
+                float TubeGap(Vector3 p) => tubeVerts.Count == 0 ? 0f : tubeVerts.Min(v => (v - p).magnitude) - AlgaeRadius;
+                while (TubeGap(at) > 0.001f && (at - mid).magnitude > 0.08f) at -= outN * 0.001f;
+                var inTheWay = frame.Where(c => Physics.ComputePenetration(ball, at, Quaternion.identity, c, c.transform.position, c.transform.rotation, out _, out _)).ToList();
+                var depth = inTheWay.Max(c => { Physics.ComputePenetration(ball, at, Quaternion.identity, c, c.transform.position, c.transform.rotation, out _, out var d); return (float?)d; }) ?? 0f;
                 algaeHold.position = at;
                 algaeEject.position = at;
-                Debug.Log($"ANEMONE algae hold moved {moved * 100:F1} cm out to clear {string.Join(", ", solid.Where(c => (c.ClosestPoint(at) - at).magnitude - AlgaeRadius < 0.006f).Select(c => c.name).Distinct())}; wheels {wheelGap * 100:F1} cm from it");
+                SetArray(so, "algaeSeatColliders", wheels.Concat(inTheWay).Cast<Object>().ToList());
+                Debug.Log($"ANEMONE algae seat {(at - mid).magnitude * 100:F1} cm off the wheel line; wheels {string.Join(", ", wheels.Select(c => $"{Gap(c, at) * 100:F1}"))} cm; frame colliders in it: {string.Join(", ", inTheWay.Select(c => c.name).Distinct())} by {depth * 100:F1} cm; tube mesh {TubeGap(at) * 100:F1} cm");
                 Object.DestroyImmediate(ball.gameObject);
             }
-            SetState(so, "coralState", "Coral Tube", floorStates.Length + 1, 40f, coralHold, false, 360f);
+            SetState(so, "coralState", "Coral Tube", floorStates.Length + 1, 70f, coralHold, false, 360f);
             SetState(so, "algaeState", "Algae Wheels", 1, 20f, algaeHold, false, 180f);
             so.FindProperty("coralEject").objectReferenceValue = coralEject;
             so.FindProperty("algaeEject").objectReferenceValue = algaeEject;

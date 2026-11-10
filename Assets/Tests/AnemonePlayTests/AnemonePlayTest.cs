@@ -34,6 +34,97 @@ using Node = RobotFramework.Controllers.GamePieceSystem.RobotGamePieceController
     Games.Reefscape.GamePieceSystem.ReefscapeGamePiece,
     Games.Reefscape.GamePieceSystem.ReefscapeGamePieceData>.GamePieceControllerNode;
 
+// Each rendered frame: how deep any coral near the tube sits in the tube's walls (a capsule the coral's size at its pose
+// against the wall boxes), per phase of the test.
+[DefaultExecutionOrder(10000)]
+public class AnemoneTubeWatch : MonoBehaviour
+{
+    public Transform bore;
+    public Collider[] walls;
+    public string phase = "start";
+    public Func<string> status;
+    public readonly Dictionary<string, (float max, int deep, int frames, string worst)> phases = new();
+    CapsuleCollider _probe;
+
+    void Start()
+    {
+        var go = new GameObject("Tube Watch Probe");
+        go.layer = 2;
+        _probe = go.AddComponent<CapsuleCollider>();
+        _probe.radius = 0.0572f;
+        _probe.height = 0.30f;
+        _probe.direction = 2;
+        _probe.isTrigger = true;
+    }
+
+    void LateUpdate()
+    {
+        if (!bore) return;
+        foreach (var p in Object.FindObjectsByType<PieceCtrl>(FindObjectsSortMode.None))
+        {
+            if (p.PieceName != "Coral") continue;
+            var l = bore.InverseTransformPoint(p.transform.position);
+            if (l.z < -0.45f || l.z > 0.7f || new Vector2(l.x, l.y).magnitude > 0.25f) continue;
+            // the coral's own ring of boxes: it is hollow, so a lip in its open end is not phasing
+            var depth = 0f;
+            var ring = (Collider[])typeof(PieceCtrl).GetField("_colliders", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(p);
+            foreach (var c in ring)
+            {
+                if (!c || c is not BoxCollider) continue;
+                foreach (var w in walls)
+                    if (Physics.ComputePenetration(c, c.transform.position, c.transform.rotation, w, w.transform.position, w.transform.rotation, out _, out var d))
+                        depth = Mathf.Max(depth, d);
+            }
+            phases.TryGetValue(phase, out var e);
+            e.frames++;
+            if (depth > 0.01f) e.deep++;
+            if (depth > e.max)
+            {
+                e.max = depth;
+                var a = bore.InverseTransformDirection(p.transform.forward);
+                e.worst = $"at bore(x,y,z)=({l.x:F3},{l.y:F3},{l.z:F3}) axis off {Vector3.Angle(Vector3.forward, new Vector3(a.x, a.y, Mathf.Abs(a.z))):F0} deg {status?.Invoke()}";
+            }
+            phases[phase] = e;
+        }
+    }
+}
+
+// A floor coral each physics step: when it first sinks below the carpet, the steps and contacts leading up to it.
+public class AnemoneCoralTrack : MonoBehaviour
+{
+    public Transform robot;
+    public string label;
+    readonly Queue<string> _recent = new();
+    float _minY = 9f;
+    bool _sank;
+
+    void OnCollisionStay(Collision c) => OnCollisionEnter(c);
+    void OnCollisionEnter(Collision c)
+    {
+        var n = c.collider.name;
+        if (n.Contains("Carpet") || _sank) return;
+        _recent.Enqueue($"{Time.fixedTime:F3} touch {n} on {c.collider.transform.parent?.name} impulse {c.impulse.magnitude:F2} n={c.GetContact(0).normal:F2}");
+        while (_recent.Count > 40) _recent.Dequeue();
+    }
+
+    void FixedUpdate()
+    {
+        var rb = GetComponent<Rigidbody>();
+        var y = rb.position.y;
+        _minY = Mathf.Min(_minY, y);
+        if (_sank) return;
+        _recent.Enqueue($"{Time.fixedTime:F3} pos(robot) {robot.InverseTransformPoint(rb.position):F3} y {y:F3} v {rb.velocity:F2} long(robot) {robot.InverseTransformDirection(transform.forward):F2}");
+        while (_recent.Count > 40) _recent.Dequeue();
+        if (y < 0.02f)
+        {
+            _sank = true;
+            Debug.Log($"[AN] {label} SANK:\n" + string.Join("\n", _recent));
+        }
+    }
+
+    void OnDestroy() => Debug.Log($"[AN] {label} lowest y {_minY:F3} sank={_sank}");
+}
+
 // Keeps the match enabled and the clock stopped while the test drives.
 public class AnemoneKeepEnabled : MonoBehaviour
 {
@@ -383,7 +474,15 @@ public class AnemonePlayTest
         yield return new WaitForSeconds(0.5f);
         var t = _robot.transform;
         var coral = FreePiece("Coral", t.position);
-        Put(coral, t.position - t.forward * 1.1f + Vector3.up * 0.06f, Along(coral, t.right));
+        Put(coral, t.position - t.forward * 1.1f + Vector3.up * 0.06f, Quaternion.AngleAxis(_floorYaw, Vector3.up) * Along(coral, t.right));
+        AnemoneCoralTrack track = null;
+        if (_trackFloor)
+        {
+            track = coral.gameObject.AddComponent<AnemoneCoralTrack>();
+            track.robot = t;
+            track.label = label;
+            L($"{label}: start y {coral.transform.position.y:F3} long(robot) {t.InverseTransformDirection(coral.transform.forward):F2} carpet top {(GameObject.Find("CarpetCollider") ? GameObject.Find("CarpetCollider").GetComponent<Collider>().bounds.max.y : 0f):F3} size {(GameObject.Find("CarpetCollider") ? GameObject.Find("CarpetCollider").GetComponent<Collider>().bounds.size.y : 0f):F3}");
+        }
         yield return new WaitForSeconds(0.5f);
         if (label == "floor coral")
         {
@@ -426,6 +525,7 @@ public class AnemonePlayTest
         Release(Key.LeftShift);
         yield return new WaitForSeconds(1.5f);
         StopVideos();
+        if (track) Object.Destroy(track);
         Result(label, HasCoral && NodeOf("Coral").atTarget, $"{Status()} coral={Local(coral.transform.position)} state={Local(Find("Coral Tube State").position)}");
     }
 
@@ -448,7 +548,8 @@ public class AnemonePlayTest
             yield return new WaitForSeconds(0.25f);
             var c = FreePiece("Coral", top.position);
             L($"{label} … {Status()} dropDist={_robot.CurrentCoralStationMode.DropDistance:F2} " +
-              $"nearest coral={(c ? Local(c.transform.position) : "-")} v={(c ? c.GetComponent<Rigidbody>().velocity.magnitude : 0):F2}");
+              $"nearest coral={(c ? Local(c.transform.position) : "-")} v={(c ? c.GetComponent<Rigidbody>().velocity.magnitude : 0):F2} " +
+              (c ? $"from lip: along {top.InverseTransformPoint(c.transform.position).z:F3} off axis {new Vector2(top.InverseTransformPoint(c.transform.position).x, top.InverseTransformPoint(c.transform.position).y).magnitude:F3} angle {Vector3.Angle(c.transform.forward, top.forward):F0}" : ""));
         }
         yield return new WaitForSeconds(1f);
         Release(Key.LeftShift);
@@ -603,6 +704,106 @@ public class AnemonePlayTest
         yield return new WaitForSeconds(1f);
     }
 
+    float _floorYaw;
+    bool _trackFloor;
+
+    // ANEMONE_ONLY=floorangles: floor coral at many angles, tracked ("ANEMONE_YAWS=a,b,.." to choose)
+    IEnumerator FloorAngles()
+    {
+        _trackFloor = true;
+        var yaws = (Environment.GetEnvironmentVariable("ANEMONE_YAWS") ?? "-40,-40,-60,-25,25,40,60").Split(',').Select(a => float.Parse(a, System.Globalization.CultureInfo.InvariantCulture));
+        var i = 0;
+        foreach (var yaw in yaws)
+        {
+            _floorYaw = yaw;
+            // the last coral off the floor here
+            foreach (var p in Object.FindObjectsByType<PieceCtrl>(FindObjectsSortMode.None).Where(p => p.PieceName == "Coral" && !p.transform.IsChildOf(_robot.transform)))
+                if (Environment.GetEnvironmentVariable("ANEMONE_KEEPFLOOR") != "1" && Vector3.Distance(p.transform.position, Open) < 3f)
+                    Put(p, new Vector3(-7f + 0.4f * i++, 0.1f, -3f), Quaternion.identity);
+            yield return GetFloorCoral($"floor angle {yaw:F0}");
+            if (HasCoral) { yield return Tap(Key.K); yield return new WaitForSeconds(1.5f); }
+            var strays = Object.FindObjectsByType<PieceCtrl>(FindObjectsSortMode.None).Where(p => p.PieceName == "Coral" && !p.transform.IsChildOf(_robot.transform) && Vector3.Distance(p.transform.position, Open) < 3f)
+                .Select(p => $"{p.transform.position - Open:F2}");
+            L($"floor angle {yaw:F0}: corals near afterwards {string.Join(" ", strays)}");
+        }
+        _floorYaw = 0f;
+        _trackFloor = false;
+    }
+
+    // ANEMONE_ONLY=tube: everything that moves a coral near the tube, with the wall watcher on
+    IEnumerator TubeWatch()
+    {
+        var bore = Find("Chute Walls");
+        var watch = new GameObject("Tube Watch").AddComponent<AnemoneTubeWatch>();
+        watch.bore = bore;
+        watch.walls = bore.GetComponentsInChildren<Collider>(true);
+        watch.status = Status;
+        L($"tube watch: {watch.walls.Length} wall boxes");
+        _trackFloor = true;
+        foreach (var yaw in (Environment.GetEnvironmentVariable("ANEMONE_YAWS") ?? "0,40,-40,90").Split(',').Select(a => float.Parse(a, System.Globalization.CultureInfo.InvariantCulture)))
+        {
+            _floorYaw = yaw;
+            var below = Object.FindObjectsByType<PieceCtrl>(FindObjectsSortMode.None).Where(p => p.PieceName == "Coral" && p.transform.position.y < 0.02f).Select(p => $"{p.transform.position:F2}");
+            L($"before yaw {yaw:F0}: coral below the carpet: {string.Join(" ", below)}");
+            watch.phase = $"floor intake yaw {yaw:F0}";
+            yield return GetFloorCoral($"floor coral yaw {yaw:F0}");
+            // with it seated: the arm swinging to every level and back, the robot driving hard
+            watch.phase = $"held swings after yaw {yaw:F0}";
+            if (HasCoral)
+                foreach (var (key, drive) in new[] { (Key.P, Key.W), (Key.Z, Key.D), (Key.O, Key.S), (Key.I, Key.A), (Key.U, Key.W), (Key.Z, Key.S) })
+                {
+                    yield return Tap(key);
+                    Hold(drive);
+                    yield return new WaitForSeconds(0.7f);
+                    Release(drive);
+                    yield return new WaitForSeconds(0.5f);
+                }
+            yield return Tap(Key.Z);
+            yield return new WaitForSeconds(1f);
+            if (HasCoral) { yield return Tap(Key.K); yield return new WaitForSeconds(1.5f); }
+        }
+        _floorYaw = 0f;
+        _trackFloor = false;
+        if (Environment.GetEnvironmentVariable("ANEMONE_YAWS") != null) { Object.Destroy(watch.gameObject); yield break; }
+        for (var i = 0; i < 6; i++)
+        {
+            // the corals from the last try off the floor here: the robot is put back on this spot
+            var moved = 0;
+            foreach (var p in Object.FindObjectsByType<PieceCtrl>(FindObjectsSortMode.None).Where(p => p.PieceName == "Coral" && !p.transform.IsChildOf(_robot.transform)))
+                if (Vector3.Distance(p.transform.position, _robot.transform.position) < 3f)
+                    Put(p, new Vector3(-7f + 0.4f * moved++, 0.1f, -3f), Quaternion.identity);
+            yield return new WaitForSeconds(0.3f);
+            watch.phase = "station";
+            var seen = new List<PieceCtrl>(Object.FindObjectsByType<PieceCtrl>(FindObjectsSortMode.None));
+            yield return GetStationCoral($"station coral {i + 1}");
+            foreach (var p in Object.FindObjectsByType<PieceCtrl>(FindObjectsSortMode.None).Where(p => p.PieceName == "Coral" && !seen.Contains(p)))
+                L($"station coral {i + 1} new coral now at robot {Local(p.transform.position)} up={_robot.transform.InverseTransformDirection(p.transform.forward):F2} tube top {Local(Find("Coral Eject").position)}");
+            yield return new WaitForSeconds(1f);
+            if (HasCoral)
+            {
+                watch.phase = "station held";
+                yield return Tap(Key.Z);
+                yield return new WaitForSeconds(1f);
+                // clear of the station, and of any coral it dropped on the tube, before letting this one go
+                PlaceRobot(new Vector3(-5f, 0f, 2f), Vector3.forward);
+                yield return new WaitForSeconds(0.5f);
+                watch.phase = "station coral out";
+                yield return Tap(Key.K);
+                yield return new WaitForSeconds(1.5f);
+            }
+        }
+        foreach (var (lvl, key, face) in new[] { ("L4", Key.P, 0), ("L3", Key.O, 1), ("L1", Key.U, 3) })
+        {
+            watch.phase = $"floor for {lvl}";
+            yield return GetFloorCoral($"floor coral for {lvl}");
+            watch.phase = $"score {lvl}";
+            if (HasCoral) yield return ScoreCoral(lvl, key, face);
+        }
+        foreach (var kv in watch.phases)
+            L($"tube {kv.Key}: deepest {kv.Value.max * 100:F1} cm, frames over 1 cm {kv.Value.deep}/{kv.Value.frames}; {kv.Value.worst}");
+        Object.Destroy(watch.gameObject);
+    }
+
     // ANEMONE_ONLY=look: the intake side-on, stowed and deployed, and where the kicker is
     IEnumerator Look()
     {
@@ -629,18 +830,15 @@ public class AnemonePlayTest
             }
         }
         Pose("stow");
-        // a knock like the one at spawn: the kicker driven round on its pivot
-        var kb = Find("Kicker").GetComponent<Rigidbody>();
-        for (var i = 0; i < 60; i++)
-        {
-            kb.angularVelocity = _robot.transform.right * 40f;
-            yield return new WaitForFixedUpdate();
-        }
-        yield return new WaitForSeconds(1.5f);
-        Pose("knocked");
         Hold(Key.LeftShift);
         yield return new WaitForSeconds(2f);
         Pose("deployed");
+        // the deployed head's rollers and the coral's path past them, side-on (y up, z toward the robot's front)
+        foreach (var c in _robot.GetComponentsInChildren<CapsuleCollider>(true).Where(c => c.name.EndsWith(" Roller") || c.name.Contains("Shaft")))
+            L($"roller {c.name} parent={c.transform.parent.name} at {Local(c.bounds.center)} r={c.radius * c.transform.lossyScale.y:F3}");
+        L($"kicker roller side-on: {Local(Find("Kicker").position)}");
+        foreach (var n in new[] { "Intake", "Pinch", "Kick", "Under", "Over", "Entry", "Channel" })
+            L($"path {n} at {Local(Find($"Coral {n} State").position)}");
         Release(Key.LeftShift);
     }
 
@@ -881,17 +1079,22 @@ public class AnemonePlayTest
         var ball = NodeOf("Algae").controller;
         L($"net: {Status()} net(robot)={Local(target)} netBox={box?.bounds.size:F2} algae(robot)={(ball ? Local(ball.transform.position) : "-")}");
         ShotAt("net_shot", new Vector3(0, 2.0f, 0.4f), new Vector3(1, 0.05f, 0), 3.2f);
+        var netTouches = new List<string>();
+        foreach (var rb in _robot.GetComponentsInChildren<Rigidbody>())
+            rb.gameObject.AddComponent<AnemoneContactLog>().sink = netTouches;
         yield return Tap(Key.K);
         for (var k = 0; k < 32; k++)
         {
             yield return new WaitForSeconds(0.1f);
             ShotAt("net_shot", new Vector3(0, 2.0f, 0.4f), new Vector3(1, 0.05f, 0), 3.2f);
-            if (ball) L($"net +{(k + 1) * 0.1f:F1}s ball(robot)={Local(ball.transform.position)} v={ball.GetComponent<Rigidbody>().velocity.magnitude:F2} arm={Arm():F1} held={HasAlgae}");
+            if (ball) L($"net +{(k + 1) * 0.1f:F1}s ball(robot)={Local(ball.transform.position)} v={ball.GetComponent<Rigidbody>().velocity.magnitude:F2} arm={Arm():F1} overlaps=[{AlgaeOverlaps(ball)}] held={HasAlgae}");
         }
         StopVideos();
         yield return Drive(-toNet, 0.6f);
         yield return new WaitForSeconds(1f);
         var after = Score();
+        L($"net contacts: {string.Join(" | ", netTouches.Where(t => !t.Contains("Field]") && !t.Contains("Net")).Distinct().Take(16))}");
+        foreach (var cl in _robot.GetComponentsInChildren<AnemoneContactLog>()) Object.Destroy(cl);
         Result("score net", after.NetPoints > before.NetPoints, $"{Pts(before)} -> {Pts(after)}");
         yield return Tap(Key.Z);
     }
@@ -1078,8 +1281,34 @@ public class AnemonePlayTest
         yield return new WaitForSeconds(0.5f);
         _dDir = (_robot.transform.position - p0).normalized;
         L($"drive probe: W -> {_wDir:F2}, D -> {_dDir:F2}");
+        // the first seconds after a spawn, and hard driving with the intake going in and out: nothing may throw the robot
+        {
+            var rb = _robot.GetComponent<Rigidbody>();
+            var (maxTilt, maxSpin, maxRise) = (0f, 0f, 0f);
+            var groundY = _robot.transform.position.y;
+            var keysets = new[] { new[] { Key.W, Key.D }, new[] { Key.S, Key.A }, new[] { Key.A, Key.Q }, new[] { Key.D } };
+            for (var k = 0; k < 16; k++)
+            {
+                if (k % 4 == 0) Hold(Key.LeftShift);
+                if (k % 4 == 2) Release(Key.LeftShift);
+                Hold(keysets[k % 4]);
+                for (var t = Time.time + 0.5f; Time.time < t;)
+                {
+                    yield return new WaitForFixedUpdate();
+                    maxTilt = Mathf.Max(maxTilt, Vector3.Angle(_robot.transform.up, Vector3.up));
+                    maxSpin = Mathf.Max(maxSpin, new Vector2(rb.angularVelocity.x, rb.angularVelocity.z).magnitude);
+                    maxRise = Mathf.Max(maxRise, _robot.transform.position.y - groundY);
+                }
+                Release(keysets[k % 4]);
+            }
+            Release(Key.LeftShift);
+            yield return new WaitForSeconds(1f);
+            Result("stays on its wheels", maxTilt < 12f && maxRise < 0.1f, $"max tilt {maxTilt:F1} deg, roll/pitch rate {maxSpin:F1} rad/s, rise {maxRise:F3} m; kicker turn on the top bar ok");
+        }
 
         if (_only != null && _only.Contains("look")) yield return Look();
+        if (_only != null && _only.Contains("tube")) yield return TubeWatch();
+        if (_only != null && _only.Contains("floorangles")) yield return FloorAngles();
         if (Run("mech")) yield return Mechanisms();
         if (Run("floor")) yield return GetFloorCoral("floor coral");
         foreach (var (lvl, key, face) in new[] { ("L4", Key.P, 0), ("L3", Key.O, 1), ("L2", Key.I, 2), ("L1", Key.U, 3) })

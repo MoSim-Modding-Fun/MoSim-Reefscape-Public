@@ -279,7 +279,9 @@ namespace Editor
             }
 
             var md = root.AddComponent<MissDaisy>();
+            // (a cloned Library can leave the template's robot script unlinked: then the last build of this robot's values)
             var baseSrc = template.GetComponent<Games.Reefscape.Robots.ReefscapeRobotBase>();
+            if (!baseSrc) baseSrc = AssetDatabase.LoadAssetAtPath<GameObject>(Dir + "/341.prefab").GetComponent<Games.Reefscape.Robots.ReefscapeRobotBase>();
             var mdSo = new SerializedObject(md);
             var it = new SerializedObject(baseSrc).GetIterator();
             if (it.NextVisible(true))
@@ -336,6 +338,18 @@ namespace Editor
             var drivebase = Node("Drivebase");
             var intake = Node("Intake");
             var stage1 = Node("Stage1");
+            // The guide-roller axles and bearings in the moving stages' bearing blocks: the CAD left them on the frame, standing
+            // in mid air as the stages rode up. Which stage: how far out they sit, next to that stage's rails (carriage blocks
+            // at +-0.0635, first stage at +-0.095). The frame's own are up at the top of its uprights.
+            foreach (var r in mt.GetComponentsInChildren<MeshRenderer>(true).Where(r => r.transform.parent && r.transform.parent.name == "Drivebase" &&
+                         (r.name.StartsWith("WCP-0474") || r.name.StartsWith("WCP-0199-007") || r.name.StartsWith("WCP-0212") || r.name.StartsWith("WCP-0039") || r.name.StartsWith("WCP-0199-004"))).ToList())
+            {
+                var at = root.transform.InverseTransformPoint(WorldBounds(r).center);
+                if (at.y > 0.6f || at.x > -0.1f || at.x < -0.28f) continue;
+                var side = Mathf.Abs(at.z);
+                if (side > 0.05f && side < 0.09f) r.transform.SetParent(Node("Carriage"), true);
+                else if (side >= 0.09f && side < 0.118f) r.transform.SetParent(stage1, true);
+            }
             // the two shoulder screws through the stage's top tube, which its two R4 pulleys turn on: the CAD left them and
             // their spacers and bearings on the frame, standing still while the stage and its pulleys rode up
             foreach (var r in mt.GetComponentsInChildren<MeshRenderer>(true).Where(r => r.name is "91259A101_Alloy Steel Shoulder Screw" or "91259A101_Alloy Steel Shoulder Screw.003"
@@ -504,7 +518,7 @@ namespace Editor
             flapRb.mass = 0.2f;
             flapRb.includeLayers = coralOnly;
             flapRb.excludeLayers = ~coralOnly;
-            SprungHinge(flapT.gameObject, armsRb, flapLiftSign, 40f, 3f, 0.6f, 8f, pivotDrag: 4f); // light tubing the coral lifts, damped
+            SprungHinge(flapT.gameObject, armsRb, flapLiftSign, 80f, 3f, 0.6f, 8f, pivotDrag: 1f); // light tubing the coral lifts (high enough for a coral going over the 2x1: at 40 it was trapped under the top roller). Its spring is MissDaisy.SpringHinges; drag 4 slowed its return
             // the belts' coral side, over the top half of the flap: near the pivot the 3" front wheels stand out past
             // the belt pulleys, and that end of the flap cannot lift out of the coral's way
             var flapLen = (T - F).magnitude;
@@ -578,13 +592,6 @@ namespace Editor
             var coralPath = new List<Object>
             {
                 Empty("Coral Path 1 Front Roller", intake, F + toRamps * (RollerContactRadius + 0.057f - 0.005f), across),
-                // along the belts ~1.5 cm into them, then under the top roller ~1.5 cm into its wheels: the coral rides
-                // up against the flap and pushes it up (a path clear of them would slip past without touching)
-                Empty("Coral Path 1b Belts", intake, F + along * (T - F).magnitude * 0.6f + toRamps * (0.025f + 0.057f - 0.015f), across),
-                Empty("Coral Path 2 Top Roller", intake, T + toRamps * (0.021f + 0.057f - 0.015f), across),
-                // past the end of the flap (its plates reach ~3 cm beyond the top roller) before turning up into the
-                // claw: a straight line from under the top roller to the claw cuts through the flap
-                Empty("Coral Path 3 Past Flap", intake, T + along * 0.08f + toRamps * (0.021f + 0.057f + 0.012f), across)
             };
             var carrot = Empty("Coral Carrot", clawState, clawState.position, clawState.rotation);
             // Pickup zone: right at the front wheels (a coral starts moving only once the wheels touch it); maxDistance
@@ -595,7 +602,7 @@ namespace Editor
                 new Vector3(0.62f, 0.12f, 0.12f), carrot, coral: true, maxDistance: 14f, smooth: false, speed: 105f,
                 accuracy: 0.4f); // about a cm: the catch moves it no further than that. The pull eases off into the claw (MissDaisy) so it cannot step past
             var hpIntake = MakeIntake("Claw Coral Intake", claw, P(0, -0.003f, 0.85f),
-                new Vector3(0.24f, 0.36f, 0.44f), clawState, coral: true, maxDistance: 16f); // around the mouth, facing the chute: a coral falling down it is caught before it can strike the claw and tumble (the range has to reach the zone's corners, or it is taken and dropped over and over)
+                new Vector3(0.24f, 0.36f, 0.44f), carrot, coral: true, maxDistance: 16f); // around the mouth, facing the chute: a coral falling down it is caught before it can strike the claw and tumble (the range has to reach the zone's corners, or it is taken and dropped over and over)
             var algaeState = Empty("Algae Claw State", claw, P(0, 0, 1.04f), Quaternion.identity);
             // Grabbed only once the ball touches the wheels: a thin zone on the wheel face (the hold is ~8 cm into them,
             // so the face is ~0.12 m in from the held ball's centre). The framework pulls anything in the zone, even
@@ -604,8 +611,9 @@ namespace Editor
                 algaeState, coral: false, maxDistance: 7f);
             var eject = Empty("Claw Eject", claw, P(0, 0, 0.84f), Quaternion.LookRotation(root.transform.up, root.transform.forward));
             // The claw's two columns of 2.25" compliant wheels (shafts at CAD x +-0.082, z 0.807, along y): solid to the
-            // field, robots, algae and loose coral. (A coral the claw is taking passes them: MissDaisy.cs. A piece held in
-            // the claw ignores the robot's colliders.)
+            // field, robots and algae; coral passes through them (compliant wheels: solid, a coral let go at stow floated on
+            // them). (A piece held in the claw ignores the robot's colliders.)
+            var clawWheelParts = new HashSet<MeshRenderer>();
             foreach (var sx in new[] { -1f, 1f })
             {
                 var col = Empty("Claw Wheels Collider", claw, P(sx * 0.082f, -0.0075f, 0.807f), Quaternion.LookRotation(P(0, 1, 0) - P(0, 0, 0), root.transform.up))
@@ -613,7 +621,8 @@ namespace Editor
                 col.direction = 2;      // along its forward: the shaft
                 col.radius = 0.0286f;   // 2.25" wheels
                 col.height = 0.16f;
-                col.excludeLayers = LayerMask.GetMask("Robot"); // (with a priority this mask replaces the body's no-Robot one)
+                col.excludeLayers = LayerMask.GetMask("Coral", "Robot"); // (with a priority this mask replaces the body's no-Robot one)
+                foreach (var part in OnAxis(claw, P(sx * 0.082f, -0.0075f, 0.807f), P(0, 1, 0) - P(0, 0, 0), 0.04f)) clawWheelParts.Add(part);
                 col.layerOverridePriority = 100;
                 col.sharedMaterial = AssetDatabase.LoadAssetAtPath<PhysicMaterial>(NoBounce);
             }
@@ -679,6 +688,28 @@ namespace Editor
                 frame.excludeLayers = LayerMask.GetMask("Coral", "Robot"); // algae bounces off it
                 frame.layerOverridePriority = 100; // its exclusions win over a game piece's own include layers
                 Debug.Log($"MISSDAISY intake frame collider {box.size:F3} at deployed y {box.min.y:F3}..{box.max.y:F3} (carpet {floor - 0.02f:F3})");
+                // The way up past the front roller, as on the real intake: flat against the orienter rollers, up their face
+                // (the flap's belts lifting it), over the 2x1 they hang from and into the claw. (Laid along the belts at rest,
+                // it ran straight through the 2x1.) Placed in the robot's frame with the intake swung out.
+                {
+                    var tube = parts.Where(r => r.name.StartsWith("Main Coral Intake 2x1")).Select(WorldBounds).ToList();
+                    var tb = tube[0];
+                    foreach (var b in tube) tb.Encapsulate(b);
+                    Vector3 lo = root.transform.InverseTransformPoint(tb.min), hi = root.transform.InverseTransformPoint(tb.max);
+                    float tubeTop = Mathf.Max(lo.y, hi.y), tubeMid = (lo.z + hi.z) / 2f, tubeOut = Mathf.Abs(lo.z) > Mathf.Abs(hi.z) ? lo.z : hi.z;
+                    var outSign = Mathf.Sign(tubeOut - tubeMid);
+                    const float coralR = 0.057f;
+                    var face = tubeMid + outSign * Mathf.Max(0.016f + coralR, Mathf.Abs(tubeOut - tubeMid) + coralR) + outSign * 0.005f; // clear of the pegs and the tube's face
+                    var over = tubeTop + coralR + 0.01f;
+                    Transform At(string name, float y, float z) => Empty(name, intake, root.transform.TransformPoint(new Vector3(0f, y, z)), across);
+                    var entry = coralPath[0];
+                    coralPath.Clear();
+                    coralPath.Add(entry);
+                    coralPath.Add(At("Coral Path 1b Peg Face", tubeTop - 0.06f, face));
+                    coralPath.Add(At("Coral Path 2 Up The Face", over, face));
+                    coralPath.Add(At("Coral Path 3 Over The Tube", over, tubeMid));
+                    Debug.Log($"MISSDAISY coral path: tube top {tubeTop:F3} mid z {tubeMid:F3} face z {face:F3} over y {over:F3}");
+                }
                 // The pickup zone, placed while deployed: a flat strip on the carpet just in front of the green roller, at a
                 // lying coral's height - a coral resting on top of the intake is above it and is not taken.
                 {
@@ -697,7 +728,7 @@ namespace Editor
                     var rampFoot = new Vector3(rampTop.x, floor - 0.02f - 0.012f, fDep.z) + outward * 0.03f;
                     var rampDir = rampTop - rampFoot;
                     var ramp = Empty("Channel Ramp", intake, rampFoot + rampDir / 2f, Quaternion.LookRotation(rampDir.normalized, root.transform.up)).gameObject.AddComponent<BoxCollider>();
-                    ramp.size = new Vector3(channelFloor.size.x, 0.01f, rampDir.magnitude);
+                    ramp.size = new Vector3(0.62f, 0.01f, rampDir.magnitude); // the roller's whole width: a coral on carpet at its end was just shoved along
                     ramp.includeLayers = coralOnly;
                     ramp.excludeLayers = ~coralOnly;
                     ramp.layerOverridePriority = 100;
@@ -745,13 +776,45 @@ namespace Editor
                     {
                         // Robot too: with a priority set, this mask wins over the body's own excludeLayers=Robot, and the
                         // part would hit the robot's other bodies
-                        c.excludeLayers = r.transform.IsChildOf(claw) ? LayerMask.GetMask("Algae", "Robot") : LayerMask.GetMask("Coral", "Robot");
+                        c.excludeLayers = r.transform.IsChildOf(claw) && !clawWheelParts.Contains(r) ? LayerMask.GetMask("Algae", "Robot")
+                            : r.transform.IsChildOf(claw) ? LayerMask.GetMask("Coral", "Algae", "Robot") : LayerMask.GetMask("Coral", "Robot");
                         c.layerOverridePriority = 100;
                     }
                     added++;
                 }
 
                 Debug.Log($"MISSDAISY structure colliders added: {added}");
+                // The intake's plates: thin boxes along the mesh's real outline, not one box round each whole plate.
+                var plateEdges = 0;
+                foreach (var r in intake.GetComponentsInChildren<MeshRenderer>(true).Where(r => r.GetComponent<BoxCollider>()).ToList())
+                {
+                    var size = Vector3.Scale(r.GetComponent<MeshFilter>().sharedMesh.bounds.size, r.transform.lossyScale);
+                    var sorted = new[] { Mathf.Abs(size.x), Mathf.Abs(size.y), Mathf.Abs(size.z) }.OrderBy(v => v).ToArray();
+                    if (sorted[0] > 0.012f || sorted[1] < 0.04f || sorted[2] < 0.06f) continue; // flat plates only
+                    plateEdges += PlateEdgeColliders(r);
+                }
+                Debug.Log($"MISSDAISY plate edge colliders: {plateEdges}");
+                // The three orienter rollers: round. Solid to a coral only while it squares up (MissDaisy.cs).
+                // (Over a coral's own exclusions, hence the priority.)
+                foreach (var r in intake.GetComponentsInChildren<MeshRenderer>(true).Where(r => r.name.StartsWith("Orienter Roller")).ToList())
+                {
+                    var old = r.GetComponent<BoxCollider>();
+                    if (old) Object.DestroyImmediate(old);
+                    var b = r.GetComponent<MeshFilter>().sharedMesh.bounds;
+                    var scale = r.transform.lossyScale;
+                    var world = new[] { Mathf.Abs(b.size.x * scale.x), Mathf.Abs(b.size.y * scale.y), Mathf.Abs(b.size.z * scale.z) };
+                    var axis = world[0] >= world[1] && world[0] >= world[2] ? 0 : world[1] >= world[2] ? 1 : 2;
+                    var cap = r.gameObject.AddComponent<CapsuleCollider>();
+                    cap.center = b.center;
+                    cap.direction = axis;
+                    var localLong = b.size[axis];
+                    var localWide = axis == 0 ? b.size.y : b.size.x;
+                    cap.height = localLong;
+                    cap.radius = localWide / 2f;
+                    cap.excludeLayers = LayerMask.GetMask("Coral", "Robot");
+                    cap.layerOverridePriority = 200;
+                    cap.sharedMaterial = AssetDatabase.LoadAssetAtPath<PhysicMaterial>(LowFriction);
+                }
                 // the climber-side turnbuckle tube (Seb's playtest addition): a box fitted to the tube itself
                 foreach (var r in root.GetComponentsInChildren<MeshRenderer>(true).Where(r => r.name == "Climber Side Turnbuckle 1x1" && !r.GetComponent<Collider>()))
                     r.gameObject.AddComponent<BoxCollider>().sharedMaterial = noBounce;
@@ -916,6 +979,7 @@ namespace Editor
             so.FindProperty("intakeRollerClip").objectReferenceValue = Clip("1986Rollers.wav");
             so.FindProperty("hookLatchClip").objectReferenceValue = Clip("2910ClimbLatch.wav");
             so.FindProperty("coralPathAxis").vector3Value = CoralLongAxis();
+            so.FindProperty("clawEntry").floatValue = 0.04f; // (at 8 cm the last leg into the claw cut through the 2x1)
             // Max is the cruise speed in rad/s (the error is in degrees); a modest kP eases the last ~10 deg instead of
             // slamming into the setpoint.
             SetPid(so, "shoulderPid", 0.8f, 0f, 0.02f, 14f); // held to 341's MotionMagic profile in MissDaisy (a Max of 7 capped it at 7 rad/s)
@@ -1246,6 +1310,152 @@ namespace Editor
             cj.highAngularXLimit = new SoftJointLimit { limit = maxLift };
             cj.angularXDrive = new JointDrive { positionSpring = spring, positionDamper = damper, maximumForce = float.MaxValue };
             cj.targetRotation = Quaternion.AngleAxis(-preload, Vector3.right); // aims preload deg below the rest stop (PlayMode: + rested the flap on its 40 deg stop)
+        }
+
+        // Replaces a flat part's box with thin boxes along its outline, each turned to match its edge (the convex outline of the
+        // mesh in its own plane, simplified to about 4 mm), and fills it in with boxes laid along its longest edge over where
+        // the plate really is (its own faces, notches and holes left out). Returns how many it made.
+        private static int PlateEdgeColliders(MeshRenderer plate)
+        {
+            var mesh = plate.GetComponent<MeshFilter>().sharedMesh;
+            var verts = mesh.vertices;
+            if (verts.Length < 3) return 0;
+            var old = plate.GetComponent<BoxCollider>();
+            var size = mesh.bounds.size;
+            // the flat axis in the mesh's own frame; u, v span the plate
+            var thin = size.x <= size.y && size.x <= size.z ? 0 : size.y <= size.z ? 1 : 2;
+            int u = (thin + 1) % 3, v = (thin + 2) % 3;
+            var scale = Mathf.Max(1e-6f, Mathf.Abs(plate.transform.lossyScale[u]));
+            var pts = verts.Select(p => new Vector2(p[u], p[v])).Distinct().OrderBy(p => p.x).ThenBy(p => p.y).ToList();
+            float Cross(Vector2 o, Vector2 a, Vector2 b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+            var hull = new List<Vector2>();
+            foreach (var p in pts)
+            {
+                while (hull.Count >= 2 && Cross(hull[^2], hull[^1], p) <= 0) hull.RemoveAt(hull.Count - 1);
+                hull.Add(p);
+            }
+            var lower = hull.Count + 1;
+            for (var i = pts.Count - 2; i >= 0; i--)
+            {
+                while (hull.Count >= lower && Cross(hull[^2], hull[^1], pts[i]) <= 0) hull.RemoveAt(hull.Count - 1);
+                hull.Add(pts[i]);
+            }
+            hull.RemoveAt(hull.Count - 1);
+            if (hull.Count < 3) return 0;
+            // drop outline points that hardly change it
+            var tolerance = 0.004f / scale;
+            for (var changed = true; changed && hull.Count > 3;)
+            {
+                changed = false;
+                for (var i = 0; i < hull.Count; i++)
+                {
+                    Vector2 a = hull[(i + hull.Count - 1) % hull.Count], p = hull[i], b = hull[(i + 1) % hull.Count];
+                    if (Mathf.Abs(Cross(a, b, p)) / Mathf.Max((b - a).magnitude, 1e-6f) >= tolerance) continue;
+                    hull.RemoveAt(i);
+                    changed = true;
+                    break;
+                }
+            }
+            var width = 0.012f / scale;
+            var depth = Mathf.Max(size[thin], 0.006f / scale);
+            var mid = mesh.bounds.center[thin];
+            var centre2 = hull.Aggregate(Vector2.zero, (acc, p) => acc + p) / hull.Count;
+            Vector3 To3(Vector2 p, float along) { var w = Vector3.zero; w[u] = p.x; w[v] = p.y; w[thin] = along; return w; }
+            var made = 0;
+            for (var i = 0; i < hull.Count; i++)
+            {
+                Vector2 a = hull[i], b = hull[(i + 1) % hull.Count];
+                var edge = b - a;
+                if (edge.magnitude < 0.01f / scale) continue;
+                var inward = new Vector2(-edge.y, edge.x).normalized;
+                if (Vector2.Dot(inward, centre2 - a) < 0f) inward = -inward;
+                var go = new GameObject("Plate Edge");
+                go.transform.SetParent(plate.transform, false);
+                go.transform.localPosition = To3((a + b) / 2f + inward * width / 2f, mid);
+                go.transform.localRotation = Quaternion.LookRotation(To3(edge.normalized, 0f), To3(Vector2.zero, 1f));
+                go.layer = plate.gameObject.layer;
+                var box = go.AddComponent<BoxCollider>();
+                box.size = new Vector3(width, depth, edge.magnitude);
+                if (old)
+                {
+                    box.sharedMaterial = old.sharedMaterial;
+                    box.excludeLayers = old.excludeLayers;
+                    box.includeLayers = old.includeLayers;
+                    box.layerOverridePriority = old.layerOverridePriority;
+                }
+                made++;
+            }
+            // filled in: a grid along the longest outline edge, cells under the plate's faces, merged into rectangles
+            var longest = 0;
+            for (var i = 1; i < hull.Count; i++)
+                if ((hull[(i + 1) % hull.Count] - hull[i]).sqrMagnitude > (hull[(longest + 1) % hull.Count] - hull[longest]).sqrMagnitude) longest = i;
+            var e1 = (hull[(longest + 1) % hull.Count] - hull[longest]).normalized;
+            var e2 = new Vector2(-e1.y, e1.x);
+            var tris = mesh.triangles;
+            var flat = new List<(Vector2 a, Vector2 b, Vector2 c)>();
+            for (var k = 0; k < tris.Length; k += 3)
+            {
+                Vector2 P(int i) => new(Vector2.Dot(new Vector2(verts[i][u], verts[i][v]), e1), Vector2.Dot(new Vector2(verts[i][u], verts[i][v]), e2));
+                var t = (P(tris[k]), P(tris[k + 1]), P(tris[k + 2]));
+                if (Mathf.Abs(Cross(t.Item1, t.Item2, t.Item3)) > 1e-10f) flat.Add(t);
+            }
+            float lo1 = flat.Min(t => Mathf.Min(t.a.x, Mathf.Min(t.b.x, t.c.x))), hi1 = flat.Max(t => Mathf.Max(t.a.x, Mathf.Max(t.b.x, t.c.x)));
+            float lo2 = flat.Min(t => Mathf.Min(t.a.y, Mathf.Min(t.b.y, t.c.y))), hi2 = flat.Max(t => Mathf.Max(t.a.y, Mathf.Max(t.b.y, t.c.y)));
+            bool Inside(Vector2 q, (Vector2 a, Vector2 b, Vector2 c) t)
+            {
+                float d1 = Cross(t.a, t.b, q), d2 = Cross(t.b, t.c, q), d3 = Cross(t.c, t.a, q);
+                return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0));
+            }
+            var rects = new List<(float x, float y, float w, float h)>();
+            for (var cell = 0.005f / scale; cell < 0.05f / scale; cell *= 1.5f)
+            {
+                int nx = Mathf.CeilToInt((hi1 - lo1) / cell), ny = Mathf.CeilToInt((hi2 - lo2) / cell);
+                if (nx * ny > 40000) continue;
+                var on = new bool[nx, ny];
+                foreach (var t in flat)
+                {
+                    int x0 = Mathf.Max(0, Mathf.FloorToInt((Mathf.Min(t.a.x, Mathf.Min(t.b.x, t.c.x)) - lo1) / cell)), x1 = Mathf.Min(nx - 1, Mathf.FloorToInt((Mathf.Max(t.a.x, Mathf.Max(t.b.x, t.c.x)) - lo1) / cell));
+                    int y0 = Mathf.Max(0, Mathf.FloorToInt((Mathf.Min(t.a.y, Mathf.Min(t.b.y, t.c.y)) - lo2) / cell)), y1 = Mathf.Min(ny - 1, Mathf.FloorToInt((Mathf.Max(t.a.y, Mathf.Max(t.b.y, t.c.y)) - lo2) / cell));
+                    for (var x = x0; x <= x1; x++)
+                        for (var y = y0; y <= y1; y++)
+                            if (!on[x, y] && Inside(new Vector2(lo1 + (x + 0.5f) * cell, lo2 + (y + 0.5f) * cell), t)) on[x, y] = true;
+                }
+                rects.Clear();
+                var used = new bool[nx, ny];
+                for (var y = 0; y < ny; y++)
+                    for (var x = 0; x < nx; x++)
+                    {
+                        if (!on[x, y] || used[x, y]) continue;
+                        var w = 1;
+                        while (x + w < nx && on[x + w, y] && !used[x + w, y]) w++;
+                        var h = 1;
+                        while (y + h < ny && Enumerable.Range(x, w).All(i => on[i, y + h] && !used[i, y + h])) h++;
+                        for (var i = x; i < x + w; i++)
+                            for (var j = y; j < y + h; j++) used[i, j] = true;
+                        rects.Add((lo1 + x * cell, lo2 + y * cell, w * cell, h * cell));
+                    }
+                if (rects.Count <= 24) break;
+            }
+            foreach (var r in rects)
+            {
+                var go = new GameObject("Plate Fill");
+                go.transform.SetParent(plate.transform, false);
+                go.transform.localPosition = To3(e1 * (r.x + r.w / 2f) + e2 * (r.y + r.h / 2f), mid);
+                go.transform.localRotation = Quaternion.LookRotation(To3(e1, 0f), To3(Vector2.zero, 1f));
+                go.layer = plate.gameObject.layer;
+                var box = go.AddComponent<BoxCollider>();
+                box.size = new Vector3(r.h, depth, r.w);
+                if (old)
+                {
+                    box.sharedMaterial = old.sharedMaterial;
+                    box.excludeLayers = old.excludeLayers;
+                    box.includeLayers = old.includeLayers;
+                    box.layerOverridePriority = old.layerOverridePriority;
+                }
+                made++;
+            }
+            if (made > 0 && old) Object.DestroyImmediate(old);
+            return made;
         }
 
         private static GenericRoller MakeRoller(Transform parent, string name, Vector3 centre, float radius, float length, int touches = 0, string material = Grip)

@@ -37,15 +37,17 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
         [SerializeField] private float descoreRollerSpeed = -7000;
         [Tooltip("What a spinning compliant wheel does to the ball: rigid contact alone only spins it in place.")]
         [SerializeField] private float descoreForce = 60;
-        [SerializeField] private float descoreReach = 0.15f;
+        [Tooltip("From a wheel's centre: its surface plus a little.")]
+        [SerializeField] private float descoreReach = 0.13f;
+        [SerializeField] private float descoreClearRadius = 0.74f;
+        [Tooltip("The wheels have thrown the ball: how long it keeps going after it leaves them.")]
+        [SerializeField] private float descoreFollowThrough = 0.35f;
+        [Tooltip("During a descore the head can't wedge on a branch while the robot turns in.")]
+        [SerializeField] private Collider[] descoreSoftColliders;
         [SerializeField] private float descoreBallSpeed = 2.5f;
         [Tooltip("Sideways from a branch to the algae between the two branches of a face, inches.")]
         [SerializeField] private float descoreAlignShift = 6.5f;
         [SerializeField] private float alignDescore = 0f;
-        [Tooltip("The arm waits up here, inside the bumpers and clear of the branches, until the robot is square at the face. Then it comes down between them onto the ball.")]
-        [SerializeField] private float descoreWaitArm = 150f;
-        [SerializeField] private float descoreSquareAngle = 4f;
-        [SerializeField] private float descoreHomeDistance = 1.4f;
 
         [Header("One-Way Latch")]
         [Tooltip("Pin of the hook plates; its children are the hook's meshes and solid colliders.")]
@@ -65,6 +67,12 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
         [SerializeField] private float intakeSideArm = 146;
         [SerializeField] private float topArm = 27;
         [SerializeField] private float topLeanHeight = 5.7f;
+        [Header("Motion Magic (team's constants: pivot 7.5 rot/s2, 10 rot/s; elevator 500 u/s2, 100 u/s, x 1.14 in/u)")]
+        [SerializeField] private float armAcceleration = 2700f;
+        [SerializeField] private float armCruise = 3600f;
+        [SerializeField] private float elevatorAcceleration = 570f;
+        [SerializeField] private float elevatorCruise = 114f;
+        [SerializeField] private float climberCruise = 170f, climberAcceleration = 400f, climberPullCruise = 46f, climberPullAcceleration = 120f, climberMaxLead = 15f;
         [SerializeField] private float l3SetupArm = 27;
         [SerializeField] private float armOverAngle = 46;
         [SerializeField] private float armScoreSideAngle = 196;
@@ -121,7 +129,11 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
         private float _placeStartTime, _releaseTime, _latchAngle;
         private readonly Collider[] _latchHits = new Collider[16];
         private readonly Collider[] _algaeHits = new Collider[8];
-        private int _algaeMask;
+        private int _algaeMask, _softMask;
+        private bool _descoreSoft;
+        private Rigidbody _descoreBall;
+        private float _descoreBallUntil;
+        private float _armProfile, _armProfileVelocity, _elevatorProfile, _elevatorProfileVelocity, _climberProfile, _climberProfileVelocity;
 
         #endregion
         
@@ -137,6 +149,9 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
             _armTargetAngle = stow.armAngle;
             _climberTargetAngle = climberStow;
             _armSensorTargetAngle = 0;
+            _armProfile = Signed(arm.GetSingleAxisAngle(JointAxis.X));
+            _elevatorProfile = elevator.GetElevatorHeight();
+            _climberProfile = SignedClimber(climberStow);
             
             RobotGamePieceController.SetPreload(coralStowState);
             _coralController = RobotGamePieceController.GetPieceByName(nameof(ReefscapeGamePieceType.Coral));
@@ -160,6 +175,7 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
 
             coralMask = LayerMask.GetMask("Coral");
             _algaeMask = LayerMask.GetMask("Algae");
+            _softMask = LayerMask.GetMask("Field");
             canClack = true;
 
             // Auto tensor on a light arm twists off its hinge when a crash stops the robot in one step: 5 deg at the
@@ -182,7 +198,18 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
         private void FixedUpdate()
         {
             bool hasCoral = _coralController.HasPiece();
-            
+
+            if (IntakeAction.IsPressed() && CurrentSetpoint is ReefscapeSetpoints.LowAlgae or ReefscapeSetpoints.HighAlgae)
+                SetState(ReefscapeSetpoints.Intake);
+
+            // Seated: nothing left over from the handoff may carry it off before the framework parents it, on a slow frame.
+            if (hasCoral && _coralController.atTarget && _coralController.controller)
+            {
+                var seated = _coralController.controller.GamePiece.rigidbody;
+                seated.velocity = Vector3.zero;
+                seated.angularVelocity = Vector3.zero;
+            }
+
             _coralController.SetTargetState(_ejecting ? coralEjectState : coralStowState);
             _coralController.RequestIntake(coralIntake, SuperstructureAtSetpoint(intake) && IntakeAction.IsPressed() && !hasCoral);
             
@@ -195,8 +222,8 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
                 case ReefscapeSetpoints.Stack: SetState(ReefscapeSetpoints.Stow); break;
                 case ReefscapeSetpoints.Barge: SetState(ReefscapeSetpoints.Stow); break;
                 
-                case ReefscapeSetpoints.LowAlgae: SetDescore(lowDescore); break;
-                case ReefscapeSetpoints.HighAlgae: SetDescore(highDescore); break;
+                case ReefscapeSetpoints.LowAlgae: SetSetpoint(lowDescore); break;
+                case ReefscapeSetpoints.HighAlgae: SetSetpoint(highDescore); break;
                 
                 case ReefscapeSetpoints.L1: if (_coralController.atTarget) SetSetpoint(l1); break;
                 case ReefscapeSetpoints.L2: if (_coralController.atTarget) SetSetpoint(l2); break;
@@ -224,14 +251,6 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
             UpdateAudio();
         }
 
-        private void SetDescore(IronPanthersSetpoint setpoint)
-        {
-            SetSetpoint(setpoint);
-            var fromReef = Vector3.ProjectOnPlane(transform.position - _reef.position, Vector3.up);
-            var home = fromReef.magnitude < descoreHomeDistance && Vector3.Angle(transform.forward, fromReef) < descoreSquareAngle;
-            if (!home && _armTargetAngle == setpoint.armAngle) _armTargetAngle = descoreWaitArm;
-        }
-
         // Real DESCORE: the end effector's wheels run while the arm is out behind the robot, which auto align backs onto the
         // algae between two branches. A ball the wheels touch gets driven off the reef.
         private void UpdateDescore()
@@ -239,21 +258,39 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
             var descoring = CurrentSetpoint is ReefscapeSetpoints.LowAlgae or ReefscapeSetpoints.HighAlgae;
             _autoAlign.enableForwardAlign = !descoring;
             foreach (var roller in descoreRollers) roller.SetAngularVelocity(descoring ? descoreRollerSpeed : 0f);
+            if (descoring != _descoreSoft)
+            {
+                _descoreSoft = descoring;
+                foreach (var c in descoreSoftColliders)
+                {
+                    c.excludeLayers = descoring ? c.excludeLayers | _softMask : c.excludeLayers & ~_softMask;
+                }
+            }
             if (!descoring) return;
 
-            Rigidbody last = null;
             foreach (var roller in descoreRollers)
             {
-                var hits = Physics.OverlapSphereNonAlloc(roller.transform.position, descoreReach, _algaeHits, _algaeMask, QueryTriggerInteraction.Collide);
+                var hits = Physics.OverlapSphereNonAlloc(roller.transform.position, descoreReach, _algaeHits, _algaeMask, QueryTriggerInteraction.Ignore);
                 for (var i = 0; i < hits; i++)
                 {
                     var ball = _algaeHits[i].attachedRigidbody;
-                    if (!ball || ball == last || ball.velocity.magnitude > descoreBallSpeed) continue;
-                    last = ball;
-                    var off = Vector3.ProjectOnPlane(ball.position - _reef.position, Vector3.up).normalized;
-                    ball.AddForce((off + Vector3.up * 0.5f).normalized * descoreForce);
+                    if (!ball) continue;
+                    _descoreBall = ball;
+                    _descoreBallUntil = Time.time + descoreFollowThrough;
                 }
             }
+            if (!_descoreBall || Time.time > _descoreBallUntil || _descoreBall.velocity.magnitude > descoreBallSpeed) return;
+
+            // Up off the reef's pegs first, then away round the hopper, which stands too close for the ball to drop behind it.
+            var fromReef = Vector3.ProjectOnPlane(_descoreBall.position - _reef.position, Vector3.up);
+            var off = fromReef.normalized;
+            var push = off + Vector3.up * 0.5f;
+            if (fromReef.magnitude > descoreClearRadius)
+            {
+                var side = Vector3.Cross(Vector3.up, off);
+                push += side * (Vector3.Dot(transform.right, side) >= 0f ? 1f : -1f);
+            }
+            _descoreBall.AddForce(push.normalized * descoreForce);
         }
 
         // The hook is free one way only: a post on its curved top cams it open about its pin, and with nothing there the
@@ -287,7 +324,7 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
 
             if (wantOver && !isOver)
             {
-                // TOP: past 5 units the pivot leans to -79 so the coral clears the funnel's back plate on the way up.
+                // TOP: the pivot leans away from the hopper on the way up, then swings over once it clears the back plate.
                 _elevatorTargetHeight = topHeight;
                 var height = elevator.GetElevatorHeight();
                 if (height > minimumElevatorHeightForSwingAround) _armTargetAngle = setpoint.armAngle;
@@ -303,7 +340,7 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
                 else
                 {
                     _elevatorTargetHeight = topHeight;
-                    if (elevator.GetElevatorHeight() > 5) _armTargetAngle = topArm;
+                    if (elevator.GetElevatorHeight() > minimumElevatorHeightForSwingAround) _armTargetAngle = topArm;
                 }
             }
             else if (wantOver)
@@ -327,7 +364,7 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
             if (!ElevatorAtHeight(l3.elevatorHeight) && Signed(arm.GetSingleAxisAngle(JointAxis.X)) <= armOverAngle)
             {
                 _elevatorTargetHeight = l3.elevatorHeight;
-                if (elevator.GetElevatorHeight() > topLeanHeight) _armTargetAngle = topArm; // TOP, as for L4
+                if (elevator.GetElevatorHeight() > topLeanHeight) _armTargetAngle = topArm;
                 _l3SetupDone = false;
                 return;
             }
@@ -341,6 +378,50 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
             }
 
             SetSetpoint(l3);
+        }
+
+        // Lowest elevator height (in) at which the arm, coral in it, clears the hopper at this angle. Measured from the meshes.
+        private static readonly Vector2[] HopperClearance =
+        {
+            new(2, 0), new(6, 6), new(12, 11), new(16, 14), new(20, 22), new(24, 24), new(28, 28), new(36, 30), new(60, 30),
+            new(70, 14), new(80, 9), new(90, 6), new(100, 4), new(110, 2), new(120, 0)
+        };
+        private const int HopperPeak = 8; // index of the entry where the clearance starts falling again
+
+        // The same clearance read the other way: how far the arm may swing into the hopper's wedge at this height.
+        private static float HopperLimitedArm(float target, float armNow, float height)
+        {
+            if (height >= HopperClearance[HopperPeak].y + 1f) return target;
+            if (armNow < HopperClearance[HopperPeak].x && target > armNow)
+            {
+                for (var i = 1; i <= HopperPeak; i++)
+                    if (height < HopperClearance[i].y)
+                        return Mathf.Min(target, Mathf.Lerp(HopperClearance[i - 1].x, HopperClearance[i].x, Mathf.InverseLerp(HopperClearance[i - 1].y, HopperClearance[i].y, height)));
+                return Mathf.Min(target, HopperClearance[HopperPeak].x);
+            }
+            if (armNow >= HopperClearance[HopperPeak].x && target < armNow)
+            {
+                for (var i = HopperPeak + 1; i < HopperClearance.Length; i++)
+                    if (height >= HopperClearance[i].y)
+                        return Mathf.Max(target, Mathf.Lerp(HopperClearance[i - 1].x, HopperClearance[i].x, Mathf.InverseLerp(HopperClearance[i - 1].y, HopperClearance[i].y, height)));
+                return Mathf.Max(target, HopperClearance[^1].x);
+            }
+            return target;
+        }
+
+        private static float HopperClearHeight(float armAngle)
+        {
+            for (var i = 0; i < HopperClearance.Length - 1; i++)
+            {
+                Vector2 a = HopperClearance[i], b = HopperClearance[i + 1];
+                if (armAngle < b.x) return armAngle < a.x ? a.y : Mathf.Lerp(a.y, b.y, (armAngle - a.x) / (b.x - a.x));
+            }
+            return 0;
+        }
+
+        private static float SignedClimber(float angle)
+        {
+            return angle > 180 ? angle - 360 : angle;
         }
 
         private static float Signed(float angle)
@@ -367,13 +448,45 @@ namespace Prefabs.Reefscape.Robots.Mods.IronPanthers._5026
 
         private void UpdateSetpoints()
         {
-            elevator.SetTarget(_elevatorTargetHeight);
-            climber.SetTargetAngle(_climberTargetAngle).withAxis(JointAxis.X);
+            var dt = Time.fixedDeltaTime;
+            var armNow = Signed(arm.GetSingleAxisAngle(JointAxis.X));
+            var heightNow = elevator.GetElevatorHeight();
+
+            var armGoal = HopperLimitedArm(Signed(_armTargetAngle), armNow, heightNow);
+            var elevatorGoal = Mathf.Max(_elevatorTargetHeight, HopperClearHeight(armNow));
+            _armProfile = Profile(_armProfile, ref _armProfileVelocity, armGoal, armCruise, armAcceleration, dt);
+            _elevatorProfile = Profile(_elevatorProfile, ref _elevatorProfileVelocity, elevatorGoal, elevatorCruise, elevatorAcceleration, dt);
+
+            elevator.SetTarget(_elevatorProfile);
+            // The climber eases in and out of its travel. Under the robot's weight it can't keep up, so the profile waits for it.
+            var pulling = CurrentSetpoint == ReefscapeSetpoints.Climbed;
+            var climberNow = SignedClimber(climber.GetSingleAxisAngle(JointAxis.X));
+            _climberProfile = Profile(_climberProfile, ref _climberProfileVelocity, SignedClimber(_climberTargetAngle),
+                pulling ? climberPullCruise : climberCruise, pulling ? climberPullAcceleration : climberAcceleration, dt);
+            var led = Mathf.Clamp(_climberProfile, climberNow - climberMaxLead, climberNow + climberMaxLead);
+            if (!Mathf.Approximately(led, _climberProfile)) _climberProfileVelocity = 0f;
+            _climberProfile = led;
+            climber.SetTargetAngle(_climberProfile < 0f ? _climberProfile + 360f : _climberProfile).withAxis(JointAxis.X);
             armSensor.SetTargetAngle(_armSensorTargetAngle).withAxis(JointAxis.X);
-            arm.SetTargetAngle(_armTargetAngle).withAxis(JointAxis.X)
+            arm.SetTargetAngle(_armProfile < 0f ? _armProfile + 360f : _armProfile).withAxis(JointAxis.X)
                 .noWrap(270);
         }
-        
+
+        // The team's Motion Magic: constant acceleration up to a cruise speed, then the same back down to rest on the target.
+        private static float Profile(float position, ref float velocity, float target, float cruise, float acceleration, float dt)
+        {
+            var error = target - position;
+            var desired = Mathf.Sign(error) * Mathf.Min(cruise, Mathf.Sqrt(2f * acceleration * Mathf.Abs(error)));
+            velocity = Mathf.MoveTowards(velocity, desired, acceleration * dt);
+            var next = position + velocity * dt;
+            if (Mathf.Abs(error) < acceleration * dt * dt || (target - next) * error < 0f)
+            {
+                velocity = 0f;
+                return target;
+            }
+            return next;
+        }
+
         #endregion
         
 

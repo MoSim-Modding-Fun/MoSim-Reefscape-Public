@@ -1880,6 +1880,7 @@ public class IntakePlayTest
             var got = -1f;
             var pullAt = -1f;
             var gapAtPull = 99f;
+            float clawToBall = 99f, ballFromFace = 99f, clawFromFace = 99f, robotFromFace = 99f;
             var robotSpeedAtPull = 0f;
             var ballPeak = 0f;
             var phases = new System.Collections.Generic.List<string>();
@@ -1887,7 +1888,7 @@ public class IntakePlayTest
             for (var e = 0f; e < 6f; e += Time.fixedDeltaTime)
             {
                 yield return new WaitForFixedUpdate();
-                if (pullAt < 0 && ai.requestIntake) { pullAt = e; gapAtPull = WheelGap(); robotSpeedAtPull = _robot.GetComponent<Rigidbody>().velocity.magnitude; }
+                if (pullAt < 0 && ai.requestIntake) { pullAt = e; clawToBall = t.InverseTransformPoint(algae.piece.transform.position).x - t.InverseTransformPoint(ai.transform.position).x; ballFromFace = Vector3.Dot(algae.piece.transform.position - face.position, across); clawFromFace = Vector3.Dot(ai.transform.position - face.position, across); robotFromFace = Vector3.Dot(t.position - face.position, across); gapAtPull = WheelGap(); robotSpeedAtPull = _robot.GetComponent<Rigidbody>().velocity.magnitude; }
                 if (ballRb) ballPeak = Mathf.Max(ballPeak, ballRb.velocity.magnitude);
                 var band = Mathf.RoundToInt(_robot.GetComponent<Rigidbody>().velocity.magnitude * 5);
                 if (band != lastSpeedBand && phases.Count < 14) { lastSpeedBand = band; phases.Add($"{e:F2}:{band / 5f:F1}@{Vector3.Dot(t.position - reef, d):F2}"); }
@@ -1914,7 +1915,7 @@ public class IntakePlayTest
             var fell = seated.Count(x => x.piece && (x.piece.transform.position - x.pos).magnitude > 0.1f);
             var nudged = seated.Count(x => x.piece && (x.piece.transform.position - x.pos).magnitude > 0.01f);
             foreach (var x in seated) if (x.log) Object.Destroy(x.log);
-            L($"RESULT algaeAlign {(wantLow ? "low" : "high")} {(facing ? "front" : "back")} keys={string.Join("+", keys)} algae={heldAlgae} got={got:F2}s ballMovedBefore={ballMoved * 100:F0}cm pullAt={pullAt:F2}s wheelGapAtPull={ballGap:F1}cm robotSpeedAtPull={robotSpeedAtPull:F2} ballPeak={ballPeak:F2}m/s approach(t:speed@dist)=[{string.Join(" ", phases)}] stopAt={endDist:F3}m side={endSide * 100:F1}cm yawErr={faceYaw:F1}deg speed={speed:F2} seated={seated.Length}/{scored.Count} knocked={fell} nudged={nudged} worstImpulse={worst:F1} [{string.Join(" ", moved)}]");
+            L($"RESULT algaeAlign {(wantLow ? "low" : "high")} {(facing ? "front" : "back")} keys={string.Join("+", keys)} algae={heldAlgae} got={got:F2}s ballMovedBefore={ballMoved * 100:F0}cm pullAt={pullAt:F2}s clawToBall={clawToBall * 100:F1}cm fromFaceCentre ball={ballFromFace * 100:F1} claw={clawFromFace * 100:F1} robot={robotFromFace * 100:F1}cm wheelGapAtPull={ballGap:F1}cm robotSpeedAtPull={robotSpeedAtPull:F2} ballPeak={ballPeak:F2}m/s approach(t:speed@dist)=[{string.Join(" ", phases)}] stopAt={endDist:F3}m side={endSide * 100:F1}cm yawErr={faceYaw:F1}deg speed={speed:F2} seated={seated.Length}/{scored.Count} knocked={fell} nudged={nudged} worstImpulse={worst:F1} [{string.Join(" ", moved)}]");
             yield return DropHeld();
             yield return Tap(Key.Semicolon);
             yield return Tap(Key.Z);
@@ -2145,6 +2146,136 @@ public class IntakePlayTest
             yield return new WaitForSeconds(0.5f);
             L($"RESULT hpRepeat facing={facing} rep={rep} held={held} took={took:F1}s {state} coral(box)={where} {(held ? "" : $"touching=[{hits}]")}");
             yield return DropHeld();
+        }
+    }
+
+    // Press intake, let go while the arm is still moving: every joint's path after the release, and whether it ends up back
+    // at stow. Reversals of direction, how far past its target it went, what it was asked to do, and how long until settled.
+    [UnityTest]
+    [Timeout(900000)]
+    public IEnumerator IntakeRelease()
+    {
+        yield return Boot();
+        var t = _robot.transform;
+        var arm = Field("arm") as GenericJoint;
+        var wrist = Field("wrist") as GenericJoint;
+        var intake = Field("intake") as GenericJoint;
+        var elev = Field("elevator") as GenericElevator;
+        var rb = _robot.GetComponent<Rigidbody>();
+        yield return DropHeld();
+        foreach (var (label, ground, algae) in new[] { ("ground", true, false), ("station", false, false), ("algae", false, true) })
+        {
+            if (algae && _robot.CurrentRobotMode != Games.Reefscape.Enums.ReefscapeRobotMode.Algae) yield return Tap(Key.Semicolon);
+            if (!algae && _robot.CurrentRobotMode != Games.Reefscape.Enums.ReefscapeRobotMode.Coral) yield return Tap(Key.Semicolon);
+            if (!algae && (_robot.CurrentCoralStationMode.DropType == DropType.Ground) != ground) yield return Tap(Key.V);
+            // (hold, then a gap before pressing again and holding for a second; gap 0 = no second press)
+            foreach (var (hold, gap) in ground
+                         ? new[] { (0.1f, 0f), (0.2f, 0f), (0.25f, 0f), (0.3f, 0f), (0.35f, 0f), (0.4f, 0f), (0.45f, 0f), (0.5f, 0f), (0.55f, 0f), (0.7f, 0f), (1f, 0f), (0.3f, 0.1f), (0.3f, 0.2f), (0.3f, 0.4f), (0.4f, 0.1f), (0.4f, 0.3f), (1f, 0.2f), (1f, 0.5f) }
+                         : new[] { (0.1f, 0f), (0.2f, 0f), (0.3f, 0f), (0.5f, 0f), (0.2f, 0.1f) })
+            {
+                PlaceRobot(new Vector3(-2.2f, 0, 2.2f), Vector3.forward);
+                yield return Tap(Key.Z);
+                yield return new WaitForSeconds(1.5f);
+                Keys(Key.LeftShift);
+                var armMax = 0f; var wristMax = 0f;
+                var a0 = arm.GetSingleAxisAngle(JointAxis.X); var w0 = wrist.GetSingleAxisAngle(JointAxis.X);
+                for (var e = 0f; e < hold; e += Time.fixedDeltaTime)
+                {
+                    yield return new WaitForFixedUpdate();
+                    armMax = Mathf.Max(armMax, Mathf.Abs(Mathf.DeltaAngle(a0, arm.GetSingleAxisAngle(JointAxis.X))));
+                }
+                var atRelease = $"arm{Mathf.DeltaAngle(a0, arm.GetSingleAxisAngle(JointAxis.X)):F0}/wrist{Mathf.DeltaAngle(w0, wrist.GetSingleAxisAngle(JointAxis.X)):F0}/intake{Mathf.DeltaAngle(291.5f, intake.GetSingleAxisAngle(JointAxis.Y)):F0}/elev{elev.GetElevatorHeight():F1}";
+                Keys();
+                var again = gap > 0;
+                var pressAt = gap;
+                var releaseAt = gap + 1f;
+                float lastA = arm.GetSingleAxisAngle(JointAxis.X), lastW = wrist.GetSingleAxisAngle(JointAxis.X), lastI = intake.GetSingleAxisAngle(JointAxis.Y);
+                int aDir = 0, wDir = 0, iDir = 0, aRev = 0, wRev = 0, iRev = 0;
+                var aPeak = 0f; var wPeak = 0f; var settled = 0f;
+                var aFar = 0f; var wFar = 0f;
+                var lift = 0f; var tilt = 0f; var spin = 0f;
+                var spTrace = new System.Collections.Generic.List<string>();
+                var lastSp = "";
+                var y0 = t.position.y;
+                for (var e = 0f; e < (again ? 5f : 4f); e += Time.fixedDeltaTime)
+                {
+                    yield return new WaitForFixedUpdate();
+                    if (again && e >= pressAt && e < pressAt + Time.fixedDeltaTime * 1.5f) Keys(Key.LeftShift);
+                    if (again && e >= releaseAt && e < releaseAt + Time.fixedDeltaTime * 1.5f) Keys();
+                    float a = arm.GetSingleAxisAngle(JointAxis.X), w = wrist.GetSingleAxisAngle(JointAxis.X), i = intake.GetSingleAxisAngle(JointAxis.Y);
+                    float da = Mathf.DeltaAngle(lastA, a), dw = Mathf.DeltaAngle(lastW, w), di = Mathf.DeltaAngle(lastI, i);
+                    void Rev(float d, ref int dir, ref int rev) { if (Mathf.Abs(d) < 0.15f) return; var sg = d > 0 ? 1 : -1; if (dir != 0 && sg != dir) rev++; dir = sg; }
+                    Rev(da, ref aDir, ref aRev); Rev(dw, ref wDir, ref wRev); Rev(di, ref iDir, ref iRev);
+                    aPeak = Mathf.Max(aPeak, Mathf.Abs(da) / Time.fixedDeltaTime); wPeak = Mathf.Max(wPeak, Mathf.Abs(dw) / Time.fixedDeltaTime);
+                    aFar = Mathf.Max(aFar, Mathf.Abs(Mathf.DeltaAngle(a0, a))); wFar = Mathf.Max(wFar, Mathf.Abs(Mathf.DeltaAngle(w0, w)));
+                    if (Mathf.Abs(da) > 0.02f || Mathf.Abs(dw) > 0.02f || Mathf.Abs(di) > 0.02f) settled = e;
+                    lift = Mathf.Max(lift, t.position.y - y0); tilt = Mathf.Max(tilt, Vector3.Angle(t.up, Vector3.up)); spin = Mathf.Max(spin, rb.angularVelocity.magnitude);
+                    lastA = a; lastW = w; lastI = i;
+                    var sp = _robot.CurrentSetpoint.ToString();
+                    if (sp != lastSp && spTrace.Count < 8) { spTrace.Add($"{e:F2}:{sp}"); lastSp = sp; }
+                }
+                var offA = Mathf.DeltaAngle(a0, arm.GetSingleAxisAngle(JointAxis.X)); var offW = Mathf.DeltaAngle(w0, wrist.GetSingleAxisAngle(JointAxis.X));
+                var cmds = string.Join(" ", new[] { "_armTargetAngle", "_wristTargetAngle", "_intakeTargetAngle", "_elevatorTargetHeight", "_isRetractingFromGround" }.Select(f => $"{f.TrimStart('_').Replace("TargetAngle", "").Replace("TargetHeight", "")}={Field(f)}"));
+                L($"RESULT intakeRelease {label} hold={hold:F2}s gap={gap:F1}s atRelease={atRelease} reversals arm={aRev} wrist={wRev} intake={iRev} furthest arm={aFar:F0} wrist={wFar:F0} peak arm={aPeak:F0} wrist={wPeak:F0}deg/s settled={settled:F2}s endOff arm={offA:F1} wrist={offW:F1} lift={lift * 100:F1}cm tilt={tilt:F1} spin={spin:F2} sp=[{string.Join(" ", spTrace)}] end[{cmds}]");
+            }
+        }
+    }
+
+    // Tapping intake over and over at varied rhythms, as a driver mashing it would: the worst the robot does, per rhythm.
+    [UnityTest]
+    [Timeout(600000)]
+    public IEnumerator IntakeSpam()
+    {
+        yield return Boot();
+        var t = _robot.transform;
+        var arm = Field("arm") as GenericJoint;
+        var intake = Field("intake") as GenericJoint;
+        yield return DropHeld();
+        if (_robot.CurrentRobotMode != Games.Reefscape.Enums.ReefscapeRobotMode.Coral) yield return Tap(Key.Semicolon);
+        if (_robot.CurrentCoralStationMode.DropType != DropType.Ground) yield return Tap(Key.V);
+        var rng = new System.Random(971);
+        foreach (var (label, holdMin, holdMax, gapMin, gapMax) in new[]
+                 {
+                     ("fast", 0.1f, 0.3f, 0.1f, 0.3f), ("medium", 0.2f, 0.6f, 0.2f, 0.6f), ("slow", 0.3f, 0.9f, 0.4f, 1.2f), ("mixed", 0.05f, 1f, 0.05f, 1f),
+                 })
+        {
+            PlaceRobot(new Vector3(-2.2f, 0, 2.2f), Vector3.forward);
+            yield return Tap(Key.Z);
+            yield return new WaitForSeconds(1.5f);
+            var a0 = arm.GetSingleAxisAngle(JointAxis.X);
+            var p0 = t.position;
+            var y0 = t.position.y;
+            float lift = 0, tilt = 0, far = 0, aPeak = 0, drift = 0;
+            var lastA = a0;
+            var airborne = 0f;
+            var worstAt = 0f;
+            var clock = 0f;
+            for (var c = 0; c < 16; c++)
+            {
+                var hold = Mathf.Lerp(holdMin, holdMax, (float)rng.NextDouble());
+                var gap = Mathf.Lerp(gapMin, gapMax, (float)rng.NextDouble());
+                for (var phase = 0; phase < 2; phase++)
+                {
+                    Keys(phase == 0 ? new[] { Key.LeftShift } : Array.Empty<Key>());
+                    for (var e = 0f; e < (phase == 0 ? hold : gap); e += Time.fixedDeltaTime)
+                    {
+                        yield return new WaitForFixedUpdate();
+                        clock += Time.fixedDeltaTime;
+                        var a = arm.GetSingleAxisAngle(JointAxis.X);
+                        far = Mathf.Max(far, Mathf.Abs(Mathf.DeltaAngle(a0, a)));
+                        aPeak = Mathf.Max(aPeak, Mathf.Abs(Mathf.DeltaAngle(lastA, a)) / Time.fixedDeltaTime);
+                        lastA = a;
+                        var up = t.position.y - y0;
+                        if (up > lift) { lift = up; worstAt = clock; }
+                        if (up > 0.02f) airborne += Time.fixedDeltaTime;
+                        tilt = Mathf.Max(tilt, Vector3.Angle(t.up, Vector3.up));
+                        drift = Mathf.Max(drift, Vector3.ProjectOnPlane(t.position - p0, Vector3.up).magnitude);
+                    }
+                }
+            }
+            Keys();
+            yield return new WaitForSeconds(2f);
+            L($"RESULT intakeSpam {label} over {clock:F0}s: lift={lift * 100:F1}cm at {worstAt:F1}s airborne={airborne:F2}s tilt={tilt:F1}deg armFar={far:F0} (hard stop 165) armPeak={aPeak:F0}deg/s drift={drift * 100:F0}cm endsAtStow arm={Mathf.DeltaAngle(a0, arm.GetSingleAxisAngle(JointAxis.X)):F1} setpoint={_robot.CurrentSetpoint}");
         }
     }
 

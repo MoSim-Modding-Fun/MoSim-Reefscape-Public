@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Net
   m_EditorClassIdentifier: 
   elevatorHeight: 1.445
-  armAngle: 6
+  armAngle: 20
   intakeAngle: 85
   climberAngle: 0

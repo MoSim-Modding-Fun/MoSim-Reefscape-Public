@@ -26,7 +26,7 @@ namespace Editor
             var intake = all.First(t => t.name == "Intake");
             intake.localRotation *= Quaternion.AngleAxis(-90f, Vector3.right);
             var colors = new[] { Color.red, new Color(1f, 0.5f, 0f), Color.yellow, Color.green, Color.blue, Color.white };
-            var names = new[] { "Coral Path 1 Front Roller", "Coral Path 1b Belts", "Coral Path 2 Top Roller", "Coral Path 3 Past Flap", "Ground Coral Intake", "Coral Claw State" };
+            var names = new[] { "Coral Path 1 Front Roller", "Coral Path 1b Peg Face", "Coral Path 2 Up The Face", "Coral Path 3 Over The Tube", "Ground Coral Intake", "Coral Claw State" };
             for (var i = 0; i < names.Length; i++)
             {
                 var t = all.FirstOrDefault(x => x.name == names[i]);
@@ -38,7 +38,17 @@ namespace Editor
                 sph.GetComponent<Renderer>().sharedMaterial = m;
                 Debug.Log($"MISSDAISY RENDER intake path {names[i]} at (robot) {robot.transform.InverseTransformPoint(t.position):F3}");
             }
-            foreach (var c in robot.GetComponentsInChildren<Collider>(true).Where(c => c.name is "Front Roller" or "Flap Top Roller" or "Flap Belts" or "Channel Floor"))
+            // the coral-only guides drawn in: channel floor (magenta), channel ramp (cyan), side ramps (purple)
+            foreach (var bc in robot.GetComponentsInChildren<BoxCollider>(true).Where(c => c.name is "Channel Floor" or "Channel Ramp" or "Side Ramp"))
+            {
+                var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                UnityEngine.Object.DestroyImmediate(cube.GetComponent<Collider>());
+                cube.transform.SetParent(bc.transform, false);
+                cube.transform.localPosition = bc.center;
+                cube.transform.localScale = bc.size;
+                cube.GetComponent<Renderer>().sharedMaterial = new Material(Shader.Find("Unlit/Color")) { color = bc.name == "Channel Floor" ? Color.magenta : bc.name == "Channel Ramp" ? Color.cyan : new Color(0.5f, 0f, 1f) };
+            }
+            foreach (var c in robot.GetComponentsInChildren<Collider>(true).Where(c => c.name is "Front Roller" or "Flap Top Roller" or "Flap Belts" or "Channel Floor" or "Channel Ramp" or "Main Coral Intake 2x1" || c.name.StartsWith("Orienter Roller") || c.name.StartsWith("Flap Belts Roller")))
                 Debug.Log($"MISSDAISY RENDER intake part {c.name} centre (robot) {robot.transform.InverseTransformPoint(c.bounds.center):F3} " +
                           $"min y {c.bounds.min.y - robot.transform.position.y:F3} size {c.bounds.size:F3}");
             var cam = new GameObject("Cam").AddComponent<Camera>();
@@ -121,18 +131,138 @@ namespace Editor
         }
 
         // The art panels: the robot from the panel side, three-quarter and straight on, lit (MD_RENDER_DIR).
-        // Parts left on the drivebase high up in the mast, and what the moving elevator stage holds there.
+        // Parts left on the drivebase high up in the mast, and what the moving elevator stage holds there; pictures with the
+        // elevator raised, the moving stages highlighted, to show what stays behind.
         public static void Mast()
         {
+            var dir = Environment.GetEnvironmentVariable("MD_RENDER_DIR") ?? "Temp/MissDaisyRender";
+            Directory.CreateDirectory(dir);
             EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Reefscape/Robots/Mods/MissDaisy/341/341.prefab");
             var robot = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
             robot.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
-            foreach (var r in robot.GetComponentsInChildren<MeshRenderer>(true).Where(m => robot.transform.InverseTransformPoint(m.bounds.center).y > 0.28f).OrderBy(m => m.bounds.center.y))
+            var all = robot.GetComponentsInChildren<Transform>(true);
+            var stage = all.First(t => t.name == "Stage1");
+            var carriage = all.First(t => t.name == "Carriage");
+            carriage.position += Vector3.up * 0.5f;
+            if (!carriage.IsChildOf(stage)) stage.position += Vector3.up * 0.25f;
+            var cam = new GameObject("Cam").AddComponent<Camera>();
+            cam.fieldOfView = 30;
+            cam.backgroundColor = new Color(0.8f, 0.85f, 0.9f);
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            var rt = new RenderTexture(1280, 960, 24);
+            cam.targetTexture = rt;
+            var top = new Vector3(-0.19f, 0.95f, 0f);
+            var low = new Vector3(-0.19f, 0.55f, 0f);
+            foreach (var (tag, from, at) in new[]
+                     {
+                         ("mast-intake-side", new Vector3(0.5f, 1.5f, -1.6f), new Vector3(-0.19f, 0.8f, 0f)),
+                         ("mast-top-close", top + new Vector3(0.75f, 0.35f, -0.6f), top),
+                         ("mast-top-behind", top + new Vector3(-0.8f, 0.3f, -0.5f), top),
+                         ("mast-low-close", low + new Vector3(0.8f, 0.3f, -0.6f), low),
+                         ("mast-low-behind", low + new Vector3(-0.8f, 0.3f, 0.5f), low)
+                     })
+            {
+                cam.transform.position = from;
+                cam.transform.LookAt(at);
+                cam.Render();
+                RenderTexture.active = rt;
+                var tex = new Texture2D(rt.width, rt.height, TextureFormat.RGB24, false);
+                tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+                File.WriteAllBytes(Path.Combine(dir, $"{tag}.png"), tex.EncodeToPNG());
+            }
+            foreach (var r in robot.GetComponentsInChildren<MeshRenderer>(true).Where(m => m.name.StartsWith("WCP-")).OrderBy(m => m.bounds.center.y))
             {
                 var path = r.transform.parent ? r.transform.parent.name : "-";
                 var c = robot.transform.InverseTransformPoint(r.bounds.center);
                 if (path == "Drivebase" || path == "Stage1" || path == "Carriage") Debug.Log($"MISSDAISY MAST {path} | {r.name} | centre {c:F3} size {r.bounds.size:F3} mat {(r.sharedMaterial ? r.sharedMaterial.name : "-")}");
+            }
+            Debug.Log("MISSDAISY RENDER done");
+        }
+
+        // Every part on the intake (with its flap and roller arms): how big, how flat, which way its flat side faces, what it collides with.
+        public static void IntakeParts()
+        {
+            var dir = Environment.GetEnvironmentVariable("MD_RENDER_DIR") ?? "Temp/MissDaisyRender";
+            Directory.CreateDirectory(dir);
+            EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Reefscape/Robots/Mods/MissDaisy/341/341.prefab");
+            var robot = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            robot.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+            var intake = robot.GetComponentsInChildren<Transform>(true).First(t => t.name == "Intake");
+            foreach (var r in intake.GetComponentsInChildren<MeshRenderer>(true).OrderBy(m => Mathf.Abs(m.bounds.center.x)))
+            {
+                var mesh = r.GetComponent<MeshFilter>().sharedMesh;
+                var box = r.GetComponent<BoxCollider>();
+                var size = Vector3.Scale(mesh.bounds.size, r.transform.lossyScale);
+                Debug.Log($"MISSDAISY PART {r.name} | parent {r.transform.parent.name} | centre {robot.transform.InverseTransformPoint(r.bounds.center):F3} | local size {size:F3} | world size {r.bounds.size:F3} | rot {r.transform.rotation.eulerAngles:F0} | collider {(box ? "box excl=" + box.excludeLayers.value + " prio=" + box.layerOverridePriority : "none")} | mat {(r.sharedMaterial ? r.sharedMaterial.name : "-")}");
+            }
+            foreach (var c in intake.GetComponentsInChildren<Collider>(true).Where(c => !c.GetComponent<MeshRenderer>()))
+                Debug.Log($"MISSDAISY PART collider-only {c.name} | parent {c.transform.parent.name} | centre {robot.transform.InverseTransformPoint(c.bounds.center):F3} | world size {c.bounds.size:F3} | excl={c.excludeLayers.value} trigger={c.isTrigger}");
+            var cam = new GameObject("Cam").AddComponent<Camera>();
+            cam.fieldOfView = 30;
+            cam.backgroundColor = new Color(0.8f, 0.85f, 0.9f);
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            var rt = new RenderTexture(1280, 960, 24);
+            cam.targetTexture = rt;
+            var mid = intake.GetComponentsInChildren<MeshRenderer>(true).Select(m => m.bounds.center).Aggregate(Vector3.zero, (a, b) => a + b) / intake.GetComponentsInChildren<MeshRenderer>(true).Length;
+            foreach (var (tag, from) in new[] { ("intake-top", mid + new Vector3(0f, 1.2f, -0.3f)), ("intake-side", mid + new Vector3(1.2f, 0.2f, 0f)), ("intake-3q", mid + new Vector3(0.7f, 0.7f, -0.8f)) })
+            {
+                cam.transform.position = from;
+                cam.transform.LookAt(mid);
+                cam.Render();
+                RenderTexture.active = rt;
+                var tex = new Texture2D(rt.width, rt.height, TextureFormat.RGB24, false);
+                tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+                File.WriteAllBytes(Path.Combine(dir, $"{tag}.png"), tex.EncodeToPNG());
+            }
+            Debug.Log("MISSDAISY RENDER done");
+        }
+
+        // The intake's plates (grey) with their fill (green) and edge (orange) colliders drawn as boxes, from both sides and above.
+        public static void PlateColliders()
+        {
+            var dir = Environment.GetEnvironmentVariable("MD_RENDER_DIR") ?? "Temp/MissDaisyRender";
+            Directory.CreateDirectory(dir);
+            EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Reefscape/Robots/Mods/MissDaisy/341/341.prefab");
+            var robot = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            robot.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+            var intake = robot.GetComponentsInChildren<Transform>(true).First(t => t.name == "Intake");
+            var boxes = intake.GetComponentsInChildren<BoxCollider>(true).Where(b => b.name == "Plate Fill" || b.name == "Plate Edge").ToList();
+            var plates = boxes.Select(b => b.transform.parent.GetComponent<MeshRenderer>()).Where(r => r).Distinct().ToList();
+            foreach (var r in robot.GetComponentsInChildren<Renderer>(true)) r.enabled = plates.Contains(r as MeshRenderer);
+            var shader = Shader.Find("Standard");
+            Material Mat(Color c) => new Material(shader) { color = c };
+            Material grey = Mat(new Color(0.55f, 0.55f, 0.6f)), fill = Mat(new Color(0.1f, 0.8f, 0.2f)), edge = Mat(new Color(1f, 0.5f, 0.05f));
+            foreach (var r in plates) r.sharedMaterials = r.sharedMaterials.Select(_ => grey).ToArray();
+            foreach (var b in boxes)
+            {
+                var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                UnityEngine.Object.DestroyImmediate(cube.GetComponent<Collider>());
+                cube.transform.SetParent(b.transform, false);
+                cube.transform.localPosition = b.center;
+                cube.transform.localScale = b.size + new Vector3(0f, 0.002f / Mathf.Max(1e-6f, b.transform.lossyScale.y), 0f);
+                cube.GetComponent<MeshRenderer>().sharedMaterial = b.name == "Plate Fill" ? fill : edge;
+            }
+            Debug.Log($"MISSDAISY PLATES {plates.Count} plates, {boxes.Count(b => b.name == "Plate Fill")} fill, {boxes.Count(b => b.name == "Plate Edge")} edge: " +
+                      string.Join(", ", plates.Select(p => $"{p.name} {p.transform.GetComponentsInChildren<BoxCollider>().Count(b => b.name == "Plate Fill")}")));
+            var cam = new GameObject("Cam").AddComponent<Camera>();
+            cam.fieldOfView = 30;
+            cam.backgroundColor = new Color(0.9f, 0.92f, 0.95f);
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            var rt = new RenderTexture(1400, 1000, 24);
+            cam.targetTexture = rt;
+            var mid = plates.Select(m => m.bounds.center).Aggregate(Vector3.zero, (a, c) => a + c) / Mathf.Max(1, plates.Count);
+            foreach (var (tag, from) in new[] { ("plates-right", mid + new Vector3(1.1f, 0.1f, 0f)), ("plates-left", mid + new Vector3(-1.1f, 0.1f, 0f)), ("plates-top", mid + new Vector3(0f, 1.2f, -0.2f)), ("plates-3q", mid + new Vector3(0.8f, 0.6f, -0.8f)) })
+            {
+                cam.transform.position = from;
+                cam.transform.LookAt(mid);
+                cam.Render();
+                RenderTexture.active = rt;
+                var tex = new Texture2D(rt.width, rt.height, TextureFormat.RGB24, false);
+                tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+                File.WriteAllBytes(Path.Combine(dir, $"{tag}.png"), tex.EncodeToPNG());
             }
             Debug.Log("MISSDAISY RENDER done");
         }

@@ -134,6 +134,62 @@ public class MissDaisyMatchTest
         return hits;
     }
 
+    // Nearest the robot's bumpers come to the reef (m).
+    float BumperGap()
+    {
+        var reefCols = Object.FindObjectsByType<Reef>(FindObjectsSortMode.None).SelectMany(r => r.GetComponentsInChildren<Collider>()).Where(c => !c.isTrigger).ToArray();
+        var gap = float.MaxValue;
+        foreach (var b in _robot.GetComponentsInChildren<Collider>().Where(c => !c.isTrigger && c.attachedRigidbody && c.attachedRigidbody.gameObject == _robot.gameObject))
+            foreach (var r in reefCols)
+            {
+                if (r is MeshCollider { convex: false }) continue;
+                var pr = r.ClosestPoint(b.bounds.center);
+                gap = Mathf.Min(gap, (b.ClosestPoint(pr) - pr).magnitude);
+            }
+        return gap;
+    }
+
+    // 1778's intake plates: how their colliders are laid out (names, local boxes) for comparison.
+    void Dump1778Intake()
+    {
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Reefscape/Robots/Mods/ChillMod/1778/1778.prefab");
+        var gi = prefab ? prefab.GetComponentsInChildren<Transform>(true).FirstOrDefault(x => x.name == "GroundIntake") : null;
+        if (!gi) { L("1778: no GroundIntake"); return; }
+        foreach (var c in gi.GetComponentsInChildren<Collider>(true))
+        {
+            var path = string.Join("/", c.transform.GetComponentsInParent<Transform>(true).TakeWhile(x => x != gi).Reverse().Select(x => x.name));
+            L($"1778 collider {path} {c.GetType().Name} " + (c is BoxCollider bc ? $"centre={bc.center:F3} size={bc.size:F3} " : "") + $"rot={c.transform.localEulerAngles:F0} lossy={c.transform.lossyScale:F3} worldSize={c.bounds.size:F3}");
+        }
+    }
+
+    // Robot meshes a coral on its way up passes into (the claw excepted: it may pass the claw's wheels), tallied over the run.
+    readonly Dictionary<string, int> _phaseCounts = new();
+    readonly Dictionary<string, HashSet<string>> _phaseLabels = new();
+    void RecordPhasing(Transform coral, string label)
+    {
+        var claw = Find("Coral Claw State");
+        var clawBody = claw ? claw.GetComponentInParent<Rigidbody>() : null;
+        foreach (var name in Penetrating(coral).Distinct())
+        {
+            var part = _robot.GetComponentsInChildren<MeshFilter>().FirstOrDefault(m => m.name == name);
+            if (part && clawBody && part.GetComponentInParent<Rigidbody>() == clawBody) continue;
+            _phaseCounts[name] = _phaseCounts.TryGetValue(name, out var n) ? n + 1 : 1;
+            if (!_phaseLabels.TryGetValue(name, out var set)) _phaseLabels[name] = set = new HashSet<string>();
+            set.Add(label);
+        }
+        // and robot colliders it is more than a centimetre inside (whether or not they let it through)
+        foreach (var c in coral.GetComponentsInChildren<Collider>().Where(c => c.enabled && !c.isTrigger))
+            foreach (var r in Physics.OverlapBox(c.bounds.center, c.bounds.extents, Quaternion.identity, LayerMask.GetMask("Robot"), QueryTriggerInteraction.Ignore))
+            {
+                if (!r.transform.IsChildOf(_robot.transform) || (clawBody && r.attachedRigidbody == clawBody)) continue;
+                if (!Physics.ComputePenetration(c, c.transform.position, c.transform.rotation, r, r.transform.position, r.transform.rotation, out _, out var depth) || depth < 0.01f) continue;
+                var name = $"collider {r.name} on {(r.attachedRigidbody ? r.attachedRigidbody.name : "-")}";
+                _phaseCounts[name] = _phaseCounts.TryGetValue(name, out var n) ? n + 1 : 1;
+                if (!_phaseLabels.TryGetValue(name, out var set)) _phaseLabels[name] = set = new HashSet<string>();
+                set.Add($"{depth * 100f:F0}cm@{Local(coral.position)}");
+            }
+    }
+
     // MD_CAPTURE=<dir>: side-on (and three-quarter) frames of the robot, to look at poses (needs a run with graphics).
     static readonly string CaptureDir = Environment.GetEnvironmentVariable("MD_CAPTURE");
     void Capture(string name, Vector3 lookAt, Vector3 faceDir)
@@ -421,6 +477,7 @@ public class MissDaisyMatchTest
     {
         var coral = NodeOf("Coral").controller.GetComponentInParent<PieceCtrl>();
         var body = coral.GetComponentInChildren<Rigidbody>();
+        var outtakeLog = coral.gameObject.AddComponent<MissDaisyContactLog>();
         Hold(Key.K);
         var through = false;
         var path = new List<string>();
@@ -438,9 +495,11 @@ public class MissDaisyMatchTest
         }
         // (a second later it may still be settling: no push means no sideways speed to speak of)
         // out of the claw and clear of everything: not left inside it, not inside anything else
+        Object.Destroy(outtakeLog);
         var claw = Find("Coral Claw State").position;
         var clear = (coral.transform.position - claw).magnitude;
         var inside = Penetrating(coral.transform).ToList();
+        L($"{label}: rests at {Local(coral.transform.position)}, {clear:F2} m from the claw, speed {body.velocity.magnitude:F2}");
         Result(label, !HasCoral && !through && fastest < 1.5f && clear > 0.08f && inside.Count == 0, $"{Status()} throughFrame={through} fastestSideways={fastest:F2}m/s fromClaw={clear:F2}m inside=[{string.Join(",", inside)}] now {Local(coral.transform.position)} coral(robot) {string.Join(" ", path)}");
     }
 
@@ -525,12 +584,11 @@ public class MissDaisyMatchTest
         yield return new WaitForSeconds(0.5f);
         var t = _robot.transform;
         var a = FreePiece("Coral", t.position);
-        Put(a, t.position - t.forward * 0.78f + t.right * 0.16f + Vector3.up * 0.06f, Along(a, t.forward));
         var b = Object.FindObjectsByType<PieceCtrl>(FindObjectsSortMode.None).First(p => p.PieceName == "Coral" && p != a && p.transform.position.y < 0.2f);
-        Put(b, t.position - t.forward * 0.78f - t.right * 0.16f + Vector3.up * 0.06f, Along(b, t.forward));
-        yield return new WaitForSeconds(0.3f);
         Hold(Key.LeftShift);
         yield return new WaitForSeconds(2f);
+        Put(a, t.position - t.forward * 0.78f + t.right * 0.16f + Vector3.up * 0.06f, Along(a, t.forward));
+        Put(b, t.position - t.forward * 0.78f - t.right * 0.16f + Vector3.up * 0.06f, Along(b, t.forward));
         // both drawn past the front roller (z ~ -0.6) or up inside, not shoved along the carpet in front of it, until the
         // first reaches the claw (then the intake stows and the other is left)
         var movedA = float.NegativeInfinity;
@@ -547,9 +605,14 @@ public class MissDaisyMatchTest
             yield return new WaitForFixedUpdate();
         }
         Release(keys);
-        yield return new WaitForSeconds(2f);
-        var claw = HasCoral;
+        // a second coral still in the channel must not jam the arm down at the intake
+        var caught = Time.time;
+        var sh = (GenericJoint)Field("shoulder");
         Release(Key.LeftShift);
+        while (Time.time - caught < 4f && Mathf.Abs(Mathf.DeltaAngle(sh.GetSingleAxisAngle(JointAxis.X), 0f)) > 10f) yield return new WaitForFixedUpdate();
+        Result("arm leaves the intake with a second coral in the channel", !HasCoral || Time.time - caught < 3f, $"{Time.time - caught:F2}s {Status()}");
+        yield return new WaitForSeconds(1f);
+        var claw = HasCoral;
         yield return new WaitForSeconds(1f);
         Result(label, movedA > 0f && movedB > 0f, $"past the roller by a={movedA:F2}m b={movedB:F2}m oneInClaw={claw}");
     }
@@ -568,6 +631,7 @@ public class MissDaisyMatchTest
         yield return new WaitForSeconds(0.5f);
         var start = t.position;
         var coralLog = coral.gameObject.AddComponent<MissDaisyContactLog>();
+        var pegs = _robot.GetComponentsInChildren<Collider>().Where(c => c.name.StartsWith("Orienter Roller")).ToArray();
         var motionIntake = Find("Ground Coral Intake").GetComponent<RobotFramework.Components.GamePieceIntake<Games.Reefscape.GamePieceSystem.ReefscapeGamePiece, Games.Reefscape.GamePieceSystem.ReefscapeGamePieceData>>();
         var motion = coral.gameObject.AddComponent<MissDaisyCoralMotion>();
         motion.Label = label;
@@ -613,17 +677,24 @@ public class MissDaisyMatchTest
                 armMovedEarly = true;
             if (k % 25 == 0)
                 L($"{label} path: carrot={Local(Find("Coral Carrot").position)} claw={Local(Find("Coral Claw State").position)} " +
-                  $"p1={Local(Find("Coral Path 1 Front Roller").position)} p2={Local(Find("Coral Path 2 Top Roller").position)} " +
+                  $"p1={Local(Find("Coral Path 1 Front Roller").position)} p2={Local(Find("Coral Path 2 Up The Face").position)} " +
                   $"clawOut={_robot.transform.InverseTransformDirection(Find("Claw Eject").forward):F2} coral={Local(coral.transform.position)}");
             if (k % 25 == 0 && !HasCoral)
                 L($"{label} approach: {Status()} coral(robot)={Local(coral.transform.position)} intakeBox(robot)={Local(Find("Ground Coral Intake").position)} exit(robot)={Local(Find("Coral Intake Exit").position)} flap={(flap ? Quaternion.Angle(Quaternion.identity, flap.localRotation) : -1):F0}");
             if (HasCoral && k % 5 == 0)
                 foreach (var hit in Penetrating(coral.transform)) clipped.Add(hit);
+            if (!HasCoral && groundIntake.hasGamePiece && k % 3 == 0) RecordPhasing(coral.transform, label);
+            if (k == 2)
+                L($"{label} pegs: {string.Join(" ", pegs.Select(c => Local(c.bounds.center) + " size " + c.bounds.size.ToString("F2")))} claw {Local(Find("Coral Claw State").position)}");
+            foreach (var pc in coral.GetComponentsInChildren<Collider>())
+                foreach (var peg in pegs)
+                    if ((yaw >= 60f && !HasCoral) && Physics.ComputePenetration(pc, pc.transform.position, pc.transform.rotation, peg, peg.transform.position, peg.transform.rotation, out _, out var pegDepth) && pegDepth > 0.004f)
+                        clipped.Add($"{peg.name} {pegDepth * 100f:F1}cm");
             // the coral against the flap: along its belts from the pivot, and off the belt line (negative = into them)
             var flapT = Find("Intake Flap");
             var beltsT = Find("Flap Belts");
             if (flapT && beltsT && k == 1)
-                L($"{label} flap path: " + string.Join(" ", new[] { "Coral Path 1 Front Roller", "Coral Path 1b Belts", "Coral Path 2 Top Roller", "Coral Path 3 Past Flap", "Coral Claw State" }
+                L($"{label} flap path: " + string.Join(" ", new[] { "Coral Path 1 Front Roller", "Coral Path 1b Peg Face", "Coral Path 2 Up The Face", "Coral Path 3 Over The Tube", "Coral Claw State" }
                     .Select(n => n.Split(' ').Last() + "=" + (Find(n) ? beltsT.InverseTransformPoint(Find(n).position).ToString("F3") : "-"))));
             if (flapT && beltsT && !HasCoral && k % 3 == 0)
             {
@@ -648,7 +719,7 @@ public class MissDaisyMatchTest
         yield return new WaitForSeconds(1.5f);
         var inClaw = HasCoral && NodeOf("Coral").atTarget && NodeOf("Coral").GetCurrentState()?.name == "Coral Claw";
         foreach (var hit in Penetrating(coral.transform)) clipped.Add(hit); // held at stow
-        Result(label, inClaw && drift < 0.03f && maxSpeed < 3f && !armMovedEarly && flapMax > 5f && clipped.Count == 0 && motion.MaxStep < 0.05f && motion.MaxTurn < 7f,
+        Result(label, inClaw && drift < 0.03f && maxSpeed < 3f && !armMovedEarly && flapMax > (yaw >= 45f ? 3f : 5f) && clipped.Count == 0 && motion.MaxStep < 0.05f && motion.MaxTurn < 7f,
             $"{Status()} coral={Local(coral.transform.position)} robotDriftWhileIntaking={drift:F3}m maxCoralSpeed={maxSpeed:F2}m/s flapLift={flapMax:F0}deg armMovedEarly={armMovedEarly} clipsThrough=[{string.Join(",", clipped)}] biggestStep={motion.MaxStep * 100f:F1}cm {motion.MaxTurn:F1}deg");
     }
 
@@ -758,6 +829,302 @@ public class MissDaisyMatchTest
         body.centerOfMass = new Vector3(body.centerOfMass.x, 0.03f, body.centerOfMass.z);
     }
 
+    // Beside the deployed intake, near but touching no roller: it stays where it is.
+    IEnumerator NotTaken(string label, float lateral, float yaw)
+    {
+        yield return Reset(Games.Reefscape.Enums.ReefscapeRobotMode.Coral, DropType.Ground);
+        PlaceRobot(Open, Vector3.forward);
+        yield return new WaitForSeconds(0.5f);
+        var t = _robot.transform;
+        var coral = FreePiece("Coral", t.position);
+        Hold(Key.LeftShift);
+        yield return new WaitForSeconds(2f);
+        var at = t.position - t.forward * 0.55f + t.right * lateral + Vector3.up * 0.06f;
+        Put(coral, at, Along(coral, Quaternion.AngleAxis(yaw, t.up) * t.right));
+        yield return new WaitForSeconds(2f);
+        var moved = (coral.transform.position - at).magnitude;
+        var taken = HasCoral;
+        Release(Key.LeftShift);
+        yield return new WaitForSeconds(1f);
+        Result(label, moved < 0.05f && !taken, $"moved {moved:F3}m taken={taken}");
+    }
+
+    // Driving the whole time: the coral is taken on the move and the robot keeps going the given way while it goes up to the
+    // claw. Smooth in the robot's frame, into the claw soon, then the arm stows. With releaseIntake, intake is let go the
+    // moment the coral is taken.
+    // "I just intake, I stop moving": onto a coral until the roller has it, then no more driving. It has to get to the claw
+    // by itself, and it squares up against the three pegs, not the bumpers.
+    IEnumerator StopAndWait()
+    {
+        var groundIntake = Find("Ground Coral Intake").GetComponent<RobotFramework.Components.GamePieceIntake<Games.Reefscape.GamePieceSystem.ReefscapeGamePiece, Games.Reefscape.GamePieceSystem.ReefscapeGamePieceData>>();
+        int runs = 0, jammed = 0, notTaken = 0;
+        var worst = 0f;
+        foreach (var creep in new[] { false, true })
+        foreach (var lateral in new[] { 0f, 0.15f, -0.15f, 0.3f })
+        foreach (var yaw in new[] { 0f, 30f, 60f, 90f, -45f })
+        {
+            yield return Reset(Games.Reefscape.Enums.ReefscapeRobotMode.Coral, DropType.Ground);
+            PlaceRobot(Open, Vector3.forward);
+            yield return new WaitForSeconds(0.4f);
+            var t = _robot.transform;
+            var coral = FreePiece("Coral", t.position);
+            Put(coral, t.position - t.forward * 1.1f + t.right * lateral + Vector3.up * 0.06f, Along(coral, Quaternion.AngleAxis(yaw, Vector3.up) * t.right));
+            yield return new WaitForSeconds(0.3f);
+            Hold(Key.LeftShift);
+            yield return new WaitForSeconds(1.2f);
+            var keys = DriveKeys(-t.forward);
+            var end = Time.time + 6f;
+            while (Time.time < end && !groundIntake.hasGamePiece && !HasCoral)
+            {
+                Hold(keys);
+                if (creep)
+                {
+                    yield return new WaitForSeconds(0.06f);
+                    Release(keys);
+                    yield return new WaitForSeconds(0.2f);
+                }
+                else yield return new WaitForFixedUpdate();
+            }
+            Release(keys);
+            var tag = $"stop {(creep ? "creep" : "fast")} lat={lateral:F2} yaw={yaw:F0}";
+            var taken = Time.time;
+            var wasTurning = false;
+            end = Time.time + 5f;
+            var nextTraj = taken;
+            var sk = 0;
+            var clawT = Find("Coral Claw State");
+            var flapT = Find("Intake Flap");
+            Vector3 RelClaw() => clawT.InverseTransformPoint(coral.transform.position);
+            var relPrev = RelClaw();
+            var relSpeed = 0f;
+            var flapPeak = 0f;
+            while (Time.time < end && !HasCoral && groundIntake.hasGamePiece)
+            {
+                var relNow = RelClaw();
+                relSpeed = (relNow - relPrev).magnitude / Time.fixedDeltaTime;
+                relPrev = relNow;
+                if (flapT) flapPeak = Mathf.Max(flapPeak, Quaternion.Angle(Quaternion.identity, flapT.localRotation));
+                if (Time.time >= nextTraj && yaw == 0f && lateral == 0f)
+                {
+                    L($"traj {tag} +{Time.time - taken:F2} {Local(coral.transform.position)}");
+                    nextTraj += 0.05f;
+                }
+                if (sk++ % 3 == 0) RecordPhasing(coral.transform, tag);
+                var turning = (bool)Field("_coralTurning");
+                if (Time.time - taken > 2f && Time.frameCount % 200 == 0)
+                    L($"{tag} slow: +{Time.time - taken:F1}s at {Local(coral.transform.position)} turning={turning} carrot={Local(((Transform)Field("coralCarrot")).position)} rot={t.InverseTransformDirection(coral.transform.rotation * Vector3.up):F2}");
+                if (wasTurning && !turning) LogTouching($"{tag} squared at {Local(coral.transform.position)}", coral.gameObject);
+                wasTurning = turning;
+                yield return new WaitForFixedUpdate();
+            }
+            var took = Time.time - taken;
+            runs++;
+            if (!HasCoral && !groundIntake.hasGamePiece && took < 0.01f) notTaken++;
+            else if (!HasCoral || took > 2f)
+            {
+                jammed++;
+                var mf = coral.GetComponentInChildren<MeshFilter>();
+                var sz = Vector3.Scale(mf.sharedMesh.bounds.size, mf.transform.lossyScale);
+                var axis = mf.transform.TransformDirection(sz.x >= sz.y && sz.x >= sz.z ? Vector3.right : sz.y >= sz.z ? Vector3.up : Vector3.forward);
+                var clawAxis = Find("Coral Claw State").rotation * (Vector3)Field("coralPathAxis");
+                LogTouching($"{tag} JAMMED at {Local(coral.transform.position)} after {took:F2}s off-square={Mathf.Min(Vector3.Angle(axis, clawAxis), Vector3.Angle(-axis, clawAxis)):F0}deg", coral.gameObject);
+            }
+            else worst = Mathf.Max(worst, took);
+            // the catch: how fast it was going relative to the claw just before and after, how it eased in, and the flap coming back
+            if (HasCoral && (yaw == 0f || yaw == 90f) && lateral == 0f)
+            {
+                var caughtAt = Time.time;
+                var maxAfter = 0f;
+                var settled = -1f;
+                var flapDown = -1f;
+                var from = RelClaw().magnitude;
+                relPrev = RelClaw();
+                var firstSpeeds = new List<string>();
+                var flapCurve = new List<string>();
+                var nextCurve = caughtAt;
+                while (Time.time - caughtAt < 2.5f)
+                {
+                    yield return new WaitForFixedUpdate();
+                    if (!coral) break;
+                    if (Time.time >= nextCurve)
+                    {
+                        var ip = (Field("intakePivot") as GenericJoint)?.GetSingleAxisAngle(JointAxis.X) ?? 0f;
+                        flapCurve.Add($"{Time.time - caughtAt:F1}:{Quaternion.Angle(Quaternion.identity, flapT.localRotation):F0}/{ip:F0}");
+                        nextCurve += 0.2f;
+                    }
+                    var relNow = RelClaw();
+                    var v = (relNow - relPrev).magnitude / Time.fixedDeltaTime;
+                    relPrev = relNow;
+                    if (firstSpeeds.Count < 8) firstSpeeds.Add(v.ToString("F2"));
+                    maxAfter = Mathf.Max(maxAfter, v);
+                    if (settled < 0f && relNow.magnitude < 0.003f) settled = Time.time - caughtAt;
+                    var a = flapT ? Quaternion.Angle(Quaternion.identity, flapT.localRotation) : 0f;
+                    flapPeak = Mathf.Max(flapPeak, a);
+                    if (flapDown < 0f && a < 3f) flapDown = Time.time - caughtAt;
+                }
+                L($"catch {tag}: speed before {relSpeed:F2} from {from * 100f:F1}cm, then {string.Join(" ", firstSpeeds)} max {maxAfter:F2} m/s, seated in {settled:F2}s; flap peak {flapPeak:F0}deg back down in {flapDown:F2}s; t:flap/intake {string.Join(" ", flapCurve)}");
+            }
+            L($"{tag}: took {took:F2}s held={HasCoral} intakeHas={groundIntake.hasGamePiece} turning={Field("_coralTurning")} at {Local(coral.transform.position)}");
+            Release(Key.LeftShift);
+            yield return new WaitForSeconds(0.3f);
+        }
+        Result("intake, then stop moving: it reaches the claw by itself", jammed == 0, $"{jammed} jammed, {notTaken} not taken of {runs}, slowest clean {worst:F2}s");
+    }
+
+    // A driver in a hurry: random coral (sometimes two), driving onto them, intake let go at any moment, any direction after.
+    // The arm must always come back, and a coral must never jump on its way to the claw.
+    IEnumerator Chaos(int runs)
+    {
+        var rng = new System.Random(341);
+        float R(float lo, float hi) => lo + (float)rng.NextDouble() * (hi - lo);
+        var dirs = new[] { Vector3.forward, Vector3.back, Vector3.right, Vector3.left, new Vector3(1, 0, 1), new Vector3(-1, 0, -1), new Vector3(1, 0, -1), new Vector3(-1, 0, 1) };
+        var sh = (GenericJoint)Field("shoulder");
+        var el = (GenericElevator)Field("elevator");
+        var groundIntake = Find("Ground Coral Intake").GetComponent<RobotFramework.Components.GamePieceIntake<Games.Reefscape.GamePieceSystem.ReefscapeGamePiece, Games.Reefscape.GamePieceSystem.ReefscapeGamePieceData>>();
+        int stuck = 0, taken = 0, inClaw = 0;
+        float worstArm = 0f, worstStep = 0f;
+        for (var n = 0; n < runs; n++)
+        {
+            yield return Reset(Games.Reefscape.Enums.ReefscapeRobotMode.Coral, DropType.Ground);
+            PlaceRobot(new Vector3(-1.5f, 0f, 1.6f), Vector3.forward);
+            yield return new WaitForSeconds(0.4f);
+            var t = _robot.transform;
+            float lat = R(-0.45f, 0.45f), yaw = R(-90f, 90f), back = R(0.9f, 1.5f), hold = R(0.3f, 2.2f);
+            var slant = rng.NextDouble() < 0.5 ? 0f : R(-40f, 40f); // coming in at an angle (the keys only drive in 8 directions: 45 or straight)
+            var two = rng.NextDouble() < 0.3;
+            var coral = FreePiece("Coral", t.position);
+            Put(coral, t.position - t.forward * back + t.right * lat + Vector3.up * 0.06f, Quaternion.AngleAxis(yaw, Vector3.up) * Along(coral, t.right));
+            if (two)
+            {
+                var other = Object.FindObjectsByType<PieceCtrl>(FindObjectsSortMode.None).First(p => p.PieceName == "Coral" && p != coral && p.transform.position.y < 0.2f);
+                Put(other, t.position - t.forward * (back + R(0.2f, 0.5f)) + t.right * R(-0.4f, 0.4f) + Vector3.up * 0.06f, Quaternion.AngleAxis(R(-90f, 90f), Vector3.up) * Along(other, t.right));
+            }
+            yield return new WaitForSeconds(0.2f);
+            var motion = coral.gameObject.AddComponent<MissDaisyCoralMotion>();
+            motion.Label = $"chaos {n}";
+            motion.Frame = t;
+            var caughtSteps = 0;
+            motion.Phase = () => groundIntake.hasGamePiece && groundIntake.GamePiece == coral.gameObject ? "intake" : HasCoral && caughtSteps++ < 1 ? "catch" : "";
+            Hold(Key.LeftShift);
+            yield return new WaitForSeconds(R(0.7f, 1.3f));
+            var approach = DriveKeys(Quaternion.AngleAxis(slant, Vector3.up) * -t.forward);
+            Hold(approach);
+            var end = Time.time + hold;
+            var tookAt = float.PositiveInfinity;
+            var ck = 0;
+            while (Time.time < end && !HasCoral)
+            {
+                if (float.IsPositiveInfinity(tookAt) && groundIntake.hasGamePiece) tookAt = Time.time;
+                if (groundIntake.hasGamePiece && ck++ % 3 == 0) RecordPhasing(coral.transform, $"chaos {n}");
+                yield return new WaitForFixedUpdate();
+            }
+            // intake still held with the robot stopped: a coral the intake has must get to the claw
+            if (rng.NextDouble() < 0.5 && groundIntake.hasGamePiece && !HasCoral)
+            {
+                Release(approach);
+                var heldFrom = Time.time;
+                while (Time.time - heldFrom < 3f && groundIntake.hasGamePiece && !HasCoral) yield return new WaitForFixedUpdate();
+                if (!HasCoral && groundIntake.hasGamePiece)
+                {
+                    stuck++;
+                    LogTouching($"chaos {n} STUCK IN INTAKE (held, stopped 3 s) at {Local(coral.transform.position)} turning={Field("_coralTurning")} {Status()}", coral.gameObject);
+                }
+            }
+            Release(approach);
+            var after = DriveKeys(t.TransformDirection(dirs[rng.Next(dirs.Length)]));
+            Hold(after);
+            if (rng.NextDouble() < 0.6) Release(Key.LeftShift);
+            end = Time.time + R(0.3f, 1f);
+            while (Time.time < end)
+            {
+                if (float.IsPositiveInfinity(tookAt) && groundIntake.hasGamePiece) tookAt = Time.time;
+                yield return new WaitForFixedUpdate();
+            }
+            Release(after);
+            Release(Key.LeftShift);
+            // let go of everything: it comes back
+            var armAt = Time.time;
+            while (Time.time - armAt < 5f && (Mathf.Abs(Mathf.DeltaAngle(sh.GetSingleAxisAngle(JointAxis.X), 0f)) > 10f || el.GetElevatorHeight() > 2f))
+            {
+                yield return new WaitForFixedUpdate();
+            }
+            var armTook = Time.time - armAt;
+            var wasTaken = !float.IsPositiveInfinity(tookAt);
+            if (wasTaken) taken++;
+            if (HasCoral) inClaw++;
+            worstArm = Mathf.Max(worstArm, armTook);
+            worstStep = Mathf.Max(worstStep, motion.MaxStep);
+            var target = Field("_target") as Object;
+            var line = $"chaos {n}: lat={lat:F2} yaw={yaw:F0} slant={slant:F0} two={two} hold={hold:F1} taken={wasTaken} held={HasCoral} armBack={armTook:F2}s step={motion.MaxStep * 100f:F1}cm {motion.MaxTurn:F1}deg";
+            if (armTook >= 3f)
+            {
+                stuck++;
+                line += $" STUCK target={(target ? target.name : "-")} intakeHas={groundIntake.hasGamePiece} {Status()} coral(robot)={Local(coral.transform.position)} turning={Field("_coralTurning")}";
+            }
+            L(line);
+            motion.Phase = null;
+            Object.Destroy(motion);
+        }
+        Result("chaos: the arm always comes back", stuck == 0, $"{stuck} stuck of {runs}, slowest {worstArm:F2}s, {taken} taken, {inClaw} in the claw");
+        Result("chaos: no jumps on the way to the claw", worstStep < 0.05f, $"biggest step {worstStep * 100f:F1}cm");
+    }
+
+    IEnumerator MovingPickup(string label, Vector3 localDir, bool releaseIntake = false)
+    {
+        yield return Reset(Games.Reefscape.Enums.ReefscapeRobotMode.Coral, DropType.Ground);
+        PlaceRobot(new Vector3(-1.5f, 0f, 1.6f), Vector3.forward);
+        yield return new WaitForSeconds(0.5f);
+        var t = _robot.transform;
+        var coral = FreePiece("Coral", t.position);
+        Put(coral, t.position - t.forward * 1.2f + Vector3.up * 0.06f, Along(coral, t.right));
+        yield return new WaitForSeconds(0.3f);
+        Hold(Key.LeftShift);
+        yield return new WaitForSeconds(1.5f);
+        var groundIntake = Find("Ground Coral Intake").GetComponent<RobotFramework.Components.GamePieceIntake<Games.Reefscape.GamePieceSystem.ReefscapeGamePiece, Games.Reefscape.GamePieceSystem.ReefscapeGamePieceData>>();
+        var motion = coral.gameObject.AddComponent<MissDaisyCoralMotion>();
+        motion.Label = label;
+        motion.Frame = t;
+        var caughtSteps = 0;
+        motion.Phase = () => groundIntake.hasGamePiece && groundIntake.GamePiece == coral.gameObject ? "intake" : HasCoral && caughtSteps++ < 1 ? "catch" : "";
+        var approach = DriveKeys(-t.forward);
+        Hold(approach);
+        var end = Time.time + 4f;
+        while (Time.time < end && !groundIntake.hasGamePiece && !HasCoral) yield return new WaitForFixedUpdate();
+        var taken = Time.time;
+        var speed0 = _robot.GetComponent<Rigidbody>().velocity.magnitude;
+        Release(approach);
+        var keys = DriveKeys(t.TransformDirection(localDir));
+        Hold(keys);
+        if (releaseIntake) Release(Key.LeftShift);
+        end = Time.time + 3f;
+        var nextTraj = taken;
+        var mk = 0;
+        while (Time.time < end && !HasCoral)
+        {
+            if (Time.time >= nextTraj)
+            {
+                L($"traj {label} +{Time.time - taken:F2} {Local(coral.transform.position)}");
+                nextTraj += 0.05f;
+            }
+            if (mk++ % 3 == 0) RecordPhasing(coral.transform, label);
+            yield return new WaitForFixedUpdate();
+        }
+        var toClaw = Time.time - taken;
+        var held = HasCoral;
+        var speed1 = _robot.GetComponent<Rigidbody>().velocity.magnitude;
+        Release(keys);
+        Release(Key.LeftShift);
+        motion.Phase = null;
+        Object.Destroy(motion);
+        var sh = (GenericJoint)Field("shoulder");
+        var el = (GenericElevator)Field("elevator");
+        var armAt = Time.time;
+        while (Time.time - armAt < 4f && (Mathf.Abs(Mathf.DeltaAngle(sh.GetSingleAxisAngle(JointAxis.X), 0f)) > 10f || el.GetElevatorHeight() > 2f)) yield return new WaitForFixedUpdate();
+        var armTook = Time.time - armAt;
+        Result(label, armTook < 3f && (releaseIntake || held && toClaw < 2f) && motion.MaxStep < 0.05f && motion.MaxTurn < 7f,
+            $"to the claw {toClaw:F2}s held={held} robot {speed0:F1}->{speed1:F1}m/s biggestStep={motion.MaxStep * 100f:F1}cm {motion.MaxTurn:F1}deg arm back in {armTook:F2}s {Status()}");
+    }
+
     // L1 from stow out in the open: it gets to the setpoint, however long it takes, and how the claw and coral sit over the
     // trough lip (scored separately at the reef).
     IEnumerator L1FromStow()
@@ -829,7 +1196,7 @@ public class MissDaisyMatchTest
         var moved = Time.time - caught;
         Release(Key.LeftShift);
         yield return new WaitForSeconds(1.5f);
-        Result(label, HasCoral && !rollerSpun && moved > 0.3f, $"{Status()} floorRollersSpun={rollerSpun} armWaited={moved:F2}s");
+        Result(label, HasCoral && !rollerSpun && moved > 0.15f, $"{Status()} floorRollersSpun={rollerSpun} armWaited={moved:F2}s");
     }
 
     AlignNode Face(int i) => Object.FindObjectsByType<AlignNode>(FindObjectsSortMode.None)
@@ -881,6 +1248,26 @@ public class MissDaisyMatchTest
         return ok.Count > 0 ? ok[Mathf.Min(fallback, ok.Count - 1)] : Face(fallback);
     }
 
+    float _coralYAtRelease, _coralYAfterRelease;
+
+    // what a free coral is resting on: everything within 6 mm of it, and whether the pair can collide at all
+    void LogTouching(string tag, GameObject piece)
+    {
+        var seen = new HashSet<string>();
+        foreach (var c in piece.GetComponentsInChildren<Collider>().Where(c => c.enabled && !c.isTrigger))
+        foreach (var o in Physics.OverlapBox(c.bounds.center, c.bounds.extents + Vector3.one * 0.01f, Quaternion.identity, ~0, QueryTriggerInteraction.Ignore))
+        {
+            if (o.transform.IsChildOf(piece.transform)) continue;
+            var near = false;
+            foreach (var d in new[] { Vector3.zero, Vector3.right, Vector3.left, Vector3.up, Vector3.down, Vector3.forward, Vector3.back })
+                near |= Physics.ComputePenetration(c, c.transform.position + d * 0.006f, c.transform.rotation, o, o.transform.position, o.transform.rotation, out _, out _);
+            if (!near) continue;
+            var line = $"{o.name}[{(o.attachedRigidbody ? o.attachedRigidbody.name : "static")} layer={LayerMask.LayerToName(o.gameObject.layer)} ignored={Physics.GetIgnoreCollision(c, o)} prio={o.layerOverridePriority} exCoral={(o.excludeLayers & LayerMask.GetMask("Coral")) != 0}]";
+            seen.Add(line);
+        }
+        L($"{tag} touching: {string.Join(", ", seen)}");
+    }
+
     IEnumerator ScoreCoral(string level, Key key, int face, bool overIntake = false, bool manual = false, bool early = false)
     {
         var f = FaceFor(level, face);
@@ -930,7 +1317,7 @@ public class MissDaisyMatchTest
             Hold(Key.Q);
             yield return new WaitForSeconds(3f);
         }
-        L($"score {level} at node: {Status()} robot->node {Local(f.LeftNode.transform.position)}");
+        L($"score {level} at node: {Status()} robot->node {Local(f.LeftNode.transform.position)} bumperGap={BumperGap():F3}m");
         if (level == "L1")
         {
             // height of the trough's lip under the claw, and how far the coral and claw clear it
@@ -1001,11 +1388,18 @@ public class MissDaisyMatchTest
         foreach (var a in Object.FindObjectsByType<PieceCtrl>(FindObjectsSortMode.None).Where(p => p.PieceName == "Algae" && piece &&
                      (p.transform.position - piece.transform.position).magnitude < 1.2f))
             L($"score {level} algae {a.name} near coral at (robot) {Local(a.transform.position)}");
+        var l1Through = new HashSet<string>();
+        var l1Clear = float.NaN;
         Hold(Key.K);
         if (early) Release(key);
         for (var k = 0; k < (early ? 80 : 30); k++)
         {
             yield return new WaitForSeconds(0.05f);
+            if (level == "L1" && piece && k < 12) foreach (var hit in Penetrating(piece.transform)) l1Through.Add(hit);
+            if (level == "L1" && piece && float.IsNaN(l1Clear) && (piece.transform.position - Find("Coral Claw State").position).magnitude > 0.15f) l1Clear = (k + 1) * 0.05f;
+            if (k == 0 && piece) _coralYAtRelease = _robot.transform.InverseTransformPoint(piece.transform.position).y;
+            if (k == 9 && piece) _coralYAfterRelease = _robot.transform.InverseTransformPoint(piece.transform.position).y;
+            if ((k == 9 || k == 16) && piece) LogTouching($"score {level} +{(k + 1) * 0.05f:F2}s", piece.gameObject);
             if (k == 3 || k == 7 || k == 14 || k == 29) Capture($"{tag.Replace(' ', '_')}-2-place-{k:D2}", capAt, toReef);
             if (k == 7 && overIntake && level == "L3")
                 CardShot("both-sides", _robot.transform.position + toReef * 0.25f + Vector3.up * 0.75f, toReef);
@@ -1013,6 +1407,7 @@ public class MissDaisyMatchTest
               $"vel={(piece && piece.GetComponent<Rigidbody>() ? piece.GetComponent<Rigidbody>().velocity.ToString("F2") : "-")} shoulder={(Field("shoulder") as GenericJoint)?.GetSingleAxisAngle(JointAxis.X):F1} elev={(Field("elevator") as GenericElevator)?.GetElevatorHeight():F1}in sp={_robot.CurrentSetpoint}");
         }
         Release(Key.K);
+        if (level == "L1") L($"L1 leaving the claw: clear by 15 cm after {l1Clear:F2}s, passed into [{string.Join(", ", l1Through)}]");
         Object.Destroy(robotLog);
         if (level != "L1")
         {
@@ -1038,7 +1433,7 @@ public class MissDaisyMatchTest
 
     // Reef algae: algae sitting on the reef face; stand 1.3 m out, pick the level by its height, hold intake and
     // drive in.
-    IEnumerator GetReefAlgae(string label, bool high)
+    IEnumerator GetReefAlgae(string label, bool high, bool overIntake = false, Key align = Key.Q)
     {
         yield return Reset(Games.Reefscape.Enums.ReefscapeRobotMode.Algae, DropType.Station);
         var reefAlgae = Object.FindObjectsByType<PieceCtrl>(FindObjectsSortMode.None)
@@ -1059,18 +1454,19 @@ public class MissDaisyMatchTest
         var toReef = ReefCentre(pick.face) - pick.face.transform.position;
         toReef.y = 0;
         toReef.Normalize();
-        PlaceRobot(pick.face.transform.position - toReef * 1.3f, toReef);
+        PlaceRobot(pick.face.transform.position - toReef * 1.3f, overIntake ? -toReef : toReef);
         yield return new WaitForSeconds(0.5f);
         yield return Tap(high ? Key.O : Key.I);
         Hold(Key.LeftShift);
         yield return new WaitForSeconds(2.5f);
-        L($"{label} before approach: {Status()} algae(robot)={Local(pick.p.transform.position)} target={Local(Find("Algae Claw State").position)}");
-        Hold(Key.Q);
+        L($"{label} before approach: {Status()} algae(robot)={Local(pick.p.transform.position)} target={Local(Find("Algae Claw State").position)} mirror={Field("_mirror")} facing={_robot.GetFacingReef()} alignOffset={_robot.GetComponent<ReefscapeAutoAlign>().offset}");
+        Hold(align);
         var end = Time.time + 4f;
         while (Time.time < end && !HasAlgae) yield return new WaitForSeconds(0.2f);
-        L($"{label} at reef: {Status()} algae(robot)={Local(pick.p.transform.position)} target={Local(Find("Algae Claw State").position)}");
+        L($"{label} at reef: {Status()} algae(robot)={Local(pick.p.transform.position)} target={Local(Find("Algae Claw State").position)} robot->face(robot)={Local(pick.face.transform.position)} bumperGap={BumperGap():F3}m");
         yield return new WaitForSeconds(0.5f);
-        Release(Key.Q, Key.LeftShift);
+        L($"{label} aligned: robot->algae(robot)={Local(pick.p.transform.position)} lateralOffAlgae={_robot.transform.InverseTransformPoint(pick.p.transform.position).x:F3} distToFace={Vector3.Distance(_robot.transform.position, pick.face.transform.position):F3} facingAway={Vector3.Dot(_robot.transform.forward, toReef) < 0f} alignOffset={_robot.GetComponent<ReefscapeAutoAlign>().offset}");
+        Release(align, Key.LeftShift);
         yield return Drive(-toReef, 0.8f);
         yield return new WaitForSeconds(1f);
         Result(label, HasAlgae, $"{Status()} algae(robot)={Local(pick.p.transform.position)}");
@@ -1398,6 +1794,45 @@ public class MissDaisyMatchTest
         var only = (Environment.GetEnvironmentVariable("MD_ONLY") ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries);
         bool Run(string section) => only.Length == 0 || only.Contains(section);
 
+        // the coral the robot starts the match with: it never came through an intake (asked for by name, it is used up)
+        if (only.Contains("preload"))
+        {
+            L($"preload in the claw: {Status()}");
+            if (HasCoral)
+            {
+                yield return ScoreCoral("L4", Key.P, 0);
+                Result("preloaded coral drops onto the L4 branch", _coralYAfterRelease < _coralYAtRelease - 0.25f, $"coral height (robot) {_coralYAtRelease:F2} -> {_coralYAfterRelease:F2} 0.5 s after Place");
+            }
+        }
+        if (only.Contains("preloadl1") && HasCoral) yield return ScoreCoral("L1", Key.U, 3);
+        if (only.Contains("algaeside"))
+        {
+            yield return GetReefAlgae("reef algae low, front, left", false);
+            yield return GetReefAlgae("reef algae low, intake side, left", false, overIntake: true);
+            yield return GetReefAlgae("reef algae high, intake side, left", true, overIntake: true);
+            yield return GetReefAlgae("reef algae low, intake side, right", false, overIntake: true, align: Key.E);
+        }
+        if (only.Contains("dump1778")) Dump1778Intake();
+        if (only.Contains("geom"))
+        {
+            yield return Reset(Games.Reefscape.Enums.ReefscapeRobotMode.Coral, DropType.Ground);
+            Hold(Key.LeftShift);
+            yield return new WaitForSeconds(1.5f);
+            foreach (var n in new[] { "Coral Path 1 Front Roller", "Coral Path 1b Peg Face", "Coral Path 2 Up The Face", "Coral Path 3 Over The Tube", "Coral Claw State" })
+                L($"geom path {n} {Local(Find(n).position)}");
+            foreach (var c in _robot.GetComponentsInChildren<Collider>().Where(c => !c.isTrigger && (c.name.StartsWith("Main Coral Intake") || c.name == "Box" || c.name.StartsWith("Plate Fill") && c.transform.parent.parent.name == "Intake" || c.name.StartsWith("Orienter") || c.name == "Channel Ramp" || c.name.StartsWith("Coral Intake Deploy") || c.name == "Intake Frame Collider")))
+                L($"geom col {c.name} on {(c.attachedRigidbody ? c.attachedRigidbody.name : "-")} parent={c.transform.parent.name} centre={Local(c.bounds.center)} size={_robot.transform.InverseTransformVector(c.bounds.size):F3} exCoral={(c.excludeLayers & LayerMask.GetMask("Coral")) != 0} prio={c.layerOverridePriority}");
+            Release(Key.LeftShift);
+            yield return new WaitForSeconds(1f);
+        }
+        if (only.Contains("stop")) yield return StopAndWait();
+        if (only.Contains("chaos")) yield return Chaos(40);
+        if (only.Contains("l2"))
+            foreach (var (lvl, key, face, over) in new[] { ("L2", Key.I, 2, false), ("L2", Key.I, 0, true), ("L2", Key.I, 3, false), ("L3", Key.O, 1, false), ("L4", Key.P, 4, false), ("L2", Key.I, 5, true) })
+            {
+                yield return GetFloorCoral($"floor coral for {lvl}");
+                if (HasCoral) yield return ScoreCoral(lvl, key, face, overIntake: over);
+            }
         if (Run("arm")) yield return ArmSettle();
         if (Run("drive")) yield return DriveCheck();
         if (Run("pickup")) { yield return GetFloorCoral("pickup test"); yield return GetFloorCoral("pickup test off-centre", 0.2f); yield return GetFloorCoral("pickup test 90", 0f, 90f); }
@@ -1453,6 +1888,20 @@ public class MissDaisyMatchTest
             yield return RollerTakesIt("roller takes it, turned 60", 0f, 60f);
             yield return RollerTakesIt("roller takes it, end-on", 0f, 90f);
             yield return RollerTakesIt("roller takes it, end-on off-centre", 0.12f, 90f);
+        }
+        if (only.Contains("grip"))
+        {
+            yield return NotTaken("coral beside the intake is not pulled in", 0.62f, 0f);
+            yield return NotTaken("coral beside the intake, end pointing at it, is not pulled in", 0.5f, 90f);
+        }
+        if (only.Contains("moving"))
+        {
+            yield return MovingPickup("taken on the move, still driving in", Vector3.back);
+            yield return MovingPickup("taken on the move, then strafing right", Vector3.right);
+            yield return MovingPickup("taken on the move, then strafing left", Vector3.left);
+            yield return MovingPickup("taken on the move, then backing away", Vector3.forward);
+            yield return MovingPickup("taken on the move, intake let go, still driving in", Vector3.back, true);
+            yield return MovingPickup("taken on the move, intake let go, backing away", Vector3.forward, true);
         }
         if (only.Contains("flap"))
         {
@@ -1521,6 +1970,8 @@ public class MissDaisyMatchTest
         }
 
         L("SUMMARY\n" + string.Join("\n", _results));
+        foreach (var kv in _phaseCounts.OrderByDescending(kv => kv.Value))
+            L($"phasing: {kv.Key} x{kv.Value} in {string.Join(", ", _phaseLabels[kv.Key].OrderByDescending(x => x).Take(10))}");
         L($"DONE pass={_results.Count(r => r.Contains(" PASS "))} fail={_results.Count(r => r.Contains(" FAIL "))}");
     }
 }

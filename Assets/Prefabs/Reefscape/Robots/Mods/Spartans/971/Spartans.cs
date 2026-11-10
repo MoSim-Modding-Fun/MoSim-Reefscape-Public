@@ -132,11 +132,14 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
         private const float PlaceSettledSpeed = 0.08f;    // m/s
         private float _placeAskedAt = -1;
         // Algae align offsets in inches, larger is closer to the reef: where it lines up first, and how far in it may creep.
-        private const float AlgaeAlignStageZ = 3f, AlgaeAlignLimitZ = 9f;
+        private const float AlgaeAlignStageZ = 0f, AlgaeAlignLimitZ = 9f;
         private const float AlgaeCreepSpeed = 0.2f;      // m/s
         private const float AlgaeStageTolerance = 0.015f; // m
         private const float ClawWheelRadius = 0.054f;    // m
         private const float AlgaeContactMargin = 0.01f;  // m
+        private const float ArmOverFloorAngle = 90f;     // deg: above this the claw can't reach the carpet
+        private const float ClawReach = 0.75f;           // m, arm pivot to the claw's end
+        private const float FloorMargin = 0.03f;         // m
         // Deg out from the real robot's stow: on this model a hub on the intake otherwise ends up inside the elevator's base tube.
         private const float IntakeStowClearance = 9f;
         private float _algaeAlignZ = AlgaeAlignStageZ, _faceAlignError = float.PositiveInfinity;
@@ -331,7 +334,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             if (_isRetractingFromGround)
             {
                 GoFromGround();
-                if (SuperstructureNear(stow, GroundPathTolerance))
+                if (SuperstructureNear(stow, GroundPathTolerance) && ArmHeadingToTarget)
                 {
                     _isRetractingFromGround = false;
                     SetSetpoint(_pendingSetpoint);
@@ -449,12 +452,37 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             return (float)(met * 39.3700787402);
         }
 
+        // Elevator height (m) that keeps the claw as high off the carpet as the ground pose does, for an arm this far over the
+        // intake's side. Measured from the ground pose so that pose always passes.
+        private float ElevatorNeededForArm(float armAngle)
+        {
+            if (armAngle >= -ArmOverFloorAngle) return 0;
+            var ground = groundIntake3;
+            return ground.elevatorHeight - FloorMargin + ClawReach * (Mathf.Cos(ground.armAngle * Mathf.Deg2Rad) - Mathf.Cos(armAngle * Mathf.Deg2Rad));
+        }
+
+        // The other way round: how far over (deg) the arm may go at this elevator height.
+        private float ArmReachAtElevator(float elevatorHeight)
+        {
+            var ground = groundIntake3;
+            var cos = Mathf.Cos(ground.armAngle * Mathf.Deg2Rad) + (ground.elevatorHeight - FloorMargin - elevatorHeight) / ClawReach;
+            return Mathf.Max(ArmOverFloorAngle, Mathf.Acos(Mathf.Clamp(cos, -1, 1)) * Mathf.Rad2Deg);
+        }
+
         private void UpdateSetpoints()
         {
             var dt = Time.fixedDeltaTime;
-            _elevatorCmd = Profile(_elevatorCmd, ref _elevatorVel, _elevatorTargetHeight, ElevatorProfile, dt);
+            // The claw only clears the carpet at the ground pose because the elevator is up. Mashing intake can ask for the
+            // arm low with the elevator low: neither may move so as to drive the claw into the floor and lever the robot up.
+            var elevatorTarget = Mathf.Max(_elevatorTargetHeight, ElevatorNeededForArm(_armCmd));
+            var armTarget = Mathf.Max(_armTargetAngle, -ArmReachAtElevator(elevator.GetElevatorHeight() * 0.0254f));
+            _elevatorCmd = Profile(_elevatorCmd, ref _elevatorVel, elevatorTarget, ElevatorProfile, dt);
             var toGround = CurrentSetpointIs(groundIntake2) || CurrentSetpointIs(groundIntake3);
-            _armCmd = Profile(_armCmd, ref _armVel, _armTargetAngle, toGround ? GroundArmProfile : ArmProfile, dt);
+            // Let go of intake mid-swing and the arm is going at ground speed with a new target behind it: on the normal
+            // profile's braking it would run on into the hard stop and lever the robot off the floor.
+            var armBraking = _armVel * (armTarget - _armCmd) < 0 || Mathf.Abs(_armVel) > ArmProfile.vel;
+            var armProfile = toGround ? GroundArmProfile : armBraking ? (ArmProfile.vel, GroundArmProfile.accel) : ArmProfile;
+            _armCmd = Profile(_armCmd, ref _armVel, armTarget, armProfile, dt);
             _wristCmd = Profile(_wristCmd, ref _wristVel, _wristTargetAngle, WristProfile, dt);
             // The real code's check is one-sided (pivot > 100 deg, the side the intake is on); this robot's arm angles
             // are the real ones negated. It looks at where the arm is going as well as where it is, so the intake is out
@@ -538,11 +566,15 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             {
                 SetSetpoint(groundIntake1);
             }
-            else if (CurrentSetpointIs(groundIntake1) && SuperstructureNear(groundIntake1, GroundPathTolerance))
+            else if (CurrentSetpointIs(groundIntake1) && SuperstructureNear(groundIntake1, GroundPathTolerance) && ArmHeadingToTarget)
             {
                 SetSetpoint(stow);
             }
         }
+
+        // False while the arm is still braking away from its target. Let go of intake mid-swing and it can be near enough
+        // to the path's first waypoint yet still going down: dropping the elevator then drives the claw into the floor.
+        private bool ArmHeadingToTarget => _armVel * (_armTargetAngle - _armCmd) >= 0;
 
         private bool SuperstructureAtSetpoint(SpartansSetpoint setpoint)
         {
@@ -990,7 +1022,12 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
                 _algaeCreeping = false;
                 _faceAlignError = float.PositiveInfinity;
             }
-            if (centre) AlignToFaceCentre(algaeAlign ? AlgaeApproachZ() : _align.offset.z);
+            if (centre)
+            {
+                // Algae lines up on the claw, which sits off the robot's centre line; the align target is the robot's.
+                var clawSide = algaeAlign ? transform.InverseTransformPoint(algaeIntake.transform.position).x * (GetFacingReef() ? 1f : -1f) : 0f;
+                AlignToFaceCentre(algaeAlign ? AlgaeApproachZ() : _align.offset.z, clawSide);
+            }
             var level = CurrentSetpoint switch
             {
                 ReefscapeSetpoints.L1 => "L1",
@@ -1048,7 +1085,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             return false;
         }
 
-        private void AlignToFaceCentre(float offsetZ)
+        private void AlignToFaceCentre(float offsetZ, float clawSide)
         {
             var face = _reefFaces.Where(n => n && n.LeftNode && n.RightNode)
                 .OrderBy(n => (n.transform.position - transform.position).sqrMagnitude).FirstOrDefault();
@@ -1057,7 +1094,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Spartans._971
             var rotation = pole.rotation;
             if ((!GetFacingReef() && _align.enableBackwardsAlign) || !_align.enableForwardAlign) rotation *= Quaternion.Euler(0, 180, 0);
             var target = (face.LeftNode.transform.position + face.RightNode.transform.position) / 2 +
-                         pole.rotation * new Vector3(0, 0, offsetZ * 0.0254f);
+                         pole.rotation * new Vector3(-clawSide, 0, offsetZ * 0.0254f);
             _faceAlignError = Vector3.ProjectOnPlane(target - transform.position, Vector3.up).magnitude;
             AlignPositionMethod.Invoke(_align, new object[] { target, rotation * Quaternion.Euler(0, _align.rotation, 0) });
         }

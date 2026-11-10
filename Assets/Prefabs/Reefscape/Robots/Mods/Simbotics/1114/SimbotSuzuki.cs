@@ -47,30 +47,40 @@ namespace Prefabs.Reefscape.Robots.Mods.Simbotics._1114
         [SerializeField] private Collider[] funnelColliders;
 
         [Header("Eject speeds, m/s")]
-        [SerializeField] private float l1EjectSpeed = 1.2f;
+        [SerializeField] private float l1EjectSpeed = 0.7f;
         [SerializeField] private float l2EjectSpeed = 1.2f, l3EjectSpeed = 1.2f, l4EjectSpeed = 0.9f;
         [Tooltip("L1: the wheels' push as the tail leaves tips the coral forward over the trough's lip (m/s at its centre).")]
-        [SerializeField] private float l1ForwardKick = 1.2f;
-        [SerializeField] private float l1Tumble = 6f;
-        [SerializeField] private float bargeEjectSpeed = 2.75f, processorEjectSpeed = 1.8f, algaeDropSpeed = 1f;
+        [SerializeField] private float l1ForwardKick = 0.7f;
+        [SerializeField] private float l1Tumble = 3f;
+        [SerializeField] private float bargeEjectSpeed = 3.2f, processorEjectSpeed = 2.1f, algaeDropSpeed = 1.2f;
         [Tooltip("Reef-side reach: inches added to the auto align's offset for each coral level and for algae.")]
         [SerializeField] private float l1Align, l2Align, l3Align, l4Align, algaeAlign;
-        [Tooltip("Inches the auto align stands back while the lift goes up to L3 or L4.")]
+        [Tooltip("Inches the auto align stands back with no level chosen, and while the lift goes up to L3 or L4.")]
         [SerializeField] private float approachStandOff = 7f;
 
         [Header("Climber")]
         [Tooltip("The head's angle out from upright when the winch's slack is out (deg).")]
         [SerializeField] private float headOutAngle = 95f;
+        [Tooltip("Where the winch stops, from upright (deg): past 0 is on over the robot.")]
+        [SerializeField] private float headInAngle = -25f;
         [Tooltip("Winch: 115 motor rotations through 32.32:1 winds the head back up; deg/s of head.")]
         [SerializeField] private float winchRate = 45f;
-        [SerializeField] private Collider[] cageLatches;
         [SerializeField] private BoxCollider cageSeat;
         [SerializeField] private GenericAnimationJoint[] cageWheels;
+        [SerializeField] private Collider[] cageLatches;
         [SerializeField] private Transform[] latchVisuals;
+        [Tooltip("The wheels that pull an upright in: Up on the notch's + side, Down on its - side.")]
+        [SerializeField] private GenericJoint[] cageRollersUp;
+        [SerializeField] private GenericJoint[] cageRollersDown;
+        [SerializeField] private PidConstants cageRollerPid;
+        [SerializeField] private float cageRollerSpeed = 60f;
+        [SerializeField] private float cageWheelVisualSpeed = 500f;
+        [Tooltip("Their Lexan poles, out only while reaching for a cage.")]
+        [SerializeField] private GameObject cageFunnel;
 
         [Header("Funnel four-bar (m)")]
-        [Tooltip("Their linear servos: 0 to 95 mm pushes the lower link's gusset back and the knee breaks. Behind the Bumpers: 63:1, about 3 s (their code's 8 mm/s is stale).")]
-        [SerializeField] private float servoSpeed = 0.032f;
+        [Tooltip("Their linear servos: 0 to 95 mm pushes the lower link's gusset back and the knee breaks. Behind the Bumpers: about 3 s on the real robot; faster here at the owner's playtest.")]
+        [SerializeField] private float servoSpeed = 0.08f;
         [SerializeField] private float servoStroke = 0.095f;
         [Tooltip("Lower link's pivot to its gusset pin (r), and to the servo's fixed pin (d); pin to pin at 0 mm; gusset angle at 0 mm from the line to the fixed pin.")]
         [SerializeField] private float gussetRadius = 0.1136f, fixedPinDistance = 0.182f, servoLengthAtZero = 0.173f;
@@ -83,7 +93,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Simbotics._1114
         [SerializeField] private float rollerVisualSpeed = 1400f;
 
         [Header("Drive")]
-        [SerializeField] private float topSpeedDrag = 1.35f;
+        [SerializeField] private float topSpeedDrag = 1.8f;
 
         [Header("Sounds")]
         [SerializeField] private AudioClip rollerClip;
@@ -98,14 +108,17 @@ namespace Prefabs.Reefscape.Robots.Mods.Simbotics._1114
         private const float ArmStart = 89.5f, ArmSafeL3 = 68f, ArmSafeMidFront = 49f, ArmSafeHighAlgae = 35f, ArmSafeLowFront = -30f;
         private const float ElevatorHighSafe = 42f, ElevatorLowSafe = 34.5f, ElevatorIntakeSafe = 1.5f, ElevatorL2Safe = 8f;
         private const float ArmReefClear = -10f, ReefClearance = 1.5f; // deg; m from the reef's centre to the robot's
-        private const float DriveSlowHeight = 25f; // "slow to prevent us tipping": 25% drive, 50% turn above this
+        private const float DriveSlowHeight = 25f; // their "slow to prevent us tipping" starts here
+        private const float DriveSlowScale = 0.75f, TurnSlowScale = 0.9f; // theirs are 25% and 50%: far too much to drive at the owner's playtest
 
         private RobotGamePieceController<ReefscapeGamePiece, ReefscapeGamePieceData>.GamePieceControllerNode _coral, _algae;
         private SimbotSetpoint _target;
         private ReefscapeAutoAlign _align;
         private Vector3 _alignOffset;
+        private ReefscapeSetpoints _closedFor = ReefscapeSetpoints.Stow;
+        private float _windStartedAt = -10f;
         private DriveController _drive;
-        private float _driveTurn = 1f, _driveScale = 1f;
+        private float _driveTurn = -1f, _driveScale = 1f;
         private Rigidbody _robotBody;
         private ClimbScorer _climbScorer;
 
@@ -129,6 +142,8 @@ namespace Prefabs.Reefscape.Robots.Mods.Simbotics._1114
             arm.SetPid(armPid);
             funnelLink.SetPid(funnelPid);
             climber.SetPid(climberPid);
+            foreach (var r in cageRollersUp) r.SetPid(cageRollerPid);
+            foreach (var r in cageRollersDown) r.SetPid(cageRollerPid);
 
             _target = transport;
             _armCmd = ArmStart;
@@ -143,7 +158,6 @@ namespace Prefabs.Reefscape.Robots.Mods.Simbotics._1114
             _align = GetComponent<ReefscapeAutoAlign>();
             if (_align) _alignOffset = _align.offset;
             _drive = GetComponent<DriveController>();
-            if (_drive) _driveTurn = _drive.rotationSpeedMultiplier;
             _robotBody = GetComponent<Rigidbody>();
             _reefs = new[] { "BlueReef", "RedReef" }.Select(GameObject.Find).Where(g => g).Select(g => g.transform).ToArray();
             _climbScorer = GetComponent<ClimbScorer>();
@@ -178,24 +192,31 @@ namespace Prefabs.Reefscape.Robots.Mods.Simbotics._1114
             arm.UpdatePid(armPid);
             funnelLink.UpdatePid(funnelPid);
             climber.UpdatePid(climberPid);
+            foreach (var r in cageRollersUp) r.UpdatePid(cageRollerPid);
+            foreach (var r in cageRollersDown) r.UpdatePid(cageRollerPid);
             AimServos();
         }
 
         private void FixedUpdate()
         {
+            // It winds by itself once it has the cage, so a driver's climb press just after would stow it and drop the robot.
+            if (CurrentSetpoint == ReefscapeSetpoints.Stow && Time.time < _windStartedAt + 2f) SetState(ReefscapeSetpoints.Climbed);
             var hasCoral = _coral.HasPiece();
             var hasAlgae = _algae.HasPiece();
             var intaking = IntakeAction.IsPressed();
             var climbing = CurrentSetpoint is ReefscapeSetpoints.Climb or ReefscapeSetpoints.Climbed;
 
+            // a coral the wheels have caught goes on to the tongue whatever the driver does now: the arm waits for it
+            var feeding = coralIntake.hasGamePiece && !hasCoral;
             SelectTarget(hasCoral, hasAlgae);
+            if (feeding) _target = intakeCoral;
 
             var armNow = ArmAngle();
             var elevatorNow = ElevatorCode();
             var atIntake = _target == intakeCoral && Mathf.Abs(armNow - intakeCoral.armAngle) < 25f && elevatorNow < ElevatorIntakeSafe + 2f;
 
             // Station coral: the wheels at the funnel's throat and the kicker run once the arm is down at them.
-            var coralRun = CurrentSetpoint == ReefscapeSetpoints.Intake && CurrentRobotMode != ReefscapeRobotMode.Algae && !hasAlgae && !hasCoral;
+            var coralRun = feeding || CurrentSetpoint == ReefscapeSetpoints.Intake && CurrentRobotMode != ReefscapeRobotMode.Algae && !hasAlgae && !hasCoral;
             CurrentCoralStationMode.RequireIntaking = true;
             _coral.RequestIntake(coralIntake, coralRun && atIntake);
             LetFeedingCoralThrough();
@@ -261,7 +282,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Simbotics._1114
 
         // ---- the lift, with the interlocks from their LiftSubsystem
 
-        // the joint reads 0 at the start pose and 181.5 at the funnel; it never goes round the back (-90.5)
+        // the joint reads 0 at the start pose and 205.5 at the funnel; it never goes round the back (-90.5)
         private float ArmAngle() => ArmStart - (Mathf.Repeat(arm.GetSingleAxisAngle(JointAxis.X) + 90.5f, 360f) - 90.5f);
         private float ElevatorCode() => elevator.GetElevatorHeight() / CodeInch;
 
@@ -337,17 +358,28 @@ namespace Prefabs.Reefscape.Robots.Mods.Simbotics._1114
                 ReefscapeSetpoints.LowAlgae or ReefscapeSetpoints.HighAlgae => algaeAlign,
                 _ => 0f
             };
-            // Going up, the arm's tip would sweep through the tail of a coral already on the level below: stand off (their
-            // ApproachPosition) and close in once the lift is at height.
-            if (CurrentSetpoint is ReefscapeSetpoints.L3 or ReefscapeSetpoints.L4 &&
-                (Mathf.Abs(ElevatorCode() - _target.elevatorHeight) > 3f || Mathf.Abs(ArmAngle() - _target.armAngle) > 6f))
-                offset.z -= approachStandOff;
+            // With no level chosen yet the align waits at the stand-off point (their ApproachPosition). Going up to L3 or L4
+            // the arm's tip would sweep through the tail of a coral already on the level below, so it stays there until the
+            // lift is at height and the robot has turned square (or the coral comes in against the side of the post), then
+            // closes in and stays in.
+            var waiting = from is not (ReefscapeSetpoints.L1 or ReefscapeSetpoints.L2 or ReefscapeSetpoints.L3 or ReefscapeSetpoints.L4 or ReefscapeSetpoints.LowAlgae or ReefscapeSetpoints.HighAlgae);
+            if (CurrentSetpoint is ReefscapeSetpoints.L3 or ReefscapeSetpoints.L4)
+            {
+                var liftReady = Mathf.Abs(ElevatorCode() - _target.elevatorHeight) <= 3f && Mathf.Abs(ArmAngle() - _target.armAngle) <= 6f;
+                if (_closedFor != CurrentSetpoint && liftReady && YawRate() < 0.05f) _closedFor = CurrentSetpoint;
+                if (_closedFor != CurrentSetpoint) waiting = true;
+            }
+            else if (CurrentSetpoint != ReefscapeSetpoints.Place) _closedFor = ReefscapeSetpoints.Stow;
+            if (waiting) offset.z -= approachStandOff;
             // reef algae sits in the middle of a face, between its two branch poles; L1 goes in the trough there too
             // (their Drive.java treats "L1 and Algae" together)
             if (from is ReefscapeSetpoints.L1 or ReefscapeSetpoints.LowAlgae or ReefscapeSetpoints.HighAlgae)
                 offset.x += (AutoAlignLeftAction.IsPressed() ? 1f : AutoAlignRightAction.IsPressed() ? -1f : 0f) * 6.47f;
             _align.offset = offset;
         }
+
+        // turning only: the robot rocks on its wheels with the lift high, which isn't turning
+        private float YawRate() => Mathf.Abs(Vector3.Dot(_robotBody.angularVelocity, transform.up));
 
         private void PlacePiece()
         {
@@ -372,10 +404,12 @@ namespace Prefabs.Reefscape.Robots.Mods.Simbotics._1114
             }
 
             if (!_coral.HasPiece() || !_coral.controller) return;
-            // Place pressed while the auto align is still closing in from its stand-off: let it get there first
+            // Place pressed while the auto align is still closing in or turning square: let it finish first
             if (_placeAskedAt < 0f) _placeAskedAt = Time.time;
             var aligning = _align && (AutoAlignLeftAction.IsPressed() || AutoAlignRightAction.IsPressed());
-            if (aligning && _align.getDistance() > 0.015f && Time.time - _placeAskedAt < MaxPlaceWait) return;
+            // (the first steps after the press still read the distance to the stand-off: the align hasn't seen its new target)
+            var settling = aligning && (Time.time - _placeAskedAt < 0.06f || _align.getDistance() > 0.015f || YawRate() > 0.05f);
+            if (settling && Time.time - _placeAskedAt < MaxPlaceWait) return;
             var coralBody = _coral.controller.GetComponent<Rigidbody>();
             if (!_coral.ReleaseGamePieceWithForce(Vector3.zero)) return;
             if (_feeding) SetPassing(_feeding, false, funnelColliders);
@@ -497,8 +531,8 @@ namespace Prefabs.Reefscape.Robots.Mods.Simbotics._1114
 
         // ---- the climb
 
-        // A press folds the funnel down (their two servos, about 3 s) and then the head drops out on its elastics; driving a
-        // cage upright into the head's fork seats it past the latches; the next press winds the head back up, which turns
+        // A press folds the funnel down (their two servos) and then the head drops out on its elastics. Driving at a cage,
+        // the funnel and the wheels bring an upright in; the latches close over it and the head winds back up, which turns
         // the cage in over the robot and lifts it. Nothing holds but the fork's and the latches' colliders.
         private void UpdateClimb(bool climbing)
         {
@@ -516,7 +550,7 @@ namespace Prefabs.Reefscape.Robots.Mods.Simbotics._1114
 
             if (running)
             {
-                if (CurrentSetpoint == ReefscapeSetpoints.Climbed) _head = Mathf.MoveTowards(_head, 0f, winchRate * dt);
+                if (CurrentSetpoint == ReefscapeSetpoints.Climbed) _head = Mathf.MoveTowards(_head, headInAngle, winchRate * dt);
                 else if (CurrentSetpoint == ReefscapeSetpoints.Climb) _head = _servo >= servoStroke ? headOutAngle : 0f;
                 else _head = 0f;
             }
@@ -530,12 +564,25 @@ namespace Prefabs.Reefscape.Robots.Mods.Simbotics._1114
                 foreach (var hit in Physics.OverlapBox(c, half, cageSeat.transform.rotation))
                     if (hit.CompareTag("Cage")) { _latched = true; break; }
             }
-            foreach (var l in cageLatches) if (l) l.enabled = _latched;
-            foreach (var v in latchVisuals) if (v) v.localRotation = Quaternion.Euler(_latched ? 0f : 35f, 0f, 0f);
             if (_latched && !_wasLatched && cageLatchClip) _oneShot.PlayOneShot(cageLatchClip);
             _wasLatched = _latched;
+            if (_latched && CurrentSetpoint == ReefscapeSetpoints.Climb)
+            {
+                _windStartedAt = Time.time;
+                SetState(ReefscapeSetpoints.Climbed);
+            }
 
-            var wheels = running && CurrentSetpoint == ReefscapeSetpoints.Climb && !_latched ? rollerVisualSpeed : 0f;
+            foreach (var l in cageLatches) if (l) l.enabled = _latched;
+            foreach (var v in latchVisuals) if (v) v.localRotation = Quaternion.Euler(_latched ? 0f : 35f, 0f, 0f);
+
+            var reaching = CurrentSetpoint == ReefscapeSetpoints.Climb && _head > 30f;
+            if (cageFunnel && cageFunnel.activeSelf != reaching) cageFunnel.SetActive(reaching);
+
+            // only until it's caught: wound in hard against the seat it's nearer the pivot and the lift is less
+            var spin = running && CurrentSetpoint == ReefscapeSetpoints.Climb && !_latched ? cageRollerSpeed : 0f;
+            foreach (var r in cageRollersUp) r.SetAngularVelocity(-spin).WithAxis(JointAxis.X);
+            foreach (var r in cageRollersDown) r.SetAngularVelocity(spin).WithAxis(JointAxis.X);
+            var wheels = running && CurrentSetpoint == ReefscapeSetpoints.Climb ? cageWheelVisualSpeed : 0f;
             foreach (var w in cageWheels) if (w) w.VelocityRoller(wheels);
         }
 
@@ -587,16 +634,18 @@ namespace Prefabs.Reefscape.Robots.Mods.Simbotics._1114
             else if (!on && a.isPlaying) a.Stop();
         }
 
-        // Their teleop: 25% drive and 50% turn above 25 code inches. While winding on the cage, no driving at all.
+        // A little slower with the lift high (their 25 code inches). While winding on the cage, no driving at all.
         private void UpdateDrive(float elevatorNow, bool climbing)
         {
-            // MoSim's body drag of 3 tops every robot out near 3.2 m/s. Their code runs 4.68 m/s (6.82:1, Kraken X60): less
-            // drag at speed reaches it, and low-speed handling and the auto align stay as they are.
+            // MoSim's body drag of 3 tops every robot out near 3.2 m/s. Their code runs 4.68 m/s (6.82:1, Kraken X60), which was
+            // too quick to drive at the owner's playtest: this much less drag at speed gives 3.6, low-speed handling unchanged.
             _robotBody.drag = Mathf.Lerp(3f, topSpeedDrag, Mathf.InverseLerp(2.4f, 3f, _robotBody.velocity.magnitude));
             // their slowdown is on the driver's sticks: the auto align isn't slowed by it
             var slow = elevatorNow > DriveSlowHeight && !AutoAlignLeftAction.IsPressed() && !AutoAlignRightAction.IsPressed();
-            var scale = CurrentSetpoint == ReefscapeSetpoints.Climbed ? 0f : climbing ? 0.5f : slow ? 0.25f : 1f;
-            var turn = CurrentSetpoint == ReefscapeSetpoints.Climbed ? 0f : climbing ? 0.5f : slow ? 0.5f : 1f;
+            var scale = CurrentSetpoint == ReefscapeSetpoints.Climbed ? 0f : climbing ? 0.5f : slow ? DriveSlowScale : 1f;
+            var turn = CurrentSetpoint == ReefscapeSetpoints.Climbed ? 0f : climbing ? 0.5f : slow ? TurnSlowScale : 1f;
+            // the driver's turn setting: the controller reads it in its own Start, which can come after this script's
+            if (_drive && _driveTurn < 0f) _driveTurn = _drive.rotationSpeedMultiplier;
             if (_drive && !Mathf.Approximately(scale, _driveScale))
             {
                 _driveScale = scale;

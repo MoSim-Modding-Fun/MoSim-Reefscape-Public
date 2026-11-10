@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c23ca804328a41480b555336fedcddb3, type: 3}
   m_Name: Net Approach
   m_EditorClassIdentifier: 
-  elevatorHeight: 0.05
+  elevatorHeight: 0.25
   armAngle: 46.4
   intakeAngle: 85
   climberAngle: 0
